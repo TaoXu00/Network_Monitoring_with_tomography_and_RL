@@ -22,6 +22,7 @@ class main:
         self.MBA=multi_armed_bandit.multi_armed_bandit(self.topo) #pass the topology
 
     def run_tomography(self, G, monitors):
+        print("Runing network tomography....")
         path_list = self.topo.getPath(G, monitors)
         path_matrix = self.tomography.construct_matrix(G, path_list)
         b = self.tomography.end_to_end_measurement(G, path_list)
@@ -89,9 +90,9 @@ class main:
 
 
 
-mynetwork=main(20000)
-G =mynetwork.creat_topology(10, 0.5)
-#mynetwork.tomography_verification(G)
+mynetwork=main(2000)
+G =mynetwork.creat_topology(15, 0.25)
+#mynetwork.tomography_verification(G)   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
 monitors=mynetwork.topo.deploy_monitor(G,2,[])
 trimedG=mynetwork.topo.trimNetwrok(G, monitors)
 mynetwork.run_tomography(trimedG,monitors)

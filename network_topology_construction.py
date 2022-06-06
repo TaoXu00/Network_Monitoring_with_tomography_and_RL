@@ -47,22 +47,22 @@ class network_topology:
 
         #Topology 4: randomized network topology
         G=nx.erdos_renyi_graph(n, p)
+        print("Graph Created! ")
         #seed(1)
 
         #Topology 5, fixed graph for multi-armed-bandits algorithm
 
         #G.add_weighted_edges_from([(0, 1, 1), (0, 2, 1), (0, 3, 1), (1, 4, 1),(1,2,1),(2,5,1), (2, 3, 1),(3,6,1), (4,7,1),(4,5,1),(5,6,1),(5,8,1),(6,9,1),(7,10,1),
         #                           (7,8,1), (8,10,1),(8,9,1), (9,10,1)])
-        '''
+
         for edge in G.edges:
             #G[edge[0]][edge[1]]['delay']=randint(1,10)
             G[edge[0]][edge[1]]['weight']=1
-        #Dict_edge_scales=[]
-        '''
-        self.Dict_edge_scales=self.construct_link_delay_distribution(G)
-        #print(Dict_edge_scales)
-#       self.draw_edge_delay_sample(G,self.size)
-        self.assign_link_delay(G, self.Dict_edge_scales)
+        print("all the edge weights in the graph are assigned to 1")
+        self.construct_link_delay_distribution(G)
+        print(f"Edge delay scales: {self.Dict_edge_scales}")
+        self.draw_edge_delay_sample(G)
+        self.assign_link_delay(G)
         #show the topology graph
         nx.draw(G, with_labels=True)
         plt.show()
@@ -90,30 +90,31 @@ class network_topology:
         scales=np.random.randint(1, 20, len(G.edges))
 
         #scales=np.array([18, 3, 9 ,10, 9, 15, 18, 13, 15, 18, 4, 12, 7, 2, 16, 6, 6, 5])
-        Dict_edge_scales={}
         i=0
         for edge in G.edges:
            self.Dict_edge_scales[edge]=scales[i]
            G[edge[0]][edge[1]]['delay-mean']=scales[i]
            i=i+1
-        print(f"scales:{scales}")
-        return Dict_edge_scales
+        #print(f"Dict_edge_scales:{self.Dict_edge_scales}")
 
-    def draw_edge_delay_sample(self, G, size):
+    def draw_edge_delay_sample(self, G):
         for edge in G.edges:
             self.Dict_edge_delay_sample[edge]=[]
         for edge in G.edges:
             # G[edge[0]][edge[1]]['delay'] = np.random.exponential(scale=Dict_edge_scales[edge], size=1)[0]
-            sample = np.random.exponential(scale=self.Dict_edge_scales[edge], size=(1, size))[0]
-            self.Dict_edge_delay_sample [edge]=sample
+            scale=self.Dict_edge_scales[edge]
+            sample = np.random.exponential(scale=self.Dict_edge_scales[edge], size=(1, self.time))[0]
+            self.Dict_edge_delay_sample[edge]=sample
             #print(f"draw sample for edge:({edge[0]},{edge[1]})")
             #print(self.Dict_edge_delay_sample [edge])
             #print(np.average(sample))
-        average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges ]
+        print(f"Draw {self.time} delay examples from exponential distribution for each edge.")
+        average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
         print(f"edge delay sample average {average}")
 
 
-    def assign_link_delay(self,G, Dict_edge_scales):
+    def assign_link_delay(self,G):
+        '''
         for edge in G.edges:
              G[edge[0]][edge[1]]['delay']=1
         '''
@@ -123,9 +124,9 @@ class network_topology:
             #print(f"type: {type(self.Dict_edge_delay_sample[edge])}")
             self.Dict_edge_delay_sample[edge]=np.delete(self.Dict_edge_delay_sample[edge],0)
             #print(f"after deletion{self.Dict_edge_delay_sample[edge]}")
-        #print(f"Assigned Delay {G.edges.data()}")
+        print(f"Assigned Delay {G.edges.data()}")
         #####to do  remove the first element and run it again.
-        '''
+
         # print(f"updated the edge delay: {G.edges.data()}")
 
     def deploy_monitor(self,G, n, monitor_candidate_list):
@@ -187,6 +188,7 @@ class network_topology:
         :param G: the original topology
         :return: the trimed topology
         '''
+        print("Trim the network...............")
         all_paths_list=[]
         all_paths_set=set()
         nodepairs = [(monitors[i], monitors[j]) for i in range(len(monitors)) for j in range(i + 1, len(monitors))]
@@ -198,7 +200,7 @@ class network_topology:
             for path in map(nx.utils.pairwise, paths):
                for edge in list(path):
                     all_paths_set.add(edge)
-        print(f"end to end paths set: {all_paths_set}")
+        #print(f"end to end paths set: {all_paths_set}")
         edges=list(G.edges)
         uncovered_edges=[]
         for edge_e in edges:
@@ -208,10 +210,10 @@ class network_topology:
                     uncovered_edges.append(edge_e)
 
         print(f"uncovered edges: {uncovered_edges}")
-        old_G=G
+        old_G=G.copy()   #store the original network topology
         for edge in uncovered_edges:
             G.remove_edge(*edge)
-        print(list(G.edges))
+        print(f"after elimination the Graph has edges {len(list(G.edges))}, {list(G.edges)}")
         return G
 
 

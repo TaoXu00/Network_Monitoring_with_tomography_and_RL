@@ -17,8 +17,8 @@ class multi_armed_bandit:
     # main(100, 0.5)
     def __init__(self, topo):
         self.topo=topo
-        self.Dict_edge_theta = {}
-        self.Dict_edge_m = {}
+        self.Dict_edge_theta = {}   #the observed actual average delay-mean for each edge
+        self.Dict_edge_m = {}       #the counter for how many times this edge has been observed
         self.t=1
     def Initialize(self, G, monitors):
         '''
@@ -39,13 +39,15 @@ class multi_armed_bandit:
         total_regrets = []
         sample_delays = []
 
-        monitor_pair_list=combinations(monitors, 2)
-        print("initializing..........")
-        for edge in G.edges:   #traversal each link to guarantee every link is covered at least once
-            n1 = edge[0]
-            n2 = edge[1]
+        monitor_pair_list=list(combinations(monitors, 2))
+
+        print("Multi Armed Bandits Initializing..........")
+        for edge_G in G.edges:   #traversal each link to guarantee every link is covered at least once
+            n1 = edge_G[0]
+            n2 = edge_G[1]
+            print(f"t= {self.t} initializing edge {n1}, {n2}")
             for monitor_pair in monitor_pair_list:
-                print(monitor_pair[0], monitor_pair[1])
+                print(f"check with the monitor_pair: {monitor_pair}")
                 source = monitor_pair[0]
                 destination = monitor_pair[1]
                 optimal_delay = self.optimal_path(G, source, destination)   #don't know why we need to find the optimal delay
@@ -57,20 +59,55 @@ class multi_armed_bandit:
                 # print(delays)
                 sample_delays.append(delays)
                 # index of time slot
-                shortest_path_l = nx.shortest_path(G, source=source, target=n1, weight='weight',
-                                                 method='dijkstra')
-                print(f" t = {self.t}, shortest path from {source} to {n1}: {shortest_path_l}")
-                shortest_path_r = nx.shortest_path(G, source=n1, target=destination, weight='weight',
-                                                 method='dijkstra')
-                print(f" t = {self.t}, shortest path from {source} to {n1}: {shortest_path_l}")
-                if(len(shortest_path_r)!=0 and len(shortest_path_r)!=0):
-                    pathpair_list_l=self.construct_pathPair_from_path(shortest_path_l)
-                    pathpair_list_r=self.construct_pathPair_from_path(shortest_path_r)
-                    pathpair_list=pathpair_list_l+pathpair_list_r
-                    self.update_MBA_variabels(pathpair_list)
-                else:
+                found=self.find_path(G, edge_G, n1, n2, source, destination)
+                if found == 1:  # does not find the path between this monitor pair
+                    print(f"found the path with source {source} destination {destination} and left_node {n1} right_node {n2}")
                     break
+                elif found ==2:
+                    print(f"return 2 in Check1")
+                    continue
+                elif found==3:   #the right node is the same as the source node, now check the edge (n2, n1)
+                    found2=self.find_path(G, edge_G, n2, n1, source, destination)
+                    if found2==2:
+                        continue
+                    elif found2==1:
+                        print(f"found the path with source {source} destination {destination} and left_node {n2} right_node {n1}")
+                        break
+                #elif found==0:
+                #    self.find_path(G, edge_G, n1, n2, source, destination)
 
+                '''
+                G_l=G.copy()
+                G_l.remove_node(destination)
+                if(n2 in G_l.nodes):  # check whether n2 is the same as the destination node or not
+                    G_l.remove_node(n2)  #if not, remove node n2 to avoid the path loop
+                if(n1 not in G_l.nodes):   #check whether n1 is the same as the destination node or not
+                    print(f"edge {edge} is not in the path between monitor pair {monitor_pair}, try next...")
+                    continue
+                shortest_path_l = nx.shortest_path(G_l, source=source, target=n1, weight='weight',
+                                                 method='dijkstra')
+                print(f" t = {self.t}, shortest path from {source} to {n1}: {shortest_path_l}")
+                pathpair_list_l = self.construct_pathPair_from_path(shortest_path_l)
+                G_r=G.copy()
+                #print(G_r.nodes)
+                for edge in pathpair_list_l:
+                    if edge in G_r.edges:
+                        G_r.remove_edge(edge[0], edge[1])
+                    else:
+                        G_r.remove_edge(edge[1], edge[0])
+                G_r.remove_node(source)
+                shortest_path_r = nx.shortest_path(G_r, source=n2, target=destination, weight='weight',
+                                                 method='dijkstra')
+                print(f" t = {self.t}, shortest path from {n2} to {destination}: {shortest_path_r}")
+                if(len(shortest_path_r)!=0 and len(shortest_path_r)!=0):
+                    pathpair_list_r=self.construct_pathPair_from_path(shortest_path_r)
+                    pathpair_list_l.append(edge_G)
+                    pathpair_list=pathpair_list_l+pathpair_list_r
+                    self.update_MBA_variabels(G,pathpair_list)
+                    print(f"The MAB variables are updated for edge {pathpair_list}!") #it works for the first edge, check why it does not go to the for loop.
+                else:
+                    continue
+                '''
 
                 # observe the links in the returned shortest path and update the theta vector and m vector
                 total_weight = 0
@@ -79,23 +116,17 @@ class multi_armed_bandit:
                 #    print("Detect a new shortest path")
                 #    rewards=0
                 #    shortest_path_list.append(shortest_path)
-                rewards = 0
-
-                total_rewards.append(rewards)
-                # print(f"total_rewards: {total_rewards}")
-                regret = sum(total_rewards) - self.t * optimal_delay
-                total_regrets.append(regret)
-                # print(f"regret: {regret}")
-                # print(f"total_regrets: {total_regrets}")
-                # print(Dict_edge_theta)
-                # print(Dict_edge_m)
-                self.topo.assign_link_delay(G, self.topo.Dict_edge_scales)
-                self.t = self.t + 1
-                counter = 0
-                for item in self.Dict_edge_m.values():
-                    if item != 0:
-                        counter = counter + 1
-
+            rewards = 0
+            total_rewards.append(rewards)
+            # print(f"total_rewards: {total_rewards}")
+            regret = sum(total_rewards) - self.t * optimal_delay
+            total_regrets.append(regret)
+            # print(f"regret: {regret}")
+            # print(f"total_regrets: {total_regrets}")
+            # print(Dict_edge_theta)
+            # print(Dict_edge_m)
+            self.topo.assign_link_delay(G)
+            self.t = self.t + 1
 
             '''
             #old method.....
@@ -171,10 +202,48 @@ class multi_armed_bandit:
                 for item in Dict_edge_m.values():
                     if item != 0:
                         counter = counter + 1
+        '''
         print(
             "===============================Initialization is finished======================================================== ")
-        return Dict_edge_theta, Dict_edge_m, t, total_rewards, total_regrets
-        '''
+        #return Dict_edge_theta, Dict_edge_m, t, total_rewards, total_regrets
+
+    def find_path(self, G, edge_G, left_node, right_node, source, destination):
+        G_l=G.copy()
+        G_l.remove_node(right_node)
+        if(destination in G_l.nodes):
+            G_l.remove_node(destination)
+        #if(source not in G_l.nodes or left_node not in G_l.nodes):
+        #    return 0
+        if(source in G_l.nodes and left_node  in G_l.nodes):
+            shortest_path_l = nx.shortest_path(G_l, source=source, target=left_node, weight='weight',
+                                               method='dijkstra')
+            print(f"shortest path from {source} to {left_node}: {shortest_path_l}")
+            pathpair_list_l = self.construct_pathPair_from_path(shortest_path_l)
+            G_r = G.copy()
+            # print(G_r.nodes)
+            for edge in pathpair_list_l:
+                if edge in G_r.edges:
+                    G_r.remove_edge(edge[0], edge[1])
+                else:
+                    G_r.remove_edge(edge[1], edge[0])
+            G_r.remove_node(left_node)
+            if(source in G_r.nodes):
+                G_r.remove_node(source)
+            shortest_path_r = nx.shortest_path(G_r, source=right_node, target=destination, weight='weight',
+                                               method='dijkstra')
+            print(f"shortest path from {right_node} to {destination}: {shortest_path_r}")
+            pathpair_list_r = self.construct_pathPair_from_path(shortest_path_r)
+            pathpair_list_l.append(edge_G)
+            pathpair_list = pathpair_list_l + pathpair_list_r
+            if (len(pathpair_list) != 0):
+                self.update_MBA_variabels(G, pathpair_list)
+                print(f"The MAB variables are updated for edge {pathpair_list}!")  # it works for the first edge, check why it does not go to the for loop.
+                return 1
+            else:
+                return 2  #there is no path between these two monitors which can cover this edge
+        else:
+            return 3
+
 
     def construct_pathPair_from_path(self, path):
         pathpair = []
