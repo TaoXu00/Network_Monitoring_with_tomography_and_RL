@@ -13,6 +13,9 @@ import math
 from sympy import nsimplify
 from sympy.matrices import Matrix
 class network_tomography:
+    def __init__(self, logger):
+        self.logger=logger
+
     def end_to_end_measurement(self, G, path_list):
         path_delays=[]
         for path in path_list:
@@ -80,12 +83,12 @@ class network_tomography:
         else:
             A=np.array(path_matrix,dtype=float)
             rank = np.linalg.matrix_rank(A)
-            print(f"A(path): rank is: {rank}")
+            self.logger.debug(f"A(path): rank is: {rank}")
             #Matrix(b).applyfunc(nsimplify)
             M=np.concatenate((A,b.T),axis=1)
-            print(M)
+            self.logger.debug(M)
             rank = np.linalg.matrix_rank(M)
-            print(f"M(path combined with measurement): rank is: {rank}")
+            self.logger.debug(f"M(path combined with measurement): rank is: {rank}")
             m_rref, inds = sympy.Matrix(M).rref(iszerofunc=lambda x: abs(x) < 10**-10)
             #m_rref, inds = sympy.Matrix(M).rref()
             (rm, cm) = m_rref.shape
@@ -97,7 +100,7 @@ class network_tomography:
             for i in inds:
                 if i in uninds:
                     uninds.remove(i)
-        print(f"the free variables indexes are: {uninds}")
+        self.logger.info(f"the free variables indexes are: {uninds}")
         #print(f"the m_rref {m_rref}")
         return m_rref, list(inds), uninds
     '''
@@ -156,14 +159,13 @@ class network_tomography:
             #x=np.round(x[0])
             #xf=list(np.round(x[0]))
         #print(f"the delay inference is: {x[0]}")
-        count=0
 
-        '''
-        for i in x:
-            if i>=0.9:
-                #print(i)
-                count = count + 1
-        '''
+
+        for i in range(0,len(x[0])):
+            if x[0][i]<=10**(-3):
+                x[0][i]=0
+
+        self.logger.debug(f"x= {x}")
         count=np.count_nonzero(x)
-        print(f"{count} edges are computed")
+        self.logger.info(f"{count} edges are computed")
         return x,count

@@ -12,14 +12,20 @@ import math
 import seaborn as sns
 import network_topology_construction as topo
 from itertools import combinations
-
+import plotter as plotter
 class multi_armed_bandit:
     # main(100, 0.5)
-    def __init__(self, topo):
+    def __init__(self, topo, logger, directory):
         self.topo=topo
+        self.plotter=plotter.plotter(directory)
         self.Dict_edge_theta = {}   #the observed actual average delay-mean for each edge
         self.Dict_edge_m = {}       #the counter for how many times this edge has been observed
         self.t=1
+        self.logger=logger
+        self.directory=directory
+        self.edge_delay_difference_list=[]
+        self.edge_exploration_times=[]
+
     def Initialize(self, G, monitors):
         '''
         :param G: The network topology
@@ -35,22 +41,22 @@ class multi_armed_bandit:
         for edge in G.edges:
             self.Dict_edge_m[edge] = 0
 
-        total_rewards = []   #don't know what to do with these three variables
+        total_rewards = []   #in the current implementation, it is for only one pair of monitors
         total_regrets = []
         sample_delays = []
 
         monitor_pair_list=list(combinations(monitors, 2))
 
-        print("Multi Armed Bandits Initializing..........")
+        self.logger.info("Multi Armed Bandits Initializing..........")
         for edge_G in G.edges:   #traversal each link to guarantee every link is covered at least once
             n1 = edge_G[0]
             n2 = edge_G[1]
-            print(f"t= {self.t} initializing edge {n1}, {n2}")
+            self.logger.debug(f"t= {self.t} initializing edge {n1}, {n2}")
             for monitor_pair in monitor_pair_list:
-                print(f"check with the monitor_pair: {monitor_pair}")
+                self.logger.debug(f"check with the monitor_pair: {monitor_pair}")
                 source = monitor_pair[0]
                 destination = monitor_pair[1]
-                optimal_delay = self.optimal_path(G, source, destination)   #don't know why we need to find the optimal delay
+                optimal_delay, optimal_path= self.optimal_path(G, source, destination)   #don't know why we need to find the optimal delay
                 # find the shortest path between source to n1 and n2 to destination
                 '''store the sampled delay for each link'''
                 delays = []
@@ -59,153 +65,46 @@ class multi_armed_bandit:
                 # print(delays)
                 sample_delays.append(delays)
                 # index of time slot
-                found=self.find_path(G, edge_G, n1, n2, source, destination)
+                found, rewards=self.find_path(G, edge_G, n1, n2, source, destination)
                 if found == 1:  # does not find the path between this monitor pair
-                    print(f"found the path with source {source} destination {destination} and left_node {n1} right_node {n2}")
+                    self.logger.debug(f"found the path with source {source} destination {destination} and left_node {n1} right_node {n2}")
                     break
                 elif found ==2:
-                    print(f"return 2 in Check1")
+                    self.logger.debug(f"return 2 in Check1")
                     continue
                 elif found==3:   #the right node is the same as the source node, now check the edge (n2, n1)
-                    found2=self.find_path(G, edge_G, n2, n1, source, destination)
-                    if found2==2:
+                    self.logger.debug("return 3 in check 1")
+                    found_inverse, rewards=self.find_path(G, edge_G, n2, n1, source, destination)
+                    if found_inverse==2:
+                        self.logger.debug("return 2 in check 2")
                         continue
-                    elif found2==1:
-                        print(f"found the path with source {source} destination {destination} and left_node {n2} right_node {n1}")
+                    elif found_inverse==1:
+                        self.logger.debug(f"found the path with source {source} destination {destination} and left_node {n2} right_node {n1}")
                         break
-                #elif found==0:
-                #    self.find_path(G, edge_G, n1, n2, source, destination)
 
-                '''
-                G_l=G.copy()
-                G_l.remove_node(destination)
-                if(n2 in G_l.nodes):  # check whether n2 is the same as the destination node or not
-                    G_l.remove_node(n2)  #if not, remove node n2 to avoid the path loop
-                if(n1 not in G_l.nodes):   #check whether n1 is the same as the destination node or not
-                    print(f"edge {edge} is not in the path between monitor pair {monitor_pair}, try next...")
-                    continue
-                shortest_path_l = nx.shortest_path(G_l, source=source, target=n1, weight='weight',
-                                                 method='dijkstra')
-                print(f" t = {self.t}, shortest path from {source} to {n1}: {shortest_path_l}")
-                pathpair_list_l = self.construct_pathPair_from_path(shortest_path_l)
-                G_r=G.copy()
-                #print(G_r.nodes)
-                for edge in pathpair_list_l:
-                    if edge in G_r.edges:
-                        G_r.remove_edge(edge[0], edge[1])
-                    else:
-                        G_r.remove_edge(edge[1], edge[0])
-                G_r.remove_node(source)
-                shortest_path_r = nx.shortest_path(G_r, source=n2, target=destination, weight='weight',
-                                                 method='dijkstra')
-                print(f" t = {self.t}, shortest path from {n2} to {destination}: {shortest_path_r}")
-                if(len(shortest_path_r)!=0 and len(shortest_path_r)!=0):
-                    pathpair_list_r=self.construct_pathPair_from_path(shortest_path_r)
-                    pathpair_list_l.append(edge_G)
-                    pathpair_list=pathpair_list_l+pathpair_list_r
-                    self.update_MBA_variabels(G,pathpair_list)
-                    print(f"The MAB variables are updated for edge {pathpair_list}!") #it works for the first edge, check why it does not go to the for loop.
-                else:
-                    continue
-                '''
 
-                # observe the links in the returned shortest path and update the theta vector and m vector
-                total_weight = 0
-
-                # if shortest_path not in shortest_path_list:
-                #    print("Detect a new shortest path")
-                #    rewards=0
-                #    shortest_path_list.append(shortest_path)
-            rewards = 0
             total_rewards.append(rewards)
-            # print(f"total_rewards: {total_rewards}")
+            self.logger.debug(f"total_rewards: {total_rewards}")
             regret = sum(total_rewards) - self.t * optimal_delay
             total_regrets.append(regret)
-            # print(f"regret: {regret}")
-            # print(f"total_regrets: {total_regrets}")
-            # print(Dict_edge_theta)
-            # print(Dict_edge_m)
+            self.logger.debug(f"regret: {regret}")
+            self.logger.debug(f"total_regrets: {total_regrets}")
             self.topo.assign_link_delay(G)
             self.t = self.t + 1
 
-            '''
-            #old method.....
-            num = len(list(nx.all_simple_paths(G, source=source, target=destination)))
-            print(f"the total path number is {num}")
-            # maintain t,wo vectors (1*N(#of edge)), theta and m. theta is the average(sample mean) of all the observed values of Xi up to the
-            # current time-slot, m is the number of times that Xi has been observed up to the current time-slot.
-            Dict_edge_theta = {}
-            Dict_edge_m = {}
-            for edge in G.edges:
-                Dict_edge_theta[edge] = 0
-            for edge in G.edges:
-                Dict_edge_m[edge] = 0
-
-            counter = 0
-            t = 1
-            total_rewards = []
-            total_regrets = []
-            sample_delays = []
-            print("initializing..........")
-            for edge in G.edges:
-                n1=edge[0]
-                n2=edge[1]
-
-
-
-            while (counter != len(G.edges)):
-                #store the sampled delay for each link
-                delays = []
-                for edge in G.edges:
-                    delays.append(G[edge[0]][edge[1]]['delay'])
-                # print(delays)
-                sample_delays.append(delays)
-                # index of time slot
-                shortest_path = nx.shortest_path(G, source=source, target=destination, weight='weight', method='dijkstra')
-                print(f" t = {t}, shortest path: {shortest_path}")
-                # observe the links in the returned shortest path and update the theta vector and m vector
-                total_weight = 0
-                pathpair = []
-                for i in range(len(shortest_path) - 1):
-                    if (shortest_path[i], shortest_path[i + 1]) in Dict_edge_theta:
-                        pathpair.append((shortest_path[i], shortest_path[i + 1]))
-                    else:
-                        pathpair.append((shortest_path[i + 1], shortest_path[i]))
-                # if shortest_path not in shortest_path_list:
-                #    print("Detect a new shortest path")
-                #    rewards=0
-                #    shortest_path_list.append(shortest_path)
-                rewards = 0
-                for edge in pathpair:
-                    #print(f"edge {edge}")
-                    Dict_edge_theta[edge] = (Dict_edge_theta[edge] + G[edge[0]][edge[1]]['delay']) / (Dict_edge_m[edge] + 1)
-                    Dict_edge_m[edge] = Dict_edge_m[edge] + 1
-                    #print(f"G[edge[0]][edge[1]]: {G[edge[0]][edge[1]]}")
-                    total_weight += G[edge[0]][edge[1]]['weight']
-                    G[edge[0]][edge[1]]['weight'] += random.randint(1, 5)
-                    G.edges.data()
-                    rewards += G[edge[0]][edge[1]]['delay']
-                #print(f"Dict_edge_m: {Dict_edge_m}")
-                #print(f"Dict_edge_theta[edge]: {Dict_edge_theta}")
-                #print(f"rewards: {rewards}")
-                total_rewards.append(rewards)
-                #print(f"total_rewards: {total_rewards}")
-                regret = sum(total_rewards) - t * optimal_delay
-                total_regrets.append(regret)
-                # print(f"regret: {regret}")
-                # print(f"total_regrets: {total_regrets}")
-                # print(Dict_edge_theta)
-                # print(Dict_edge_m)
-                self.topo.assign_link_delay(G, Dict_edge_scales)
-                t = t + 1
-                counter = 0
-                for item in Dict_edge_m.values():
-                    if item != 0:
-                        counter = counter + 1
-        '''
-        print(
+        self.logger.info(
             "===============================Initialization is finished======================================================== ")
-        #return Dict_edge_theta, Dict_edge_m, t, total_rewards, total_regrets
+        self.plotter.plot_edge_delay_difference(G, self.Dict_edge_theta)
+        delay_difference=[]
+        for edge in G.edges:
+            delay_difference.append(abs(self.Dict_edge_theta[edge]-G[edge[0]][edge[1]]['delay_mean']))
+        self.edge_delay_difference_list.append(delay_difference)
+        plt.savefig(self.directory + 'delay difference from mean after initialization', format="PNG", dpi=300, bbox_inches='tight')
+        self.plotter.plot_edge_exploitation_times_bar('After initialization',self.Dict_edge_m)
+        self.edge_exploration_times.append(self.Dict_edge_theta.values())
+        plt.savefig(self.directory + '# of edge exploration after initialization ', format="PNG", dpi=300,
+                    bbox_inches='tight')
+        return total_rewards, total_regrets, optimal_delay
 
     def find_path(self, G, edge_G, left_node, right_node, source, destination):
         G_l=G.copy()
@@ -215,34 +114,46 @@ class multi_armed_bandit:
         #if(source not in G_l.nodes or left_node not in G_l.nodes):
         #    return 0
         if(source in G_l.nodes and left_node  in G_l.nodes):
-            shortest_path_l = nx.shortest_path(G_l, source=source, target=left_node, weight='weight',
-                                               method='dijkstra')
-            print(f"shortest path from {source} to {left_node}: {shortest_path_l}")
-            pathpair_list_l = self.construct_pathPair_from_path(shortest_path_l)
-            G_r = G.copy()
-            # print(G_r.nodes)
-            for edge in pathpair_list_l:
-                if edge in G_r.edges:
-                    G_r.remove_edge(edge[0], edge[1])
-                else:
-                    G_r.remove_edge(edge[1], edge[0])
+            try:
+                shortest_path_l = nx.shortest_path(G_l, source=source, target=left_node, weight='weight',
+                                                   method='dijkstra')
+                self.logger.debug(f"shortest path from {source} to {left_node}: {shortest_path_l}")
+                pathpair_list_l = self.construct_pathPair_from_path(shortest_path_l)
+                G_r = G.copy()
+                # print(G_r.nodes)
+                for edge in pathpair_list_l:
+                    if edge in G_r.edges:
+                        G_r.remove_edge(edge[0], edge[1])
+                    else:
+                        G_r.remove_edge(edge[1], edge[0])
+            except Exception as e:
+                self.logger.error(str(e)+"occurred, try the inversed direction.")
+                return 3, 0
             G_r.remove_node(left_node)
             if(source in G_r.nodes):
                 G_r.remove_node(source)
-            shortest_path_r = nx.shortest_path(G_r, source=right_node, target=destination, weight='weight',
+            if (destination in G_r.nodes and right_node in G_r.nodes):
+                try:
+                    shortest_path_r = nx.shortest_path(G_r, source=right_node, target=destination, weight='weight',
                                                method='dijkstra')
-            print(f"shortest path from {right_node} to {destination}: {shortest_path_r}")
-            pathpair_list_r = self.construct_pathPair_from_path(shortest_path_r)
-            pathpair_list_l.append(edge_G)
-            pathpair_list = pathpair_list_l + pathpair_list_r
-            if (len(pathpair_list) != 0):
-                self.update_MBA_variabels(G, pathpair_list)
-                print(f"The MAB variables are updated for edge {pathpair_list}!")  # it works for the first edge, check why it does not go to the for loop.
-                return 1
+                    self.logger.debug(f"shortest path from {right_node} to {destination}: {shortest_path_r}")
+                    pathpair_list_r = self.construct_pathPair_from_path(shortest_path_r)
+                    pathpair_list_l.append(edge_G)
+                    pathpair_list = pathpair_list_l + pathpair_list_r
+                    if (len(pathpair_list) != 0):
+                        self.logger.debug(
+                            f"The MAB variables are updated for edge {pathpair_list}!")  # it works for the first edge, check why it does not go to the for loop.
+                        rewards = self.update_MBA_variabels(G, pathpair_list)
+                        self.logger.debug(f"rewards: {rewards}")
+                        return 1, rewards
+                except Exception as e:
+                    self.logger.error(str(e)+"occurred, try next pair monitor")
+                    return 2, 0
             else:
-                return 2  #there is no path between these two monitors which can cover this edge
+                return 2,0
+
         else:
-            return 3
+            return 3, 0
 
 
     def construct_pathPair_from_path(self, path):
@@ -254,84 +165,220 @@ class multi_armed_bandit:
                 pathpair.append((path[i + 1], path[i]))
         return pathpair
 
-
     def update_MBA_variabels(self, G, pathpair):
+        rewards=0
         for edge in pathpair:
             # print(f"edge {edge}")
-            self.Dict_edge_theta[edge] = (self.Dict_edge_theta[edge] + G[edge[0]][edge[1]]['delay']) / (
+            ##to check
+            self.Dict_edge_theta[edge] = (self.Dict_edge_theta[edge]*self.Dict_edge_m[edge] + G[edge[0]][edge[1]]['delay']) / (
                     self.Dict_edge_m[edge] + 1)
             self.Dict_edge_m[edge] = self.Dict_edge_m[edge] + 1
             # print(f"G[edge[0]][edge[1]]: {G[edge[0]][edge[1]]}")
             #total_weight += G[edge[0]][edge[1]]['weight']
-            G[edge[0]][edge[1]]['weight'] += G[edge[0]][edge[1]]['weight']+5
+            #G[edge[0]][edge[1]]['weight'] += G[edge[0]][edge[1]]['weight']+5
             G.edges.data()
-            #rewards += G[edge[0]][edge[1]]['delay']
-        # print(f"Dict_edge_m: {Dict_edge_m}")
-        # print(f"Dict_edge_theta[edge]: {Dict_edge_theta}")
-        # print(f"rewards: {rewards}")
+            rewards += G[edge[0]][edge[1]]['delay']
+            #print("the edge is selected in the shortest path according to the parameter ")
+        self.logger.debug(f"Dict_edge_m: {self.Dict_edge_m}")
+        self.logger.debug(f"Dict_edge_theta[edge]: {self.Dict_edge_theta}")
+        return rewards
+        #print(f"rewards: {rewards}")
 
     def optimal_path(self, G, source, destination):
         optimal_delay = 0
-        shortest_path = nx.shortest_path(G, source=source, target=destination, weight='delay-mean', method='dijkstra')
-        print(f"optimal path: {shortest_path}")
-        for i in range(len(shortest_path) - 1):
-            optimal_delay += G[shortest_path[i]][shortest_path[i + 1]]["delay-mean"]
-        print(f"optimal_delay: {optimal_delay}")
-        return optimal_delay
+        optimal_path = nx.shortest_path(G, source=source, target=destination, weight='delay_mean', method='dijkstra')
+        self.logger.info(f"optimal path: {optimal_path}")
+        for i in range(len(optimal_path) - 1):
+            optimal_delay += G[optimal_path[i]][optimal_path[i + 1]]["delay_mean"]
+        self.logger.info(f"optimal_delay: {optimal_delay}")
+        return optimal_delay, optimal_path
 
-    def LLC_policy(self, G, Dict_edge_theta, Dict_edge_m, t, source, destination, total_rewards, offset):
+    def LLC_policy_explore(self, G, source, destination, total_rewards, offset):
         # select a path which solves the minimization problem
         for edge in G.edges:
             # llc_factor=Dict_edge_theta[edge] + math.sqrt((len(G.edges) + 1) * math.log(t) / Dict_edge_m[edge])
             # print(f"llc_factor: {llc_factor}")
-            G[edge[0]][edge[1]]["llc_factor"] = Dict_edge_theta[edge] - math.sqrt(
-                (len(G.edges) + 1) * math.log(t) / Dict_edge_m[edge]) + Dict_edge_m[edge]*offset
+
+            #G[edge[0]][edge[1]]["llc_factor"] = self.Dict_edge_theta[edge] + math.sqrt(self.Dict_edge_m[edge]/(len(G.edges) + 1) * math.log(self.t))
+            G[edge[0]][edge[1]]["llc_factor"] = self.Dict_edge_theta[edge] - math.sqrt((len(G.edges) + 1) * math.log(self.t) /self.Dict_edge_m[edge])+ self.Dict_edge_m[edge]* offset
+            self.logger.debug(f"minus sqrt factor{edge}:{math.sqrt((len(G.edges) + 1) * math.log(self.t) / self.Dict_edge_m[edge])}")
+            '''
+            G[edge[0]][edge[1]]["llc_factor"] = self.Dict_edge_theta[edge] - math.sqrt(
+                (len(G.edges) + 1) * math.log(self.t) / self.Dict_edge_m[edge]) + offset
+            '''
         # select the shortest path with wrt the llc_fact
         #print(G.edges.data())
         shortest_path = nx.shortest_path(G, source=source, target=destination, weight='llc_factor', method='dijkstra')
-        print(f"shortest path: {shortest_path}")
+        self.logger.info(f"shortest path: {shortest_path}")
         # print(G.edges.data())
         # update the Dict_edge_theta and Dict_edge_m
-        pathpair = []
-        rewards = 0
-        for i in range(len(shortest_path) - 1):
-            if (shortest_path[i], shortest_path[i + 1]) in Dict_edge_theta:
-                pathpair.append((shortest_path[i], shortest_path[i + 1]))
-            else:
-                pathpair.append((shortest_path[i + 1], shortest_path[i]))
-        #print(f"pathpair{pathpair}")
-        #print(f"G.edges {G.edges}")
-
-        for edge in pathpair:
-            #print(f"edge {edge}")
-            #print(
-            #    f"Dict_edge_theta[edge] {Dict_edge_theta[edge]} +  G[edge[0]][edge[1]]['delay']: {G[edge[0]][edge[1]]['delay']}")
-            #print(f"Dict_edge_m[edge] {Dict_edge_m[edge]}")
-            Dict_edge_theta[edge] = (Dict_edge_theta[edge] + G[edge[0]][edge[1]]['delay']) / (Dict_edge_m[edge] + 1)
-            Dict_edge_m[edge] = Dict_edge_m[edge] + 1
-            rewards = rewards + G[edge[0]][edge[1]]['delay']
-        print(f"Dict_edge_m: {Dict_edge_m}")
-        print(f"Dict_edge_theta: {Dict_edge_theta}")
-        print(f"rewards:{rewards}")
+        pathpair= self.construct_pathPair_from_path(shortest_path)
+        rewards=self.update_MBA_variabels(G,pathpair)
+        self.logger.debug(f"rewards:{rewards}")
         total_rewards.append(rewards)
         # print(f"total_rewards:{total_rewards}")
         #print(Dict_edge_theta)
-        return total_rewards
+        return total_rewards, shortest_path
 
-    def train_llc(self, G, source, destination, round, Dict_edge_theta, Dict_edge_m, optimal_delay, total_rewards, t,
-                  Dict_edge_scales, total_regrets):
-        offset = math.sqrt((len(G.edges) + 1) * math.log(t + round))
-        #print(f"offset: {offset}")
+    def LLC_policy_exploitation(self, G, source, destination, total_rewards, offset):
+        # select a path which solves the minimization problem
+        m = 1
+        n = 1
+        self.logger.info(f"tuning parameter m={m}, n={n}")
+        for edge in G.edges:
+            # llc_factor=Dict_edge_theta[edge] + math.sqrt((len(G.edges) + 1) * math.log(t) / Dict_edge_m[edge])
+            # print(f"llc_factor: {llc_factor}")
+            # G[edge[0]][edge[1]]["llc_factor"] = self.Dict_edge_theta[edge] + math.sqrt(self.Dict_edge_m[edge]/(len(G.edges) + 1) * math.log(self.t)
+            llc_factor= self.Dict_edge_theta[edge] - 0.1*math.sqrt(
+                (len(G.edges) + 1) * math.log(self.t) / self.Dict_edge_m[edge])
+            if llc_factor < 0:
+                G[edge[0]][edge[1]]["llc_factor"]=0
+                print(f"edge{edge[0]} {edge[1]} got negtive lcc factor:")
+                print({G[edge[0]][edge[1]]["llc_factor"]})
+            else:
+                G[edge[0]][edge[1]]["llc_factor"] = llc_factor
+            self.logger.debug(
+                f"minus sqrt factor{edge}:{math.sqrt((len(G.edges) + 1) * math.log(self.t) / self.Dict_edge_m[edge])}")
+            '''
+            G[edge[0]][edge[1]]["llc_factor"] = self.Dict_edge_theta[edge] - math.sqrt(
+                (len(G.edges) + 1) * math.log(self.t) / self.Dict_edge_m[edge]) + offset
+            '''
+
+        # select the shortest path with wrt the llc_fact
+        # print(G.edges.data())
+        shortest_path = nx.shortest_path(G, source=source, target=destination, weight='llc_factor', method='dijkstra')
+        print(f"t={self.t} shortest path {shortest_path}")
+        self.logger.info(f"shortest path: {shortest_path}")
+        # print(G.edges.data())
+        # update the Dict_edge_theta and Dict_edge_m
+        pathpair = self.construct_pathPair_from_path(shortest_path)
+        rewards = self.update_MBA_variabels(G, pathpair)
+        self.logger.debug(f"rewards:{rewards}")
+        total_rewards.append(rewards)
+        # print(f"total_rewards:{total_rewards}")
+        # print(Dict_edge_theta)
+        return total_rewards, shortest_path
+
+    def train_llc(self, G, source, destination, time, optimal_delay, total_rewards,
+                  total_regrets):
+        offset = math.sqrt((len(G.edges) + 1) * math.log(time)) #shift the llc factor > 0
+        self.logger.debug(f"offset: {offset}")
+        selected_shortest_path=[]
         #print(f"minimum lcc {math.sqrt((len(G.edges) + 1) * math.log(t + round)/self)}")
+        mse=[]
+        total_mse_array = []
+        for i in range(time-self.t+1):
+            self.logger.info(f"t= {self.t}")
+            # i<3000:
+            total_rewards,shortest_path = self.LLC_policy_exploitation(G, source, destination, total_rewards, offset)
+            #else:
+            #    total_rewards,shortest_path=self.LLC_policy_exploitation(G, source, destination, total_rewards, offset)
 
-        for i in range(round):
-            print(f"t={t}")
-            self.topo.assign_link_delay(G, Dict_edge_scales)
-            total_rewards = self.LLC_policy(G, Dict_edge_theta, Dict_edge_m, t, source, destination, total_rewards, offset)
-            regret = sum(total_rewards) - t * optimal_delay
-            print(f"regretes:{regret}")
+            selected_shortest_path.append(shortest_path)
+            regret = sum(total_rewards) - self.t * optimal_delay
+            self.logger.info(f"regretes:{regret}")
             total_regrets.append(regret)
            # print(total_regrets)
-            t = t + 1  # the time slot increase 1
-        return total_regrets, t
+            total_mse = 0
+            for edge in G.edges:
+                total_mse+=(self.Dict_edge_theta[edge]-G[edge[0]][edge[1]]['delay_mean'])**2
+            total_mse_array.append(total_mse/len(G.edges))
+
+            if self.t==327:
+                print("t=327")
+                print("path (3,45,47)")
+                print(f"m(3,45)={self.Dict_edge_m[('3', '45')]}, theta={self.Dict_edge_theta[('3','45')]}, llc={G['3']['45']['llc_factor']}")
+                print(f"m(45,47)={self.Dict_edge_m[('45', '47')]}, theta={self.Dict_edge_theta[('45', '47')]}, llc={G['45']['47']['llc_factor']}")
+                print(f"path weight = {nx.path_weight(G,['3', '45', '47'],'llc_factor')}")
+
+                print("path (3,49,30,40,47)")
+                print(f"m(3,49)={self.Dict_edge_m[('3', '49')]}, theta={self.Dict_edge_theta[('3', '49')]}, llc={G['3']['49']['llc_factor']}")
+                print(f"m(30,49)={self.Dict_edge_m[('30', '49')]}, theta={self.Dict_edge_theta[('30', '49')]}, llc={G['30']['49']['llc_factor']}")
+                print(f"m(30,40)={self.Dict_edge_m[('30', '40')]}, theta={self.Dict_edge_theta[('30', '40')]}, llc={G['30']['40']['llc_factor']}")
+                print(f"m(40,47)={self.Dict_edge_m[('40', '47')]}, theta={self.Dict_edge_theta[('40', '47')]}, llc={G['40']['47']['llc_factor']}")
+                print(f"path weight = {nx.path_weight(G, ['3', '49', '30', '40', '47'], 'llc_factor')}")
+
+
+
+            if self.t==3000:
+                print('t=3000')
+                print("path (3,45,47)")
+                print(
+                    f"m(3,35)={self.Dict_edge_m[('3', '45')]}, theta={self.Dict_edge_theta[('3', '45')]}, llc={G['3']['45']['llc_factor']}")
+                print(
+                    f"m(45,47)={self.Dict_edge_m[('45', '47')]}, theta={self.Dict_edge_theta[('45', '47')]}, llc={G['45']['47']['llc_factor']}")
+                print(f"path weight = {nx.path_weight(G, ['3', '45', '47'], 'llc_factor')}")
+
+                print("path (3,49,30,40,47)")
+                print(
+                    f"m(3,49)={self.Dict_edge_m[('3', '49')]}, theta={self.Dict_edge_theta[('3', '49')]}, llc={G['3']['49']['llc_factor']}")
+                print(
+                    f"m(30,49)={self.Dict_edge_m[('30', '49')]}, theta={self.Dict_edge_theta[('30', '49')]}, llc={G['30']['49']['llc_factor']}")
+                print(
+                    f"m(30,40)={self.Dict_edge_m[('30', '40')]}, theta={self.Dict_edge_theta[('30', '40')]}, llc={G['30']['40']['llc_factor']}")
+                print(
+                    f"m(40,47)={self.Dict_edge_m[('40', '47')]}, theta={self.Dict_edge_theta[('40', '47')]}, llc={G['40']['47']['llc_factor']}")
+                print(f"path weight = {nx.path_weight(G, ['3', '49', '30', '40', '47'], 'llc_factor')}")
+
+            self.t = self.t + 1  # the time slot increase 1
+            #for plotting
+            if self.t<time:
+                self.topo.assign_link_delay(G)
+            if self.t==1000:
+                delay_difference1 = []
+                for edge in G.edges:
+                    delay_difference1.append(abs(self.Dict_edge_theta[edge]-G[edge[0]][edge[1]]['delay_mean']))
+                self.edge_delay_difference_list.append(delay_difference1)
+                self.plotter.plot_edge_delay_difference(G,self.Dict_edge_theta)
+                plt.savefig(self.directory + 'delay difference from mean at t=1000', format="PNG", dpi=300,
+                            bbox_inches='tight')
+            if self.t==2000:
+                delay_difference2 = []
+                for edge in G.edges:
+                    delay_difference2.append(abs(self.Dict_edge_theta[edge] - G[edge[0]][edge[1]]['delay_mean']))
+                self.edge_delay_difference_list.append(delay_difference2)
+                self.plotter.plot_edge_delay_difference(G,self.Dict_edge_theta)
+                plt.savefig(self.directory + 'delay difference from mean at t=2000', format="PNG", dpi=300,
+                            bbox_inches='tight')
+            if self.t==3000:
+                delay_difference3 = []
+                for edge in G.edges:
+                    delay_difference3.append(abs(self.Dict_edge_theta[edge] - G[edge[0]][edge[1]]['delay_mean']))
+                self.edge_delay_difference_list.append(delay_difference3)
+                self.plotter.plot_edge_delay_difference(G,self.Dict_edge_theta)
+                plt.savefig(self.directory + 'delay difference from mean at t=3000', format="PNG", dpi=300,
+                            bbox_inches='tight')
+
+        self.plotter.plot_total_edge_delay_mse(total_mse_array)
+        self.plotter.plot_total_rewards(total_rewards,optimal_delay)
+
+        #plot the delay difference from the mean along time
+        self.plotter.plot_edge_delay_difference_alongtime(0,15,self.edge_delay_difference_list)
+        plt.savefig(self.directory + 'delay difference from the mean like 0-14', format="PNG")
+        self.plotter.plot_edge_delay_difference_alongtime(15, 30,self.edge_delay_difference_list)
+        plt.savefig(self.directory + 'delay difference from the mean like 15-30', format="PNG")
+        self.plotter.plot_edge_delay_difference_alongtime(30, 42,self.edge_delay_difference_list)
+        plt.savefig(self.directory + 'delay difference from the mean like 31-42', format="PNG")
+
+        #plot the number of edges has been explored after the training
+
+        self.plotter.plot_edge_exploitation_times_bar('t=3000',self.Dict_edge_m)
+        plt.savefig(self.directory + '# of edge exploration after training', format="PNG", dpi=300,
+                    bbox_inches='tight')
+        self.edge_exploration_times.append(self.Dict_edge_m.values())
+        self.plotter.plot_edge_exploitation_times_bar_combined(self.edge_exploration_times)
+        return total_rewards,selected_shortest_path
+
+
+
+
+
+
+
+
+
+
+
+
+
 
