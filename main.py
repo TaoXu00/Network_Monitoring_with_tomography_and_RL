@@ -17,6 +17,7 @@ import network_topology_construction as topology
 import network_tomography as tomography
 import logging
 import os
+import plotter as plotter
 class main:
     def __init__(self, time):
         basename="log"
@@ -40,6 +41,8 @@ class main:
         self.tomography=tomography.network_tomography(logger_nt)
         self.MAB=multi_armed_bandit.multi_armed_bandit(self.topo, logger_mab,self.directory) #pass the topology
         self.time=time
+        self.plotter = plotter.plotter(self.directory)
+
     def run_tomography(self, G, monitors):
         self.logger_main.info("Runing network tomography....")
         path_list = self.topo.getPath(G, monitors)
@@ -50,7 +53,6 @@ class main:
         return x, count
 
     def creat_topology(self,n,p):
-
         # construct a random topology and deploy 5 monitors
         G= self.topo.graph_Generator(n, p)
         return G
@@ -88,99 +90,102 @@ class main:
         # plt.show()
         plt.savefig('network_tomography1.png')
 
-    def run_MAB(self, G, monitors):
+    def run_MAB(self, G, monitors, source, destination):
 
-        total_rewards, total_regrets,optimal_delay= self.MAB.Initialize(G, monitors)
-
+        self.MAB.Initialize(G, monitors)
         monitor_pair_list = list(combinations(monitors, 2))
-        for monitor_pair in monitor_pair_list:
-            source=monitor_pair[0]
-            destination=monitor_pair[1]
-            optimal_path = nx.shortest_path(G, source, destination, weight='delay-mean', method='dijkstra')
-            total_rewards, selected_shortest_path = self.MAB.train_llc(G, source, destination, self.time, optimal_delay, total_rewards, total_regrets)
-            slots = int(len(selected_shortest_path)/100)
-            '''
-            x=np.zeros(slots,dtype=np.int64)
-            y=np.zeros(slots,dtype=np.int64)
-            y_p=np.zeros(slots)
-            '''
-            x=[]
-            y=[]
-            y_p=[]
-            for i in range(slots):
-                #print(f"i={i}")
-                optimal_count=0
-                sum_delay=0
-                for j in range(i*100, (i+1)*100):
-                    #print(f"j={j}")
-                    #print(selected_shortest_path[j])
-                    '''
-                    if selected_shortest_path[j]==optimal_path:
-                        optimal_count+=1
-                        print("detected optimal path")
-                    '''
-                    #delay=0
-                    #for edge in selected_shortest_path[j]:
-                    #    delay+= G[edge[0]][edge[1]]['delay']
-                    sum_delay+=total_rewards[i]
-                average_delay=sum_delay/100
-                x.append((i+1)*100)
-                y.append(average_delay)
-                #print(f"y={y}")
-                #y_p.append(optimal_count/10)
-            '''
-            if(len(selected_shortest_path)%10!=0):
-                count = 0
-                print(f"slot ={slots},remainding:{(self.time -len(G.edges))%10}")
-                for i in range(slots*10, len(selected_shortest_path)):
-                    if selected_shortest_path[i]==optimal_path:
-                        count+=1
-                x.append(len(selected_shortest_path))
-                y.append(count)
-                y_p.append(len(selected_shortest_path))
-            '''
-            #print the selected shortest path during the training time
-            path_dict={}
-            for path in selected_shortest_path:
-                p='-'.join(path)
-                if p in path_dict:
-                    path_dict[p]+=1
-                else:
-                    path_dict[p]=1
-            self.logger_main.info(f"paths are explored during the training:{path_dict}")
+        optimal_path = nx.shortest_path(G, source, destination, weight='delay-mean', method='dijkstra')
+        optimal_delay = nx.path_weight(G, optimal_path, 'delay')
+        total_rewards, selected_shortest_path, expo_count,total_mse_array = self.MAB.train_llc(G, self.time,monitor_pair_list,source, destination)
+        slots = int(len(selected_shortest_path) / 100)
+        x = []
+        y = []
+        y_p = []
+        for i in range(slots):
+            # print(f"i={i}")
+            optimal_count = 0
+            sum_delay = 0
+            for j in range(i * 100, (i + 1) * 100):
+                sum_delay += total_rewards[i]
+            average_delay = sum_delay / 100
+            x.append((i + 1) * 100)
+            y.append(average_delay)
+            # print(f"y={y}")
+            # y_p.append(optimal_count/10)
+        # print the selected shortest path during the training time
+        path_dict = {}
+        for path in selected_shortest_path:
+            p = '-'.join(path)
+            if p in path_dict:
+                path_dict[p] += 1
+            else:
+                path_dict[p] = 1
+        self.logger_main.info(f"paths are explored during the training:{path_dict}")
 
+        print(f"x={x}")
+        print(f"y={y}")
+        # print(f"y_p={y_p}")
+        plt.figure()
+        plt.plot(x, y)
+        plt.xlabel("time")
+        plt.ylabel("average delay every 100 seconds")
+        plt.hlines(y=optimal_delay, xmin=0, xmax=len(selected_shortest_path), colors='red', linestyles='-', lw=2,
+                   label='optimal delay')
+        # plt.show()
+        plt.savefig(self.directory + 'average_delay_every_100_seconds', format="PNG")
+        return expo_count, total_mse_array
 
-
-
-            print(f"x={x}")
-            print(f"y={y}")
-            #print(f"y_p={y_p}")
-            plt.figure()
-            plt.plot(x, y)
-            plt.xlabel("time")
-            plt.ylabel("average delay every 100 seconds")
-            plt.hlines(y=optimal_delay,xmin=0, xmax=len(selected_shortest_path),colors='red', linestyles='-', lw=2, label='optimal delay')
-            #plt.show()
-            plt.savefig(self.directory+'average_delay_every_100_seconds',format="PNG")
-
-        #print(f"len total_regrets: {len(total_regrets)}")
-        #avg_total_regrets = [total_regrets[i] / (i + 1) for i in range(len(total_regrets))]
-        # x=[i+1 for i in range(t-1)]
-        # print(x)
+    def MAB_with_increasing_monitors(self, G,stepsize):
         '''
-        plt.plot(x,avg_total_regrets)
-        plt.xlabel("time slot")
-        plt.ylabel("avg_regrets")
+        In the system configuration, we random created a topology with 100 nodes.
+        :param G: the topology graph
+        :return: a figure named "network tomography.png" will be saved to show the rate of the identified edges will be
+                 increased as the growth of the deployed monitor. it eventually will reach to 1 when the number of the deployed
+                 monitor is equal to the number of the edges.
         '''
 
+        monitors_list = []
+        explored_edges_num = []
+        #solved_edges_count = []
+        monitor_candidate_list=[]
+        total_edge_mse_list_with_increasing_monitors=[]
+        monitors=['4','19']
+        for n in range(1,int(1/stepsize)+1):
+            num=int(n*stepsize*len(G.nodes))
+            if num<2:
+                num=2
+            monitors = self.topo.deploy_monitor(G, num, monitors)
+            self.logger_main.info(f"deloy {num} monitors: {monitors}")
+            expo_count,total_mse=self.run_MAB(G, monitors, '4', '19')
+            # print(f"n={n},monitors={monitors}")
+            monitors_list.append(monitors)
+            monitor_candidate_list=monitors
+            # print(f"append monitors_list:{monitors_list}")
+            explored_edges_num.append(expo_count)
+            total_edge_mse_list_with_increasing_monitors.append(total_mse)
+            #solved_edges_count.append(count)
+            # print(f"append solved_edges_count:{count}")
+            print(f"{expo_count} edges has been explored")
+            self.logger_main.info(f"{expo_count} edges has been explored")
+            self.topo.draw_edge_delay_sample(G)
+        # print(monitors_list)
+        # print(solved_edges_count)
+        self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(G, monitors_list, explored_edges_num)
+        self.plotter.plot_mse_with_increasing_monitor_training(total_edge_mse_list_with_increasing_monitors)
 
 
 
 mynetwork=main(3000)
-G =mynetwork.creat_topology(50, 0.25)
+G =mynetwork.creat_topology(20, 0.25)
+trimedG=mynetwork.topo.trimNetwrok(G, ['4','19'])
+mynetwork.MAB_with_increasing_monitors(trimedG,0.1)
 #mynetwork.tomography_verification(G)   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-monitors=mynetwork.topo.deploy_monitor(G,2,['3','47'])
-trimedG=G
+#monitors=mynetwork.topo.deploy_monitor(G,2,['4','19'])
+#trimedG=G
 #trimedG=mynetwork.topo.trimNetwrok(G, monitors)
-mynetwork.run_tomography(trimedG,monitors)
-mynetwork.run_MAB(trimedG,monitors)
+#mynetwork.run_tomography(trimedG,monitors)
+#mynetwork.run_MAB(trimedG,monitors,'3','47')
+
+
+
+

@@ -38,7 +38,7 @@ class plotter:
         # Horizontal Bar Plot
         bar=np.arange(len(Dict_edge_m))
         plt.bar(bar,Dict_edge_m.values(), label= label)
-        plt.xticks(np.arange(len(Dict_edge_m)))
+        #plt.xticks(np.arange(len(Dict_edge_m)))
         plt.legend()
 
     def plot_edge_delay_difference_alongtime(self, s,e, edge_delay_difference_list):
@@ -76,7 +76,7 @@ class plotter:
         fig = plt.figure()
         ax = fig.add_axes([0, 0, 1, 1])
         langs = list(range(1,len(G.edges)+1))
-        print(f"langs:{langs}")
+        #(f"langs:{langs}")
         delay_diff=[]
         for edge in G.edges:
             diff=abs(Dict_edge_theta[edge]-G[edge[0]][edge[1]]['delay_mean'])
@@ -99,7 +99,7 @@ class plotter:
 
     def plot_total_rewards(self, total_rewards, optimal_delay):
         # plot the total rewards
-        print(f"total_rewards:{total_rewards}")
+        #print(f"total_rewards:{total_rewards}")
         plt.figure()
         x = range(len(total_rewards))
         print(f"total rewards array x:{x}")
@@ -111,3 +111,30 @@ class plotter:
                    label='optimal delay')
         # plt.show()
         plt.savefig(self.directory + 'rewards', format="PNG")
+
+    def plot_bar_edge_exploration_training_with_increasing_monitor(self, G, monitors_list, explored_edges_num):
+        #x = [str(len(monitors) /len(G.nodes)) for monitors in monitors_list]
+        x = ['0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0']
+        y = [edges_count / len(G.edges) for edges_count in explored_edges_num]
+        # print(x, y)
+        fig = plt.figure(figsize=(10, 7))
+        barwidth = 0.25
+        plt.xlabel("% of nodes selected as monitors")
+        plt.ylabel("% of explored edges")
+        bar = np.array(x)
+        plt.bar(bar, y, width=barwidth)
+        # plt.show()
+        plt.savefig(self.directory + 'MAB_edge_exploration_with_increasing_monitors.png')
+
+    def plot_mse_with_increasing_monitor_training(self, total_edge_mse_list_with_increasing_monitors):
+        line_num=len(total_edge_mse_list_with_increasing_monitors)
+        x=range(len(total_edge_mse_list_with_increasing_monitors[0]))
+        fig = plt.figure(figsize=(10, 7))
+        plt.plot(x,total_edge_mse_list_with_increasing_monitors[0],label='10%')
+        plt.plot(x,total_edge_mse_list_with_increasing_monitors[1], label='20%')
+        plt.plot(x, total_edge_mse_list_with_increasing_monitors[3], label='40%')
+        plt.plot(x, total_edge_mse_list_with_increasing_monitors[5], label='60%')
+        plt.plot(x, total_edge_mse_list_with_increasing_monitors[7], label='80%')
+        plt.plot(x, total_edge_mse_list_with_increasing_monitors[9], label='100%')
+        plt.legend()
+        plt.savefig(self.directory + "mse_with_increasing_monitor_training")

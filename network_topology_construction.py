@@ -54,7 +54,7 @@ class network_topology:
         #nx.write_gml(G,"graph_dot_file_50.gml")
 
         #G = nx.read_gml("graph_dot_file.gml")
-        G = nx.read_gml("graph_dot_file_50.gml")
+        G = nx.read_gml("graph_dot_file.gml")
         self.logger.info("Graph Created!")
         #seed(1)
 
@@ -67,7 +67,7 @@ class network_topology:
             G[edge[0]][edge[1]]['weight']=1
         self.logger.info("all the edge weights in the graph are assigned to 1")
         self.construct_link_delay_distribution(G)
-        self.logger.info(f"Edge delay scales: {self.Dict_edge_scales}")
+        #self.logger.info(f"Edge delay scales: {self.Dict_edge_scales}")
         self.draw_edge_delay_sample(G)
         self.assign_link_delay(G)
         #show the topology graph
@@ -96,12 +96,10 @@ class network_topology:
 
         #scales=np.random.randint(1, 10, len(G.edges))
         #print(f"scales: {scales}")
-        #scales=np.array([3, 6, 7, 2, 9, 8, 8, 9, 8, 3, 2, 8, 5, 3, 9, 9, 3, 2, 8, 5, 4, 6, 3, 4, 1, 4, 7, 7, 5, 7, 7, 6, 6, 3, 5, 4, 3,
- #9, 3, 7, 3, 6, 2, 8])
-        #scales=np.array([15, 35, 27, 74,  1, 27, 61, 29, 40, 76, 19, 29, 36, 78, 20, 25, 85, 42, 38, 83, 80, 62, 41, 57,
+        scales=np.array([3, 6, 7, 2, 9, 8, 8, 9, 8, 3, 2, 8, 5, 3, 9, 9, 3, 2, 8, 5, 4, 6, 3, 4, 1, 4, 7, 7, 5, 7, 7, 6, 6, 3, 5, 4, 3,
+ 9, 3, 7, 3, 6, 2, 8])
 
-        #48, 87, 77, 43, 29, 83, 25, 76, 49, 65, 51, 61, 92, 85, 79, 37, 60,  7, 99, 47])
-
+        '''
         scales = np.array([8, 3, 3, 6, 4, 1, 7, 1, 7, 4, 8, 5, 2, 1, 9, 6, 4, 4, 1, 2, 6, 4, 1, 3, 9, 9, 7, 8, 9, 3, 7, 4, 6, 4, 9, 1, 8,
              5, 6, 1, 7, 9, 1, 6, 6, 2, 8, 4, 1, 7, 8, 4, 5, 6, 7, 6, 6, 7, 7, 5, 6, 8, 7, 7, 3, 5, 6, 8, 7, 5, 5, 9, 1, 4,
              1, 4, 1, 9, 7, 3, 3, 7, 8, 9, 7, 1, 3, 6, 5, 8, 5, 4, 2, 6, 4, 6, 2, 1, 4, 3, 9, 2, 9, 8, 6, 6, 9, 6, 5, 2, 3,
@@ -111,7 +109,7 @@ class network_topology:
              3, 5, 9, 6, 9, 4, 3, 3, 7, 3, 3, 7, 5, 5, 6, 6, 2, 5, 6, 4, 9, 3, 7, 1, 5, 4, 3, 5, 8, 7, 3, 9, 3,1, 3, 7, 8,
              6, 7, 6, 6, 2, 6, 5, 3, 7, 9, 8, 4, 7, 4, 1, 8, 7, 3, 3, 4, 5, 1, 1, 1, 1, 8, 6, 3, 9, 9, 4, 6, 4, 3, 2, 7, 7,
              9, 1, 6, 8, 9, 1, 7, 8, 9, 2, 5, 1, 4, 6, 7, 7, 7, 7, 6, 1, 8, 3, 3, 9, 6, 5, 9, 6, 7, 2])
-
+        '''
         i=0
         for edge in G.edges:
            self.Dict_edge_scales[edge]=scales[i]
@@ -120,19 +118,35 @@ class network_topology:
         #print(f"Dict_edge_scales:{self.Dict_edge_scales}")
 
     def draw_edge_delay_sample(self, G):
+        #data=np.load('sample.dat',allow_pickle=True)
+        #print(data)
+        samples=[]
+        y = np.loadtxt("samples.txt")
+        samples=np.array(y)
         for edge in G.edges:
             self.Dict_edge_delay_sample[edge]=[]
+        i=0
+        for edge in G.edges:
+            self.Dict_edge_delay_sample[edge] =samples[i]
+            i=i+1
+            #np.delete(samples,0,0)
+        '''
         for edge in G.edges:
             # G[edge[0]][edge[1]]['delay'] = np.random.exponential(scale=Dict_edge_scales[edge], size=1)[0]
             scale=self.Dict_edge_scales[edge]
             sample = np.random.exponential(scale=self.Dict_edge_scales[edge], size=(1, self.time))[0]
             self.Dict_edge_delay_sample[edge]=sample
-            #print(f"draw sample for edge:({edge[0]},{edge[1]})")
-            #print(self.Dict_edge_delay_sample [edge])
-            #print(np.average(sample))
+            samples.append(sample)
+            print(f"draw sample for edge:({edge[0]},{edge[1]})")
+            print(self.Dict_edge_delay_sample [edge])
+            print(np.average(sample))
+        n_samples=np.array(samples)
+        np.savetxt('samples_20.txt',n_samples)
+        '''
         self.logger.info(f"Draw {self.time} delay examples from exponential distribution for each edge.")
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
         self.logger.info(f"edge delay sample average {average}")
+
 
 
     def assign_link_delay(self,G):
@@ -147,8 +161,9 @@ class network_topology:
             G[edge[0]][edge[1]]['delay'] = self.Dict_edge_delay_sample[edge][0]
             #print(f"type: {type(self.Dict_edge_delay_sample[edge])}")
             self.Dict_edge_delay_sample[edge]=np.delete(self.Dict_edge_delay_sample[edge],0)
+        #self.logger.debug(f"{len(self.Dict_edge_delay_sample[edge])} samples left")
             #print(f"after deletion{self.Dict_edge_delay_sample[edge]}")
-        self.logger.debug(f"Assigned Delay {G.edges.data()}")
+        #self.logger.debug(f"Assigned Delay {G.edges.data()}")
 
 
     def deploy_monitor(self,G, n, monitor_candidate_list):
@@ -241,6 +256,9 @@ class network_topology:
         old_G=G.copy()   #store the original network topology
         for edge in uncovered_edges:
             G.remove_edge(*edge)
+
+        G.remove_nodes_from(['8','10'])
+
         plt.figure()
         nx.draw(G, with_labels=True)
         plt.savefig(self.directory + "trimed_topology", format="PNG")
