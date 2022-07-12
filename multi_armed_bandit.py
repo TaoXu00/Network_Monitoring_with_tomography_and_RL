@@ -40,7 +40,9 @@ class multi_armed_bandit:
             self.Dict_edge_theta[edge] = 0
         for edge in G.edges:
             self.Dict_edge_m[edge] = 0
-
+        self.t = 1
+        self.edge_delay_difference_list = []
+        self.edge_exploration_times = []
         #total_rewards = []   #in the current implementation, it is for only one pair of monitors
         #total_regrets = []
         sample_delays = []
@@ -183,8 +185,8 @@ class multi_armed_bandit:
             #G[edge[0]][edge[1]]['weight'] += G[edge[0]][edge[1]]['weight']+5
             G.edges.data()
             #print("the edge is selected in the shortest path according to the parameter ")
-        #self.logger.debug(f"Dict_edge_m: {self.Dict_edge_m}")
-        #self.logger.debug(f"Dict_edge_theta[edge]: {self.Dict_edge_theta}")
+        self.logger.debug(f"Dict_edge_m: {self.Dict_edge_m}")
+        self.logger.debug(f"Dict_edge_theta[edge]: {self.Dict_edge_theta}")
         #print(f"rewards: {rewards}")
 
     def optimal_path(self, G, source, destination):
@@ -231,7 +233,7 @@ class multi_armed_bandit:
             # llc_factor=Dict_edge_theta[edge] + math.sqrt((len(G.edges) + 1) * math.log(t) / Dict_edge_m[edge])
             # print(f"llc_factor: {llc_factor}")
             # G[edge[0]][edge[1]]["llc_factor"] = self.Dict_edge_theta[edge] + math.sqrt(self.Dict_edge_m[edge]/(len(G.edges) + 1) * math.log(self.t)
-            llc_factor= self.Dict_edge_theta[edge] - 0.6*math.sqrt(
+            llc_factor= self.Dict_edge_theta[edge] - 0.1*math.sqrt(
                 (len(G.edges) + 1) * math.log(self.t) / self.Dict_edge_m[edge])
             if llc_factor < 0:
                 G[edge[0]][edge[1]]["llc_factor"]=0
@@ -253,19 +255,20 @@ class multi_armed_bandit:
         #self.logger.info(f"shortest path: {shortest_path}")
         # print(G.edges.data())
         # update the Dict_edge_theta and Dict_edge_m
-        pathpair = self.construct_pathPair_from_path(shortest_path)
-        self.update_MBA_variabels(G, pathpair)
+        pathpair_list = self.construct_pathPair_from_path(shortest_path)
+        #self.logger.debug(f"shortest path: {pathpair_list}")
         #self.logger.debug(f"rewards:{rewards}")
         #total_rewards.append(rewards)
         # print(f"total_rewards:{total_rewards}")
         # print(Dict_edge_theta)
-        #return total_rewards, shortest_path
+        return pathpair_list
 
     def train_llc(self,G, time, monitor_pair_list,source, destination):
         #offset = math.sqrt((len(G.edges) + 1) * math.log(time)) #shift the llc factor > 0
         #self.logger.debug(f"offset: {offset}")
-        optimal_path=nx.shortest_path(G,source, destination, 'delay-mean')
-        optimal_delay=nx.path_weight(G,optimal_path,'delay')
+        optimal_delay, optimal_path=self.optimal_path(G,source, destination)
+        #optimal_path=nx.shortest_path(G,source, destination, 'delay-mean')
+        #optimal_delay=nx.path_weight(G,optimal_path,'delay-mean')
         selected_shortest_path=[]
         #print(f"minimum lcc {math.sqrt((len(G.edges) + 1) * math.log(t + round)/self)}")
         mse=[]
@@ -274,13 +277,19 @@ class multi_armed_bandit:
         total_regrets = []
         self.logger.debug(f"t={self.t}, start trainning...")
         for i in range(time-self.t):
-            #self.logger.info(f"t= {self.t}")
+            self.logger.info(f"t= {self.t}")
             # i<3000:
+            explored_path_list=[]
             for monitor_pair in monitor_pair_list:
                 m1=monitor_pair[0]
                 m2=monitor_pair[1]
-                self.LLC_policy_exploitation(G, m1, m2)
-
+                pathpair_list=self.LLC_policy_exploitation(G, m1, m2)
+                for path_pair in pathpair_list:
+                    explored_path_list.append(path_pair)
+            #self.logger.debug(f"total explored path list: {explored_path_list}")
+            explored_path_set=set(explored_path_list)
+            self.logger.debug(f"total explored path list set: {explored_path_set}")
+            self.update_MBA_variabels(G, explored_path_set)
             #else:
             #    total_rewards,shortest_path=self.LLC_policy_exploitation(G, source, destination, total_rewards, offset)
             shortest_path=nx.shortest_path(G, source=source, target=destination, weight='llc_factor', method='dijkstra')
@@ -288,8 +297,8 @@ class multi_armed_bandit:
             #self.logger.debug(f"t={self.t}, selected shortest path:{selected_shortest_path}")
             rewards=nx.path_weight(G,shortest_path,'delay')
             total_rewards.append(rewards)
-            regret = sum(total_rewards) - self.t * optimal_delay
-            total_regrets.append(regret)
+            #regret = sum(total_rewards) - self.t * optimal_delay
+            #total_regrets.append(regret)
             #self.logger.info(f"regretes:{regret}")
            # print(total_regrets)
             total_mse = 0
@@ -364,9 +373,9 @@ class multi_armed_bandit:
                 plt.savefig(self.directory + 'delay difference from mean at t=3000', format="PNG", dpi=300,
                             bbox_inches='tight')
 
-        self.t=1
+
         self.plotter.plot_total_edge_delay_mse(total_mse_array)
-        self.plotter.plot_total_rewards(total_rewards,optimal_delay)
+        self.plotter.plot_time_average_rewards(total_rewards,optimal_delay)
         #plot the delay difference from the mean along time
         self.plotter.plot_edge_delay_difference_alongtime(0,15,self.edge_delay_difference_list)
         plt.savefig(self.directory + 'delay difference from the mean like 0-14', format="PNG")
@@ -390,11 +399,16 @@ class multi_armed_bandit:
         end=np.array(self.edge_exploration_times[1])
 
         expo_count=0
+        edge_exploration_during_training = []
         for i in range (len(G.edges)):
             if end[i] > init[i]:
                 expo_count+=1
+            edge_exploration_during_training.append(end[i]-init[i])
         self.edge_exploration_times=[]
-        return total_rewards,selected_shortest_path, expo_count, total_mse_array
+
+
+
+        return total_rewards,selected_shortest_path, expo_count, total_mse_array,edge_exploration_during_training
 
 
 
