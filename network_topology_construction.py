@@ -24,7 +24,7 @@ class network_topology:
         self.Dict_edge_delay_sample={}
         self.logger=logger
         self.directory=directory
-    def graph_Generator(self, n, p):
+    def graph_Generator(self, n, m):
         '''
         :param n: the number of the nodes in the topology
         :param p: possibility of each edge in a complete graph to be present
@@ -53,9 +53,15 @@ class network_topology:
         #G=nx.erdos_renyi_graph(n, p)
         #nx.write_gml(G,"graph_dot_file_50.gml")
 
-        G = nx.read_gml("graph_dot_file_50.gml")
         #G = nx.read_gml("graph_dot_file_50.gml")
+        #G = nx.read_gml("graph_dot_file.gml")
+        #generate a barabasi_albert graph
+
+        #G=nx.barabasi_albert_graph(n, m)
+        #nx.write_gml(G, "graph_dot_file_20_ba.gml")
+        G = nx.read_gml("graph_dot_file_20_ba.gml")
         self.logger.info("Graph Created!")
+
         #seed(1)
 
         #Topology 5, fixed graph for multi-armed-bandits algorithm
@@ -66,10 +72,12 @@ class network_topology:
             #G[edge[0]][edge[1]]['delay']=randint(1,10)
             G[edge[0]][edge[1]]['weight']=1
         self.logger.info("all the edge weights in the graph are assigned to 1")
+
         self.construct_link_delay_distribution(G)
         #self.logger.info(f"Edge delay scales: {self.Dict_edge_scales}")
         self.draw_edge_delay_sample(G)
         self.assign_link_delay(G)
+
         #show the topology graph
         nx.draw(G, with_labels=True)
         plt.savefig(self.directory+"original_topology", format="PNG")
@@ -94,13 +102,17 @@ class network_topology:
         :return: the scales vector for all the edge
         '''
 
+
         #scales=np.random.randint(1, 10, len(G.edges))
-        #print(f"scales: {scales}")
+        scales=np.array([4, 8, 4, 6, 6, 7, 9, 1, 7, 3, 7, 1, 9, 7, 6, 3, 2, 6, 6, 2, 9, 1, 5, 1, 5, 6, 6, 7, 1, 5, 9, 4, 3, 8, 1, 8])
+        self.logger.debug(f"delay scales: {scales}")
 
-        #scales=np.array([3, 6, 7, 2, 9, 8, 8, 9, 8, 3, 2, 8, 5, 3, 9, 9, 3, 2, 8, 5, 4, 6, 3, 4, 1, 4, 7, 7, 5, 7, 7, 6, 6, 3, 5, 4, 3,
- #9, 3, 7, 3, 6, 2, 8])
+        '''
+        #for ER topology with 20 nodes
+        scales=np.array([3, 6, 7, 2, 9, 8, 8, 9, 8, 3, 2, 8, 5, 3, 9, 9, 3, 2, 8, 5, 4, 6, 3, 4, 1, 4, 7, 7, 5, 7, 7, 6, 6, 3, 5, 4, 3,
+ 9, 3, 7, 3, 6, 2, 8])
 
-
+        #for ER topology for 50 nodes
         scales = np.array([8, 3, 3, 6, 4, 1, 7, 1, 7, 4, 8, 5, 2, 1, 9, 6, 4, 4, 1, 2, 6, 4, 1, 3, 9, 9, 7, 8, 9, 3, 7, 4, 6, 4, 9, 1, 8,
              5, 6, 1, 7, 9, 1, 6, 6, 2, 8, 4, 1, 7, 8, 4, 5, 6, 7, 6, 6, 7, 7, 5, 6, 8, 7, 7, 3, 5, 6, 8, 7, 5, 5, 9, 1, 4,
              1, 4, 1, 9, 7, 3, 3, 7, 8, 9, 7, 1, 3, 6, 5, 8, 5, 4, 2, 6, 4, 6, 2, 1, 4, 3, 9, 2, 9, 8, 6, 6, 9, 6, 5, 2, 3,
@@ -110,11 +122,12 @@ class network_topology:
              3, 5, 9, 6, 9, 4, 3, 3, 7, 3, 3, 7, 5, 5, 6, 6, 2, 5, 6, 4, 9, 3, 7, 1, 5, 4, 3, 5, 8, 7, 3, 9, 3,1, 3, 7, 8,
              6, 7, 6, 6, 2, 6, 5, 3, 7, 9, 8, 4, 7, 4, 1, 8, 7, 3, 3, 4, 5, 1, 1, 1, 1, 8, 6, 3, 9, 9, 4, 6, 4, 3, 2, 7, 7,
              9, 1, 6, 8, 9, 1, 7, 8, 9, 2, 5, 1, 4, 6, 7, 7, 7, 7, 6, 1, 8, 3, 3, 9, 6, 5, 9, 6, 7, 2])
-
+        '''
         i=0
         for edge in G.edges:
            self.Dict_edge_scales[edge]=scales[i]
            G[edge[0]][edge[1]]['delay_mean']=scales[i]
+           #G[edge[0]][edge[1]]['delay_mean'] = 1
            i=i+1
         #print(f"Dict_edge_scales:{self.Dict_edge_scales}")
 
@@ -122,7 +135,8 @@ class network_topology:
         #data=np.load('sample.dat',allow_pickle=True)
         #print(data)
         samples=[]
-        y = np.loadtxt("samples.txt")
+
+        y = np.loadtxt("samples_20_ba.txt")
         samples=np.array(y)
         for edge in G.edges:
             self.Dict_edge_delay_sample[edge]=[]
@@ -138,11 +152,11 @@ class network_topology:
             sample = np.random.exponential(scale=self.Dict_edge_scales[edge], size=(1, self.time))[0]
             self.Dict_edge_delay_sample[edge]=sample
             samples.append(sample)
-            print(f"draw sample for edge:({edge[0]},{edge[1]})")
-            print(self.Dict_edge_delay_sample [edge])
-            print(np.average(sample))
+            #self.logger.debug(f"draw sample for edge:({edge[0]},{edge[1]})")
+            #self.logger.debug(self.Dict_edge_delay_sample [edge])
+            #self.logger.debug(np.average(sample))
         n_samples=np.array(samples)
-        np.savetxt('samples_20.txt',n_samples)
+        np.savetxt('samples_20_ba.txt',n_samples)
         '''
         self.logger.info(f"Draw {self.time} delay examples from exponential distribution for each edge.")
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
@@ -154,7 +168,7 @@ class network_topology:
         #test
         '''
         for edge in G.edges:
-             G[edge[0]][edge[1]]['delay']=G[edge[0]][edge[1]]['delay-mean']
+             G[edge[0]][edge[1]]['delay']=G[edge[0]][edge[1]]['delay_mean']
 
         '''
         for edge in G.edges:
@@ -195,7 +209,10 @@ class network_topology:
         elif len(monitor_candidate_list) < n:
             monitors = monitor_candidate_list
             rest_nodes = [elem for elem in G.nodes if elem not in monitors]
+            print(f"monitor list: {rest_nodes}")
+            print(f"k={n - len(monitor_candidate_list)}")
             select = sample(rest_nodes, k=n - len(monitor_candidate_list))
+
             monitors = monitors + select
         self.logger.info(f"Monitors are deployed in nodes: {monitors}")
 
@@ -207,7 +224,7 @@ class network_topology:
         path_list = []
         try:
             for n1, n2 in nodepairs:
-                shortest_path = nx.shortest_path(G, source=n1, target=n2, weight='delay', method='dijkstra')
+                shortest_path = nx.shortest_path(G, source=n1, target=n2, weight='delay_mean', method='dijkstra')
                 # print(f"shortest path: {shortest_path}")
                 pathpair = []
                 [pathpair.append((shortest_path[i], shortest_path[i + 1])) for i in range(len(shortest_path) - 1)]
