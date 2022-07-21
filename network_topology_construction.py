@@ -135,7 +135,7 @@ class network_topology:
         #data=np.load('sample.dat',allow_pickle=True)
         #print(data)
         samples=[]
-
+        '''
         y = np.loadtxt("samples_20_ba.txt")
         samples=np.array(y)
         for edge in G.edges:
@@ -155,9 +155,9 @@ class network_topology:
             #self.logger.debug(f"draw sample for edge:({edge[0]},{edge[1]})")
             #self.logger.debug(self.Dict_edge_delay_sample [edge])
             #self.logger.debug(np.average(sample))
-        n_samples=np.array(samples)
-        np.savetxt('samples_20_ba.txt',n_samples)
-        '''
+        #n_samples=np.array(samples)
+        #np.savetxt('samples_20_ba.txt',n_samples)
+
         self.logger.info(f"Draw {self.time} delay examples from exponential distribution for each edge.")
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
         self.logger.info(f"edge delay sample average {average}")

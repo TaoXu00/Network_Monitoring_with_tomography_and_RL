@@ -99,8 +99,8 @@ class multi_armed_bandit:
 
         self.logger.info(
             "===============================Initialization is finished======================================================== ")
-        #self.logger.debug(f"Dict_edge_m: {self.Dict_edge_m}")
-        #self.logger.debug(f"Dict_edge_theta[edge]: {self.Dict_edge_theta}")
+        self.logger.debug(f"Dict_edge_m: {self.Dict_edge_m}")
+        self.logger.debug(f"Dict_edge_theta[edge]: {self.Dict_edge_theta}")
         self.plotter.plot_edge_delay_difference(G, self.Dict_edge_theta)
         delay_difference=[]
         for edge in G.edges:
@@ -323,11 +323,11 @@ class multi_armed_bandit:
             computed_edge_num=[]
             self.logger.debug(f"t={self.t}, start trainning...")
             for i in range(time-self.t):
+                self.logger.info(f"t= {self.t}")
                 total_mse = 0
                 for edge in G.edges:
                     total_mse += (self.Dict_edge_theta[edge] - G[edge[0]][edge[1]]['delay_mean']) ** 2
                 total_mse_array.append(total_mse / len(G.edges))
-                self.logger.info(f"t= {self.t}")
                 # i<3000:
                 explored_path_list=[]
                 for monitor_pair in monitor_pair_list:
@@ -457,6 +457,8 @@ class multi_armed_bandit:
             #check how many edges has been explored during the training
             self.logger.debug("training is finished")
             self.logger.debug(f"Dict_edge_m values are added to the edge_exploration_times array")
+            self.logger.debug(f"Dict_edge_m: {self.Dict_edge_m}")
+            self.logger.debug(f"Dict_edge_theta[edge]: {self.Dict_edge_theta}")
             self.logger.debug(f"{self.edge_exploration_times}")
             init=np.array(self.edge_exploration_times[0])
             end=np.array(self.edge_exploration_times[1])
