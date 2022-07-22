@@ -24,62 +24,39 @@ class network_topology:
         self.Dict_edge_delay_sample={}
         self.logger=logger
         self.directory=directory
-    def graph_Generator(self, n, p):
+    def graph_Generator(self,type, n, p):
         '''
+        :param type: the type of the topology
         :param n: the number of the nodes in the topology
-        :param p: possibility of each edge in a complete graph to be present
-        :return G:
+        :param p: if it is 'ER' model, p:possibility of each edge in a complete graph to be present
+                  if it is 'Barabasi' model, p: the #edges to connect the graph when adding a new node
+        :return:  Graph G
         '''
+
         G=nx.Graph(name="my network")
-        #G.add_nodes_from([A,'B','C','D'])
-        '''Topology 1
-        G.add_edges_from([('A','D',{'delay':1}),('D','B',{'delay':0.5} ), ('A','C', {'delay':2})])
-        endnodes=['A','B','C']
-        '''
-        ''' Topology 2
-        G.add_edges_from([('A', 'C', {'delay': 0.5}), ('B', 'C', {'delay': 1}), ('C', 'D', {'delay': 2}),
-                          ('D', 'E', {'delay': 0.5}),('D', 'F', {'delay': 1})])
-        endnodes = ['A', 'B', 'E','F']
-        '''
-        '''Topology 3
-        G.add_edges_from([('A', 'C', {'delay': 0.5}), ('B', 'C', {'delay': 1}), ('C', 'D', {'delay': 2}),
-                          ('D', 'E', {'delay': 0.5}), ('D', 'F', {'delay': 1}),('C', 'G', {'delay': 0.1}),
-                          ('G', 'D', {'delay': 0.1}), ('C', 'H', {'delay': 0.1}),('D', 'H', {'delay': 0.1}),
-                          ('E', 'I', {'delay': 0.5}),])
-        endnodes = ['A', 'B', 'I', 'F']
-        '''
-
-        #Topology 4: randomized network topology
-        #G=nx.erdos_renyi_graph(n, p)
-        #nx.write_gml(G,"graph_dot_file_50.gml")
-
-        #G = nx.read_gml("graph_dot_file.gml")
-        G = nx.read_gml("graph_dot_file.gml")
+        if type=="ER":  #generate a random ER topology model
+            G=nx.erdos_renyi_graph(n, p)
+            nx.write_gml(G,"topology/ER/er_graph_dot_file_%d_%s.gml" %(n, p))
+        elif type=="Barabasi":
+            G = nx.barabasi_albert_graph(n,p)
+            nx.write_gml(G, "topology/BR/br_graph_dot_file_%d_%s.gml" %(n, p))
         self.logger.info("Graph Created!")
-        #seed(1)
 
-        #Topology 5, fixed graph for multi-armed-bandits algorithm
-
-        #G.add_weighted_edges_from([(0, 1, 1), (0, 2, 1), (0, 3, 1), (1, 4, 1),(1,2,1),(2,5,1), (2, 3, 1),(3,6,1), (4,7,1),(4,5,1),(5,6,1),(5,8,1),(6,9,1),(7,10,1),
-        #                           (7,8,1), (8,10,1),(8,9,1), (9,10,1)])
         for edge in G.edges:
-            #G[edge[0]][edge[1]]['delay']=randint(1,10)
             G[edge[0]][edge[1]]['weight']=1
         self.logger.info("all the edge weights in the graph are assigned to 1")
         self.construct_link_delay_distribution(G)
         #self.logger.info(f"Edge delay scales: {self.Dict_edge_scales}")
-        self.draw_edge_delay_sample(G)
+        self.draw_edge_delay_sample(G, type, n, p)
         self.assign_link_delay(G)
         #show the topology graph
         nx.draw(G, with_labels=True)
-        plt.savefig(self.directory+"original_topology", format="PNG")
+        plt.savefig(self.directory+"original_topology_%s_%s_%s" %(type,n,p), format="PNG")
         #graphy=plt.subplot(122)
         #nx.draw(G,pos=nx.circular_layout(G),node_color='r', edge_color='b')
-
         self.logger.info(G.name)
         self.logger.info(f"Graph Nodes: {G.nodes}")
         self.logger.info(f"Graph Edges length:{len(G.edges)}\nGraph Edges data: {G.edges.data()}")
-        #print(nx.to_numpy_matrix(G,nodelist=['A','B','C','D'])) #get the adjacent matrix of the graph
         return G
 
 
@@ -94,12 +71,13 @@ class network_topology:
         :return: the scales vector for all the edge
         '''
 
-        #scales=np.random.randint(1, 10, len(G.edges))
-        #print(f"scales: {scales}")
+        scales=np.random.randint(1, 10, len(G.edges))
+        '''
+        #scales used in the experiments for ER topology - er_graph_dot_file_20.gml
         scales=np.array([3, 6, 7, 2, 9, 8, 8, 9, 8, 3, 2, 8, 5, 3, 9, 9, 3, 2, 8, 5, 4, 6, 3, 4, 1, 4, 7, 7, 5, 7, 7, 6, 6, 3, 5, 4, 3,
  9, 3, 7, 3, 6, 2, 8])
 
-        '''
+        #scales used in the experiment for ER topology - er_graph_dot_file_50.gml
         scales = np.array([8, 3, 3, 6, 4, 1, 7, 1, 7, 4, 8, 5, 2, 1, 9, 6, 4, 4, 1, 2, 6, 4, 1, 3, 9, 9, 7, 8, 9, 3, 7, 4, 6, 4, 9, 1, 8,
              5, 6, 1, 7, 9, 1, 6, 6, 2, 8, 4, 1, 7, 8, 4, 5, 6, 7, 6, 6, 7, 7, 5, 6, 8, 7, 7, 3, 5, 6, 8, 7, 5, 5, 9, 1, 4,
              1, 4, 1, 9, 7, 3, 3, 7, 8, 9, 7, 1, 3, 6, 5, 8, 5, 4, 2, 6, 4, 6, 2, 1, 4, 3, 9, 2, 9, 8, 6, 6, 9, 6, 5, 2, 3,
@@ -115,13 +93,19 @@ class network_topology:
            self.Dict_edge_scales[edge]=scales[i]
            G[edge[0]][edge[1]]['delay_mean']=scales[i]
            i=i+1
-        #print(f"Dict_edge_scales:{self.Dict_edge_scales}")
 
-    def draw_edge_delay_sample(self, G):
-        #data=np.load('sample.dat',allow_pickle=True)
-        #print(data)
-        samples=[]
-        y = np.loadtxt("samples.txt")
+    def draw_edge_delay_sample(self, G, type, n, p):
+        '''
+        This function draws a certain number of samples from the exponential distribution for each link delay
+        :param G: the original graph G
+        :param type: the graph type: {ER, Barabasi}
+        :param n: the number of the nodes in the graph
+        :param p: if it is ER, p is the possibility that a link in a fully connected graph exists in the current topology, here it is used to name the sample file
+        :return: NULL, the samples will be saved in a file
+        '''
+        '''
+        #read samples from an existing file
+        y = np.loadtxt("delay_exponential_samples/samples.txt")
         samples=np.array(y)
         for edge in G.edges:
             self.Dict_edge_delay_sample[edge]=[]
@@ -129,27 +113,27 @@ class network_topology:
         for edge in G.edges:
             self.Dict_edge_delay_sample[edge] =samples[i]
             i=i+1
-            #np.delete(samples,0,0)
+
         '''
+        #generate the delay samples from the exponential distribution with the generated scales
+        samples=[]
         for edge in G.edges:
-            # G[edge[0]][edge[1]]['delay'] = np.random.exponential(scale=Dict_edge_scales[edge], size=1)[0]
-            scale=self.Dict_edge_scales[edge]
             sample = np.random.exponential(scale=self.Dict_edge_scales[edge], size=(1, self.time))[0]
             self.Dict_edge_delay_sample[edge]=sample
             samples.append(sample)
-            print(f"draw sample for edge:({edge[0]},{edge[1]})")
-            print(self.Dict_edge_delay_sample [edge])
-            print(np.average(sample))
         n_samples=np.array(samples)
-        np.savetxt('samples_20.txt',n_samples)
-        '''
+        np.savetxt('delay_exponential_samples/samples_%s_%s_%s.txt' %(type, n, p),n_samples)
+
         self.logger.info(f"Draw {self.time} delay examples from exponential distribution for each edge.")
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
         self.logger.info(f"edge delay sample average {average}")
 
-
-
     def assign_link_delay(self,G):
+        '''
+        This function assigns the time series delay of each link every second
+        :param G: Graph G
+        :return: NULL
+        '''
         #test
         '''
         for edge in G.edges:
@@ -165,10 +149,9 @@ class network_topology:
             #print(f"after deletion{self.Dict_edge_delay_sample[edge]}")
         #self.logger.debug(f"Assigned Delay {G.edges.data()}")
 
-
     def deploy_monitor(self,G, n, monitor_candidate_list):
         '''
-        select on which endnodes it will deploy the monitor
+        select the end nodes in which monitor can be deployed
         :param G: the graph (network topology)
         :param n: the number of the monitors will be deployed
         :param monitor_candidate_list: it can be in 3 cases:
@@ -178,15 +161,6 @@ class network_topology:
                                                      the rest (n-sizeof(monitor_candidate_list)
         :return: the nodes which are selected to deploy the monitor
         '''
-        ''' monitors for topology 1
-        monitors=G.nodes
-        '''
-        # monitors for topology 2
-        # monitors=['A','B','E','F']  #all the end nodes are selected to deploy the monitor
-
-        # monitors for topology 3
-        # monitors=['A','B','I','F']
-        #print(G.nodes)
         monitors = []
         self.logger.debug(f"n={n} monitor_candidate_list={len(monitor_candidate_list)}")
         if len(monitor_candidate_list) == n:
@@ -197,17 +171,20 @@ class network_topology:
             select = sample(rest_nodes, k=n - len(monitor_candidate_list))
             monitors = monitors + select
         self.logger.info(f"Monitors are deployed in nodes: {monitors}")
-
         return monitors
 
-    def getPath(self,G, monitors):
+    def getPath(self,G, monitors,weight):
+        '''
+        Get the path list with Dijkstra shortest path algorithm according to the specified weight factor
+        :param G:
+        :param monitors:
+        :return:
+        '''
         nodepairs = [(monitors[i], monitors[j]) for i in range(len(monitors)) for j in range(i + 1, len(monitors))]
-        # print(f"end to end nodepairs: {nodepairs}")
         path_list = []
         try:
             for n1, n2 in nodepairs:
-                shortest_path = nx.shortest_path(G, source=n1, target=n2, weight='delay', method='dijkstra')
-                # print(f"shortest path: {shortest_path}")
+                shortest_path = nx.shortest_path(G, source=n1, target=n2, weight=weight, method='dijkstra')
                 pathpair = []
                 [pathpair.append((shortest_path[i], shortest_path[i + 1])) for i in range(len(shortest_path) - 1)]
                 path_list.append(pathpair)
@@ -230,7 +207,6 @@ class network_topology:
         :return: the trimed topology
         '''
         self.logger.info("Trim the network...............")
-        all_paths_list=[]
         all_paths_set=set()
         nodepairs = [(monitors[i], monitors[j]) for i in range(len(monitors)) for j in range(i + 1, len(monitors))]
         # print(f"end to end nodepairs: {nodepairs}")

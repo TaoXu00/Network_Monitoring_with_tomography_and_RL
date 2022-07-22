@@ -43,27 +43,26 @@ class main:
         self.time=time
         self.plotter = plotter.plotter(self.directory)
 
-    def run_tomography(self, G, monitors):
+    def run_tomography(self, G, monitors, weight):
         self.logger_main.info("Runing network tomography....")
-        path_list = self.topo.getPath(G, monitors)
+        path_list = self.topo.getPath(G, monitors,weight)
         path_matrix = self.tomography.construct_matrix(G, path_list)
-        b = self.tomography.end_to_end_measurement(G, path_list)
+        b = self.tomography.end_to_end_measurement(G, path_list,'weight')
         m_rref, inds, uninds = self.tomography.find_basis(G, path_matrix, b)
         x, count = self.tomography.edge_delay_infercement(G, m_rref, inds, uninds)
         return x, count
 
-    def creat_topology(self,n,p):
-        # construct a random topology and deploy 5 monitors
-        G= self.topo.graph_Generator(n, p)
+    def creat_topology(self,type,n,p):
+        #create a network topology
+        G= self.topo.graph_Generator(type, n, p)
         return G
 
-    def tomography_verification(self, G):
+    def tomography_verification(self, G, weight):
         '''
-        In the system configuration, we random created a topology with 100 nodes.
+        In the system configuration, we random created a topology with 100 nodes with the all link weight assigned to 1.
         :param G: the topology graph
-        :return: a figure named "network tomography.png" will be saved to show the rate of the identified edges will be
-                 increased as the growth of the deployed monitor. it eventually will reach to 1 when the number of the deployed
-                 monitor is equal to the number of the edges.
+        :return: a figure named "network_tomography_verification_node%(len(G.nodes))_link_weight1.png" will be saved to show the rate of the identified edges as the growth of the deployed monitor.
+                it eventually will reach to 1 when the number of the deployed monitor is equal to the number of the edges.
         '''
         monitors_list = []
         solved_edges = []
@@ -71,24 +70,13 @@ class main:
         monitor_candidate_list=[]
         for n in range(0, G.number_of_nodes()+1, 5):
             monitors = self.topo.deploy_monitor(G, n, monitor_candidate_list)
-            x, count = self.run_tomography(G, monitors)
-            # print(f"n={n},monitors={monitors}")
+            x, count = self.run_tomography(G, monitors,weight)
             monitors_list.append(monitors)
             monitor_candidate_list=monitors
             # print(f"append monitors_list:{monitors_list}")
             solved_edges.append(x)
             solved_edges_count.append(count)
-            # print(f"append solved_edges_count:{count}")
-        # print(monitors_list)
-        # print(solved_edges_count)
-        x = [len(monitors) / len(G.nodes) for monitors in monitors_list]
-        y = [edges_count / len(G.edges) for edges_count in solved_edges_count]
-        print(x, y)
-        plt.plot(x, y)
-        plt.xlabel("% of nodes selected as monitors")
-        plt.ylabel("% of solved edges")
-        # plt.show()
-        plt.savefig('network_tomography1.png')
+        self.plotter.plot_NT_verification_edge_computed_rate_with_monitors_increasing(G, monitors_list, solved_edges_count)
 
     def run_MAB(self, G, monitors, source, destination):
 
@@ -176,10 +164,11 @@ class main:
 
 
 mynetwork=main(3000)
-G =mynetwork.creat_topology(20, 0.25)
-trimedG=mynetwork.topo.trimNetwrok(G, ['4','19'])
-mynetwork.MAB_with_increasing_monitors(trimedG,0.1)
-#mynetwork.tomography_verification(G)   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
+G =mynetwork.creat_topology("Barabasi", 100, 2)
+#trimedG=mynetwork.topo.trimNetwrok(G, ['4','19'])
+mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
+#mynetwork.MAB_with_increasing_monitors(trimedG,0.1)
+
 #monitors=mynetwork.topo.deploy_monitor(G,2,['4','19'])
 #trimedG=G
 #trimedG=mynetwork.topo.trimNetwrok(G, monitors)

@@ -138,3 +138,15 @@ class plotter:
         plt.plot(x, total_edge_mse_list_with_increasing_monitors[9], label='100%')
         plt.legend()
         plt.savefig(self.directory + "mse_with_increasing_monitor_training")
+
+
+    def plot_NT_verification_edge_computed_rate_with_monitors_increasing(self, G, monitors_list, solved_edges_count ):
+        plt.figure()
+        x = [len(monitors) / len(G.nodes) for monitors in monitors_list]
+        y = [edges_count / len(G.edges) for edges_count in solved_edges_count]
+        print(x, y)
+        plt.plot(x, y)
+        plt.xlabel("% of nodes selected as monitors")
+        plt.ylabel("% of solved links")
+        # plt.show()
+        plt.savefig('plots/network_tomography_verification_node%s_with_link_weight=1.png'%(len(G.nodes)))
