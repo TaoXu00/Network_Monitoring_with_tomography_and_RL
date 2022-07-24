@@ -120,7 +120,7 @@ class plotter:
 
     def plot_bar_edge_exploration_training_with_increasing_monitor(self, G, monitors_list, explored_edges_num):
         #x = [str(len(monitors) /len(G.nodes)) for monitors in monitors_list]
-        x = ['0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0']
+        x = ['0.1', '0.2', '0.3', '0.4']
         y = [edges_count / len(G.edges) for edges_count in explored_edges_num]
         # print(x, y)
         fig = plt.figure(figsize=(10, 7))

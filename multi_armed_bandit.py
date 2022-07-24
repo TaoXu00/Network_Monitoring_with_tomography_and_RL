@@ -315,7 +315,6 @@ class multi_armed_bandit:
         self.logger.debug(f"{self.edge_exploration_times}")
         init=np.array(self.edge_exploration_times[0])
         end=np.array(self.edge_exploration_times[1])
-
         expo_count=0
         edge_exploration_during_training = []
         for i in range (len(G.edges)):
@@ -324,6 +323,7 @@ class multi_armed_bandit:
                 edge_exploration_during_training.append(end[i] - init[i])
         self.edge_exploration_times=[]
         expo_count=0
+        self.t=1
         return total_rewards,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training
 
 
