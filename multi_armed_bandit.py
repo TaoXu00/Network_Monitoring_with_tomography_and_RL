@@ -322,7 +322,6 @@ class multi_armed_bandit:
                 expo_count+=1
                 edge_exploration_during_training.append(end[i] - init[i])
         self.edge_exploration_times=[]
-        expo_count=0
         self.t=1
         return total_rewards,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training
 
