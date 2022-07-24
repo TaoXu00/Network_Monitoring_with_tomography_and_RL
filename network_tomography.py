@@ -91,7 +91,7 @@ class network_tomography:
 
     def upper_triangular(self,M):
         '''
-        Transter the Matrix M as an upper triangular matrix
+        Transter the Matrix M as an upper triangular matrix leveraging the Gaussian elimination process
         :param M: A matrix with dimension (P*E), column number is not necessary to be equal as row column
         :return:  M:  matrix in a upper triangular form
         '''

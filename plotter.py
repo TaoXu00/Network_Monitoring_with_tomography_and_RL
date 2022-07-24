@@ -41,7 +41,7 @@ class plotter:
         #plt.xticks(np.arange(len(Dict_edge_m)))
         plt.legend()
 
-    def plot_edge_delay_difference_alongtime(self, s,e, edge_delay_difference_list):
+    def plot_edge_delay_difference_alongtime(self, s,e, edge_delay_difference_list,link_range):
         # set width of bar
         barWidth = 0.25
         fig = plt.subplots()
@@ -71,6 +71,7 @@ class plotter:
         plt.ylabel('delay difference from the mean', fontweight='bold', fontsize=15)
         plt.xticks([r for r in range(e-s)], range(s,e,1))
         plt.legend()
+        plt.savefig(self.directory + 'delay difference from the mean link %s' %link_range, format="PNG")
 
     def plot_edge_delay_difference(self,G,Dict_edge_theta):
         fig = plt.figure()
@@ -97,14 +98,19 @@ class plotter:
         # plt.show()
         plt.savefig(self.directory + 'MAB_total_delay_mse', format="PNG")
 
-    def plot_total_rewards(self, total_rewards, optimal_delay):
+    def plot_time_average_rewards(self, total_rewards, optimal_delay):
         # plot the total rewards
-        #print(f"total_rewards:{total_rewards}")
+        # print(f"total_rewards:{total_rewards}")
         plt.figure()
         x = range(len(total_rewards))
+        time_average_rewards = []
+        sum = 0
+        for i in range(len(total_rewards)):
+            sum += total_rewards[i]
+            time_average_rewards.append(sum / (i + 1))
         print(f"total rewards array x:{x}")
         print(f"total rewards array:{total_rewards}")
-        plt.plot(x, total_rewards)
+        plt.plot(x, time_average_rewards)
         plt.xlabel("time")
         plt.ylabel("rewards of the selected optimal path")
         plt.hlines(y=optimal_delay, xmin=0, xmax=len(total_rewards), colors='red', linestyles='-', lw=2,
@@ -127,15 +133,12 @@ class plotter:
         plt.savefig(self.directory + 'MAB_edge_exploration_with_increasing_monitors.png')
 
     def plot_mse_with_increasing_monitor_training(self, total_edge_mse_list_with_increasing_monitors):
-        line_num=len(total_edge_mse_list_with_increasing_monitors)
+        labels=['0.1', '0.2', '0.3', '0.4']
+        #line_num=len(total_edge_mse_list_with_increasing_monitors)
         x=range(len(total_edge_mse_list_with_increasing_monitors[0]))
         fig = plt.figure(figsize=(10, 7))
-        plt.plot(x,total_edge_mse_list_with_increasing_monitors[0],label='10%')
-        plt.plot(x,total_edge_mse_list_with_increasing_monitors[1], label='20%')
-        plt.plot(x, total_edge_mse_list_with_increasing_monitors[3], label='40%')
-        plt.plot(x, total_edge_mse_list_with_increasing_monitors[5], label='60%')
-        plt.plot(x, total_edge_mse_list_with_increasing_monitors[7], label='80%')
-        plt.plot(x, total_edge_mse_list_with_increasing_monitors[9], label='100%')
+        for i in range (len(total_edge_mse_list_with_increasing_monitors)):
+            plt.plot(x, total_edge_mse_list_with_increasing_monitors[i], label=labels[i])
         plt.legend()
         plt.savefig(self.directory + "mse_with_increasing_monitor_training")
 
@@ -150,3 +153,50 @@ class plotter:
         plt.ylabel("% of solved links")
         # plt.show()
         plt.savefig('plots/network_tomography_verification_node%s_with_link_weight=1.png'%(len(G.nodes)))
+
+    def plot_rewards_along_with_different_monitors(self, total_rewards_list, optimal_delay):
+        labels = ['0.1', '0.2', '0.3', '0.4']
+        line_num = len(total_rewards_list)
+        x = range(len(total_rewards_list[0]))
+        fig = plt.figure(figsize=(10, 7))
+        for i in range(line_num):
+            sum = 0
+            y = []
+            for j in range(len(total_rewards_list[i])):
+                sum += total_rewards_list[i][j]
+                y.append(sum / (j + 1))
+            plt.plot(x, y, label=labels[i])
+        plt.xlabel("time")
+        plt.ylabel("time averaged rewards of the selected optimal path during training")
+        plt.hlines(y=optimal_delay, xmin=0, xmax=len(total_rewards_list[0]), colors='red', linestyles='-', lw=2,
+                   label='optimal delay')
+        plt.legend()
+        plt.savefig(self.directory + "rewards with different #minitors")
+
+    def plot_edge_exporation_times_with_differrent_monitor_size(self, G, total_edge_exploration_during_training_list):
+            edges_num = len(G.edges)
+            index = range(0, edges_num)
+            # index.sort()
+            selected_edges_list = []
+            for i in range(len(total_edge_exploration_during_training_list)):
+                for j in range(len(index)):
+                    print(f"index:{index[j]}")
+                list = total_edge_exploration_during_training_list[i]
+                selected_edges_list.append([list[index[j]] for j in range(len(index))])
+
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            # Multiple bar chart
+            x = ['0.1', '0.2', '0.3', '0.4']
+            index = [str(index[i]) for i in range(len(index))]
+            for i in range(len(total_edge_exploration_during_training_list)):
+                ax.bar(index, selected_edges_list[i], width=0.55, align='center', label=x[i])
+            # Define x-ticks
+            # ticks=[str(index[i]) for i in range(len(index))]
+            # plt.xticks(index, ticks)
+            # Layout and Display
+            plt.xlabel("LinkID")
+            plt.ylabel("total explored time during MAB training ")
+            plt.tight_layout()
+            plt.legend()
+            plt.savefig(self.directory + " the exploration times of 20 random edges with different monitor numbers")

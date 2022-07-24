@@ -82,9 +82,9 @@ class main:
 
         self.MAB.Initialize(G, monitors)
         monitor_pair_list = list(combinations(monitors, 2))
-        optimal_path = nx.shortest_path(G, source, destination, weight='delay-mean', method='dijkstra')
-        optimal_delay = nx.path_weight(G, optimal_path, 'delay')
-        total_rewards, selected_shortest_path, expo_count,total_mse_array = self.MAB.train_llc(G, self.time,monitor_pair_list,source, destination)
+        optimal_path = nx.shortest_path(G, source, destination, weight='delay_mean', method='dijkstra')
+        optimal_delay = nx.path_weight(G, optimal_path, 'delay_mean')
+        total_rewards, selected_shortest_path, expo_count,total_mse_array,edge_exploration_during_training = self.MAB.train_llc(G, self.time,monitor_pair_list,source, destination)
         slots = int(len(selected_shortest_path) / 100)
         x = []
         y = []
@@ -109,21 +109,9 @@ class main:
             else:
                 path_dict[p] = 1
         self.logger_main.info(f"paths are explored during the training:{path_dict}")
+        return expo_count, total_mse_array, total_rewards, optimal_delay, edge_exploration_during_training
 
-        print(f"x={x}")
-        print(f"y={y}")
-        # print(f"y_p={y_p}")
-        plt.figure()
-        plt.plot(x, y)
-        plt.xlabel("time")
-        plt.ylabel("average delay every 100 seconds")
-        plt.hlines(y=optimal_delay, xmin=0, xmax=len(selected_shortest_path), colors='red', linestyles='-', lw=2,
-                   label='optimal delay')
-        # plt.show()
-        plt.savefig(self.directory + 'average_delay_every_100_seconds', format="PNG")
-        return expo_count, total_mse_array
-
-    def MAB_with_increasing_monitors(self, G,stepsize):
+    def MAB_with_increasing_monitors(self, G, type, node_num, p):
         '''
         In the system configuration, we random created a topology with 100 nodes.
         :param G: the topology graph
@@ -134,40 +122,54 @@ class main:
 
         monitors_list = []
         explored_edges_num = []
-        #solved_edges_count = []
-        monitor_candidate_list=[]
-        total_edge_mse_list_with_increasing_monitors=[]
-        monitors=['4','19']
-        for n in range(1,int(1/stepsize)+1):
-            num=int(n*stepsize*len(G.nodes))
-            if num<2:
-                num=2
-            monitors = self.topo.deploy_monitor(G, num, monitors)
-            self.logger_main.info(f"deloy {num} monitors: {monitors}")
-            expo_count,total_mse=self.run_MAB(G, monitors, '4', '19')
-            # print(f"n={n},monitors={monitors}")
+        # solved_edges_count = []
+        monitor_candidate_list = []
+        total_edge_mse_list_with_increasing_monitors = []
+        total_rewards_list = []
+        total_edge_exploration_during_training_list = []
+        degree_list = list(G.degree(list(G.nodes)))
+        for edge_degree in degree_list:
+            if edge_degree[1] == 2:
+                monitor_candidate_list.append(edge_degree[0])
+        self.logger_main.debug(f"degree_list: {degree_list}")
+        self.logger_main.debug(f"monitor candidate list:{monitor_candidate_list}")
+        #for n in range(2, len(monitor_candidate_list) + 1, 1):
+        #for n in range(2, 3, 1):
+        for m_p in range(10, 50, 10):
+            n=int((m_p/100)*len(G.nodes))
+            if n <= len(monitor_candidate_list):
+                monitors = monitor_candidate_list[0:n]
+            else:
+                monitors = self.topo.deploy_monitor(G, n, monitor_candidate_list)
+            self.logger_main.info(f"deloy {n} monitors: {monitors}")
+            expo_count, total_mse, total_rewards, optimal_delay, edge_exploration_during_training = self.run_MAB(
+                G, monitors, '8', '16')
             monitors_list.append(monitors)
-            monitor_candidate_list=monitors
-            # print(f"append monitors_list:{monitors_list}")
+            monitor_candidate_list = monitors
             explored_edges_num.append(expo_count)
             total_edge_mse_list_with_increasing_monitors.append(total_mse)
-            #solved_edges_count.append(count)
-            # print(f"append solved_edges_count:{count}")
-            print(f"{expo_count} edges has been explored")
+            total_rewards_list.append(total_rewards)
+            total_edge_exploration_during_training_list.append(edge_exploration_during_training)
+            np_array_total_mse = np.array(total_mse)
+            np.savetxt("mse_without_NT_in_training_node%s.txt" %(len(G.nodes)), np_array_total_mse, delimiter=",")
             self.logger_main.info(f"{expo_count} edges has been explored")
-            self.topo.draw_edge_delay_sample(G)
-        # print(monitors_list)
-        # print(solved_edges_count)
+            self.topo.draw_edge_delay_sample(G,type,node_num,p)
+
+        self.plotter.plot_rewards_along_with_different_monitors(total_rewards_list,optimal_delay)
         self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(G, monitors_list, explored_edges_num)
         self.plotter.plot_mse_with_increasing_monitor_training(total_edge_mse_list_with_increasing_monitors)
+        self.plotter.plot_edge_exporation_times_with_differrent_monitor_size(G,total_edge_exploration_during_training_list)
+
+
 
 
 
 mynetwork=main(3000)
-G =mynetwork.creat_topology("Barabasi", 100, 2)
+G =mynetwork.creat_topology("Barabasi", 50, 2)
 #trimedG=mynetwork.topo.trimNetwrok(G, ['4','19'])
-mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-#mynetwork.MAB_with_increasing_monitors(trimedG,0.1)
+#mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
+trimedG=G
+mynetwork.MAB_with_increasing_monitors(trimedG,'Barabasi',50,2)
 
 #monitors=mynetwork.topo.deploy_monitor(G,2,['4','19'])
 #trimedG=G
