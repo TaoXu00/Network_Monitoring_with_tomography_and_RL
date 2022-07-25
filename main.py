@@ -2,6 +2,7 @@ import networkx as nx
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from random import sample
 from numpy import linalg
 import sympy
 from numpy.random import seed
@@ -79,7 +80,6 @@ class main:
         self.plotter.plot_NT_verification_edge_computed_rate_with_monitors_increasing(G, monitors_list, solved_edges_count)
 
     def run_MAB(self, G, monitors, source, destination):
-
         self.MAB.Initialize(G, monitors)
         monitor_pair_list = list(combinations(monitors, 2))
         optimal_path = nx.shortest_path(G, source, destination, weight='delay_mean', method='dijkstra')
@@ -124,28 +124,36 @@ class main:
         explored_edges_num = []
         # solved_edges_count = []
         monitor_candidate_list = []
+        end_nodes=[]
         total_edge_mse_list_with_increasing_monitors = []
         total_rewards_list = []
         total_edge_exploration_during_training_list = []
         degree_list = list(G.degree(list(G.nodes)))
         for edge_degree in degree_list:
             if edge_degree[1] == 2:
-                monitor_candidate_list.append(edge_degree[0])
+                end_nodes.append(edge_degree[0])
         self.logger_main.debug(f"degree_list: {degree_list}")
-        self.logger_main.debug(f"monitor candidate list:{monitor_candidate_list}")
+        self.logger_main.debug(f"end nodes list:{end_nodes}")
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
-        for m_p in range(10, 50, 10):
-            n=int((m_p/100)*len(G.nodes))
-            if n <= len(monitor_candidate_list):
-                monitors = monitor_candidate_list[0:n]
+        monitors=[]
+        for m_p in range(10, 60, 10):
+            n=int((m_p/100)*len(end_nodes))
+            self.logger_main.debug(f"m_p {m_p}")
+            self.logger_main.debug(f"{n} monitors will be deployed")
+            if n <= len(end_nodes):
+                rest_end_nodes = [elem for elem in end_nodes if elem not in monitors]
+                self.logger_main.debug(f"rest node {rest_end_nodes}")
+                select = sample(rest_end_nodes, k=n - len(monitors))
+                self.logger_main.debug(f"select {select}")
+                monitors = monitors + select
+                self.logger_main.debug(f"monitors {monitors}")
             else:
-                monitors = self.topo.deploy_monitor(G, n, monitor_candidate_list)
+                monitors = self.topo.deploy_monitor(G, n, end_nodes)
             self.logger_main.info(f"deloy {n} monitors: {monitors}")
             expo_count, total_mse, total_rewards, optimal_delay, edge_exploration_during_training = self.run_MAB(
                 G, monitors, '8', '16')
             monitors_list.append(monitors)
-            monitor_candidate_list = monitors
             explored_edges_num.append(expo_count)
             total_edge_mse_list_with_increasing_monitors.append(total_mse)
             total_rewards_list.append(total_rewards)
@@ -158,7 +166,7 @@ class main:
         self.plotter.plot_rewards_along_with_different_monitors(total_rewards_list,optimal_delay)
         self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(G, monitors_list, explored_edges_num)
         self.plotter.plot_mse_with_increasing_monitor_training(total_edge_mse_list_with_increasing_monitors)
-        self.plotter.plot_edge_exporation_times_with_differrent_monitor_size(G,total_edge_exploration_during_training_list)
+        #self.plotter.plot_edge_exporation_times_with_differrent_monitor_size(G,total_edge_exploration_during_training_list)
 
 
 

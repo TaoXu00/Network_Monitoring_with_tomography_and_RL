@@ -120,7 +120,7 @@ class plotter:
 
     def plot_bar_edge_exploration_training_with_increasing_monitor(self, G, monitors_list, explored_edges_num):
         #x = [str(len(monitors) /len(G.nodes)) for monitors in monitors_list]
-        x = ['0.1', '0.2', '0.3', '0.4']
+        x = ['0.1', '0.2', '0.3', '0.4','0.5']
         y = [edges_count / len(G.edges) for edges_count in explored_edges_num]
         # print(x, y)
         fig = plt.figure(figsize=(10, 7))
@@ -133,7 +133,7 @@ class plotter:
         plt.savefig(self.directory + 'MAB_edge_exploration_with_increasing_monitors.png')
 
     def plot_mse_with_increasing_monitor_training(self, total_edge_mse_list_with_increasing_monitors):
-        labels=['0.1', '0.2', '0.3', '0.4']
+        labels=['0.1', '0.2', '0.3', '0.4','0.5']
         #line_num=len(total_edge_mse_list_with_increasing_monitors)
         x=range(len(total_edge_mse_list_with_increasing_monitors[0]))
         fig = plt.figure(figsize=(10, 7))
@@ -155,7 +155,7 @@ class plotter:
         plt.savefig('plots/network_tomography_verification_node%s_with_link_weight=1.png'%(len(G.nodes)))
 
     def plot_rewards_along_with_different_monitors(self, total_rewards_list, optimal_delay):
-        labels = ['0.1', '0.2', '0.3', '0.4']
+        labels = ['0.1', '0.2', '0.3', '0.4', '0.5']
         line_num = len(total_rewards_list)
         x = range(len(total_rewards_list[0]))
         fig = plt.figure(figsize=(10, 7))
@@ -187,7 +187,7 @@ class plotter:
             fig = plt.figure()
             ax = fig.add_subplot(111)
             # Multiple bar chart
-            x = ['0.1', '0.2', '0.3', '0.4']
+            x = ['0.1', '0.2', '0.3', '0.4','0.5']
             index = [str(index[i]) for i in range(len(index))]
             for i in range(len(total_edge_exploration_during_training_list)):
                 ax.bar(index, selected_edges_list[i], width=0.55, align='center', label=x[i])

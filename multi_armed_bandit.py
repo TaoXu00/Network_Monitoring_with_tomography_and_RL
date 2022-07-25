@@ -30,10 +30,10 @@ class multi_armed_bandit:
         '''
         :param G: The network topology
         :param source: the source node
-                :param destination:  the destination node
-                :param Dict_edge_scales: the vector used to construct the delay exponential distribution
-                :param optimal_delay: the delay computed with mean vector
-                :return: Dict_edge_theta: updated real mean delay vector , Dict_edge_m: updated vector for tracking how many times this link has been visited so far,
+        :param destination:  the destination node
+        :param Dict_edge_scales: the vector used to construct the delay exponential distribution
+        :param optimal_delay: the delay computed with mean vector
+        :return: Dict_edge_theta: updated real mean delay vector , Dict_edge_m: updated vector for tracking how many times this link has been visited so far,
                          t - the timestamp, total_rewards - accumulate rewards, total_regrets -accumulate regrets
         '''
         for edge in G.edges:
@@ -195,18 +195,14 @@ class multi_armed_bandit:
     def LLC_policy(self, G, monitor1, monitor2):
         # select a path which solves the minimization problem
         for edge in G.edges:
-            llc_factor= self.Dict_edge_theta[edge] - math.sqrt(
+            llc_factor= self.Dict_edge_theta[edge] - 0.5*math.sqrt(
                 (len(G.edges) + 1) * math.log(self.t) / self.Dict_edge_m[edge])
             if llc_factor < 0:
                 G[edge[0]][edge[1]]["llc_factor"]=0
                 print(f"edge ({edge[0]} {edge[1]}) got negtive lcc factor:")
             else:
                 G[edge[0]][edge[1]]["llc_factor"] = llc_factor
-            #self.logger.debug(
-            #    f"minus sqrt factor{edge}:{math.sqrt((len(G.edges) + 1) * math.log(self.t) / self.Dict_edge_m[edge])}")
 
-        # select the shortest path with wrt the llc_fact
-        # print(G.edges.data())
         shortest_path = nx.shortest_path(G, source=monitor1, target=monitor2, weight='llc_factor', method='dijkstra')
         return shortest_path
 
