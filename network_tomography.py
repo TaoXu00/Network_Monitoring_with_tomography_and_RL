@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy import linalg
 import sympy
+np.set_printoptions(threshold=np.inf)
 from numpy.random import seed
 from numpy.random import randint
 from numpy import random
@@ -15,6 +16,16 @@ from sympy.matrices import Matrix
 class network_tomography:
     def __init__(self, logger):
         self.logger=logger
+
+    def nt_engine(self, G, path_list, b):
+        path_matrix = self.construct_matrix(G, path_list)
+        print(f"path_matrix:{path_matrix}")
+        print(f"b={b}")
+        upper_triangular, inds, uninds = self.find_basis(G, path_matrix, b)
+        x, count=self.back_substitution(upper_triangular)
+        #x, count = self.edge_delay_infercement(G, M, inds, uninds)
+        return x, count
+
 
     def end_to_end_measurement(self, G, path_list,weight):
         path_delays=[]
@@ -74,11 +85,16 @@ class network_tomography:
             self.logger.debug(f"A(path): rank is: {rank}")
             #Matrix(b).applyfunc(nsimplify)
             M=np.concatenate((A,b.T),axis=1)
-            self.logger.debug(M)
             rank = np.linalg.matrix_rank(M)
             self.logger.debug(f"M(path combined with measurement): rank is: {rank}")
             triangular_matrix = self.upper_triangular(M)
-            self.logger.debug(f"triangular matrix:{np.array(triangular_matrix)}")
+            for row in triangular_matrix:
+                for i in range(len(row)):
+                    if row[i]==1:
+                        #self.logger.debug(f"finding pivots in triangular matrix:")
+                        #self.logger.debug(f"i: {i}")
+                        break
+            #self.logger.debug(f"triangular matrix:{np.array(triangular_matrix)}")
             m_rref, inds = sympy.Matrix(M).rref(iszerofunc=lambda x: abs(x) < 1e-12)
             self.logger.debug(f"{len(list(inds))} pivots(basic variables), their index are: {list(inds)}")
             uninds=list(range(len(path_matrix[0])))
@@ -96,7 +112,7 @@ class network_tomography:
         :return:  M:  matrix in a upper triangular form
         '''
         # move all zeros to buttom of matrix
-        self.logger.debug(f"M:{M}")
+        #self.logger.debug(f"M:{M}")
         M = np.concatenate((M[np.any(M != 0, axis=1)], M[np.all(M == 0, axis=1)]), axis=0)
 
         # iterate over matrix rows
@@ -134,6 +150,68 @@ class network_tomography:
             #self.logger.debug(f"i={i}, M={M}")
         # return upper triangular matrix
         return M
+    def back_substitution(self,upper_triangular):
+        n=len(upper_triangular[0])
+        print(f"n: {n}")
+        delete=[]
+        for i in range(len(upper_triangular)):
+            if abs(upper_triangular[i][n-1])< 1e-12:
+                #self.logger.debug(f"back_substitution: found {upper_triangular[i][n-1]}")
+                delete.append(i)
+        #self.logger.debug(f"deleted rows: {delete}")
+        upper_triangular_after_deletion=np.delete(upper_triangular, delete, 0)
+        #self.logger.debug(f"after deletion upper_triangular: {upper_triangular_after_deletion}")
+        inds = []
+        for row in upper_triangular_after_deletion:
+            for i in range(n-1):
+                if row[i] ==1:
+                    inds.append(i)
+                    break
+        self.logger.debug(f"after deletion, the final inds are {inds} ")
+        x=[0]*(n-1)
+        #print(f"len of x: {len(x)}")
+        #self.logger.debug(f"inds after deletion: {inds}")
+        ''''
+        for i in inds:
+            if i<n-1:
+                print(f"i={i}")
+                x[i]=-1
+        '''
+        #self.logger.debug(f"x: before_back_subsituation: {x}")
+        total_row=len(upper_triangular_after_deletion)
+        last_row= upper_triangular_after_deletion[len(upper_triangular_after_deletion)-1]
+        ##modify here if the last row has more than one '1', there is no solution
+        last_row_path=last_row[:(n-1)]
+        num_one=np.count_nonzero(last_row_path==1)
+        if num_one >1:
+            self.logger.debug(f"no edges has been computed in the last row")
+        elif num_one==1:
+            for i in range(len(last_row)-1):
+                if last_row[i]==1:
+                    x[i]=last_row[n-1]
+                    #self.logger.debug(f"computed i {i} is {x[i]}")
+                    break
+        for i in range(total_row-2,-1,-1):
+            #self.logger.debug(f"row i= {i}")
+            for j in range(n-1):
+                if(upper_triangular_after_deletion[i][j]==1):
+                    pivot=j
+                    break
+            x[pivot] = upper_triangular_after_deletion[i][n - 1]
+            #self.logger.debug(f"pivot= {j}, sum ={x[pivot]}")
+            for k in range(pivot+1, n-1):
+                if upper_triangular_after_deletion[i][k]!=0 and x[k] == 0:
+                    #self.logger.debug(f"k={k}")
+                    #self.logger.debug(f"x[{pivot}] is unidentifiable")
+                    x[pivot]=0
+                    break
+                else:
+                    x[pivot]=x[pivot]-upper_triangular_after_deletion[i][k]*x[k]
+            #self.logger.debug(f"computed i {i} is {x[pivot]}")
+        count = np.count_nonzero(x)
+        #self.logger.info(f"{count} edges are computed")
+        return x, count
+
 
     def edge_delay_infercement(self,G, m_rref, inds, uninds):
         '''
@@ -170,8 +248,11 @@ class network_tomography:
                     index=index+1
                 else:
                     deleted = False
-            self.logger.debug(f"after eliminating the free variable, the solvable matrix is: \n{sys} ")
+            #self.logger.debug(f"after eliminating the free variable, the solvable matrix is: \n{sys} ")
             ## decompose the matrix into the form Ax=b, b is the last column and A is the [0:n-1] column
+            #self.logger.debug(f"after eliminating free variables: {sys}")
+            x_back = self.back_substitution(sys)
+            #self.logger.debug(f"x_back:{x_back}")
             (a,b)=sys.shape
             if(b>a):
                 sys=np.pad(sys,((0,b-(a+1)),(0,0)), mode='constant', constant_values=float(0))
@@ -184,10 +265,12 @@ class network_tomography:
             (a,b)=sys.shape
             A,b=np.hsplit(sys,[b-1])
             x=np.linalg.pinv(A).dot(b).T
+            
         for i in range(0,len(x[0])):
             if x[0][i]<=10**(-5):
                 x[0][i]=0
         self.logger.debug(f"x= {x}")
+
         count=np.count_nonzero(x)
         self.logger.info(f"{count} edges are computed")
         return x,count

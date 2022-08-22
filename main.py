@@ -40,7 +40,7 @@ class main:
         self.logger_main.setLevel(logging.DEBUG)
         self.topo= topology.network_topology(time, logger_topo, self.directory)
         self.tomography=tomography.network_tomography(logger_nt)
-        self.MAB=multi_armed_bandit.multi_armed_bandit(self.topo, logger_mab,self.directory) #pass the topology
+        self.MAB=multi_armed_bandit.multi_armed_bandit(self.topo, logger_mab,self.directory,self.tomography) #pass the topology
         self.time=time
         self.plotter = plotter.plotter(self.directory)
 
@@ -84,7 +84,7 @@ class main:
         monitor_pair_list = list(combinations(monitors, 2))
         optimal_path = nx.shortest_path(G, source, destination, weight='delay_mean', method='dijkstra')
         optimal_delay = nx.path_weight(G, optimal_path, 'delay_mean')
-        total_rewards, selected_shortest_path, expo_count,total_mse_array,edge_exploration_during_training = self.MAB.train_llc(G, self.time,monitor_pair_list,source, destination)
+        total_rewards, selected_shortest_path, expo_count,total_mse_array,edge_exploration_during_training, average_computed_edge_num = self.MAB.train_llc(G, self.time,monitor_pair_list,source, destination)
         slots = int(len(selected_shortest_path) / 100)
         x = []
         y = []
@@ -109,7 +109,7 @@ class main:
             else:
                 path_dict[p] = 1
         self.logger_main.info(f"paths are explored during the training:{path_dict}")
-        return expo_count, total_mse_array, total_rewards, optimal_delay, edge_exploration_during_training
+        return expo_count, total_mse_array, total_rewards, optimal_delay, edge_exploration_during_training, average_computed_edge_num
 
     def MAB_with_increasing_monitors(self, G, type, node_num, p):
         '''
@@ -128,7 +128,9 @@ class main:
         total_edge_mse_list_with_increasing_monitors = []
         total_rewards_list = []
         total_edge_exploration_during_training_list = []
+        average_computed_edge_during_training = []
         degree_list = list(G.degree(list(G.nodes)))
+        #it does not make sense to differenciate the end nodes from the internal nodes.
         for edge_degree in degree_list:
             if edge_degree[1] == 2:
                 end_nodes.append(edge_degree[0])
@@ -137,21 +139,23 @@ class main:
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
-        for m_p in range(10, 60, 10):
+        for m_p in range(10, 110, 10):
             n=int((m_p/100)*len(end_nodes))
-            self.logger_main.debug(f"m_p {m_p}")
+            #self.logger_main.debug(f"m_p {m_p}")
             self.logger_main.debug(f"{n} monitors will be deployed")
+            '''
             if n <= len(end_nodes):
                 rest_end_nodes = [elem for elem in end_nodes if elem not in monitors]
-                self.logger_main.debug(f"rest node {rest_end_nodes}")
+                #self.logger_main.debug(f"rest node {rest_end_nodes}")
                 select = sample(rest_end_nodes, k=n - len(monitors))
-                self.logger_main.debug(f"select {select}")
+                #self.logger_main.debug(f"select {select}")
                 monitors = monitors + select
                 self.logger_main.debug(f"monitors {monitors}")
             else:
-                monitors = self.topo.deploy_monitor(G, n, end_nodes)
+            '''
+            monitors = self.topo.deploy_monitor(G, n, monitors)
             self.logger_main.info(f"deloy {n} monitors: {monitors}")
-            expo_count, total_mse, total_rewards, optimal_delay, edge_exploration_during_training = self.run_MAB(
+            expo_count, total_mse, total_rewards, optimal_delay, edge_exploration_during_training,average_computed_edge_num = self.run_MAB(
                 G, monitors, '8', '16')
             monitors_list.append(monitors)
             explored_edges_num.append(expo_count)
@@ -159,14 +163,16 @@ class main:
             total_rewards_list.append(total_rewards)
             total_edge_exploration_during_training_list.append(edge_exploration_during_training)
             np_array_total_mse = np.array(total_mse)
-            np.savetxt("mse_without_NT_in_training_node%s.txt" %(len(G.nodes)), np_array_total_mse, delimiter=",")
+            average_computed_edge_during_training.append(average_computed_edge_num)
+            #np.savetxt("mse_with_NT_in_training_node%s.txt" %(len(G.nodes)), np_array_total_mse, delimiter=",")
             self.logger_main.info(f"{expo_count} edges has been explored")
             self.topo.draw_edge_delay_sample(G,type,node_num,p)
 
-        self.plotter.plot_rewards_along_with_different_monitors(total_rewards_list,optimal_delay)
-        self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(G, monitors_list, explored_edges_num)
-        self.plotter.plot_mse_with_increasing_monitor_training(total_edge_mse_list_with_increasing_monitors)
+        #self.plotter.plot_rewards_along_with_different_monitors(total_rewards_list,optimal_delay)
+        #self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(G, monitors_list, explored_edges_num)
+        #self.plotter.plot_mse_with_increasing_monitor_training(total_edge_mse_list_with_increasing_monitors)
         #self.plotter.plot_edge_exporation_times_with_differrent_monitor_size(G,total_edge_exploration_during_training_list)
+        self.plotter.plot_edge_computed_during_training(G, average_computed_edge_during_training)
 
 
 

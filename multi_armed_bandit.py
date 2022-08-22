@@ -15,7 +15,7 @@ from itertools import combinations
 import plotter as plotter
 class multi_armed_bandit:
     # main(100, 0.5)
-    def __init__(self, topo, logger, directory):
+    def __init__(self, topo, logger, directory, nt):
         self.topo=topo
         self.plotter=plotter.plotter(directory)
         self.Dict_edge_theta = {}   #the observed actual average delay-mean for each edge
@@ -25,6 +25,7 @@ class multi_armed_bandit:
         self.directory=directory
         self.edge_delay_difference_list=[]
         self.edge_exploration_times=[]
+        self.nt=nt
 
     def Initialize(self, G, monitors):
         '''
@@ -181,6 +182,29 @@ class multi_armed_bandit:
                 'delay']) / (self.Dict_edge_m[edge] + 1)
             self.Dict_edge_m[edge] = self.Dict_edge_m[edge] + 1
 
+    def update_MBA_variabels_with_NT(self, G, x, explored_edge_set, edge_average_delay_Dict):
+        edges = list(G.edges)
+        for i in range(len(x)):
+            if x[i] != 0:
+                edge = edges[i]
+                self.logger.debug(
+                    f"edge {edge} is computed with the value {x[i]}, its realtime delay is {G[edge[0]][edge[1]]['delay']} ")
+                self.Dict_edge_theta[edge] = (self.Dict_edge_theta[edge] * self.Dict_edge_m[edge] + x[i]) / (
+                        self.Dict_edge_m[edge] + 1)
+                self.Dict_edge_m[edge] = self.Dict_edge_m[edge] + 1
+                if edge not in explored_edge_set:
+                    edge = (edge[1], edge[0])
+                explored_edge_set.remove(edge)
+        for edge in explored_edge_set:
+            if edge not in edges:
+                edge_g = (edge[1], edge[0])
+            else:
+                edge_g=edge
+            #as a base line approach, the unindentificable links will be assigned with average delay(total_path_delay/path_length)
+            self.Dict_edge_theta[edge_g] = (self.Dict_edge_theta[edge_g] * self.Dict_edge_m[edge_g] + edge_average_delay_Dict[edge]) / (
+                    self.Dict_edge_m[edge_g] + 1)
+            self.Dict_edge_m[edge_g] = self.Dict_edge_m[edge_g] + 1
+            self.logger.debug(f"updating {edge} with average {edge_average_delay_Dict[edge]}")
 
     def optimal_path(self, G, source, destination):
         optimal_delay = 0
@@ -209,14 +233,17 @@ class multi_armed_bandit:
     def end_to_end_measurement(self, G, path_list):
         print(f"pathlist= {path_list}")
         path_delays = []
+        average_edge_delay_list=[]
         for path in path_list:
             print(f"path: {path}")
             path_delay = 0
             for edge in path:
                 path_delay = path_delay + G[edge[0]][edge[1]]['delay']
             path_delays.append(path_delay)
+            average_edge_delay=path_delay/len(path)
+            average_edge_delay_list.append(average_edge_delay)
         b = np.array([path_delays])  # the delay of the selected path
-        return b
+        return b, average_edge_delay_list
 
     def train_llc(self,G, time, monitor_pair_list,source, destination):
         optimal_delay, optimal_path = self.optimal_path(G, source, destination)
@@ -224,6 +251,7 @@ class multi_armed_bandit:
         total_mse_array = []
         total_rewards = []   #in the current implementation, it is for only one pair of monitors
         total_regrets = []
+        computed_edge_num=[]
         self.logger.debug("start trainning...")
         for i in range(time-self.t):
             self.logger.info(f"t= {self.t}")
@@ -245,13 +273,27 @@ class multi_armed_bandit:
                     pathpair.append((path[i], path[i + 1]))
                 path_list.append(pathpair)
             self.logger.debug(f"path_list: {path_list}")
+            edge_average_delay_dict={}
+            b, average_delay_list = self.end_to_end_measurement(G, path_list)
+            for i in range(len(average_delay_list)):
+                for edge in path_list[i]:
+                    edge_average_delay_dict[edge]=average_delay_list[i]
+            self.logger.debug(f"Dict={edge_average_delay_dict}")
             # get the explored edge set
             explored_edge_set = []
             for path in path_list:
                 for edge in path:
                     if (edge[0], edge[1]) not in explored_edge_set and (edge[1], edge[0]) not in explored_edge_set:
                         explored_edge_set.append(edge)
-            self.update_MBA_variabels(G, explored_edge_set)
+
+            #call NT as a submoudle
+            x, count = self.nt.nt_engine(G, path_list, b)
+            self.logger.debug(f"{len(explored_edge_set)} edges has been explored, they are: {explored_edge_set}")
+            print(f"x={x} {count} edges are computed")
+            computed_edge_num.append(count)
+            # the MBA variables should be updated according to the results computed by the NT.
+            self.update_MBA_variabels_with_NT(G, x, explored_edge_set, edge_average_delay_dict)
+            #self.update_MBA_variabels(G, explored_edge_set)
             shortest_path=nx.shortest_path(G, source=source, target=destination, weight='llc_factor', method='dijkstra')
             selected_shortest_path.append(shortest_path)
             #self.logger.debug(f"t={self.t}, selected shortest path:{selected_shortest_path}")
@@ -319,7 +361,10 @@ class multi_armed_bandit:
                 edge_exploration_during_training.append(end[i] - init[i])
         self.edge_exploration_times=[]
         self.t=1
-        return total_rewards,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training
+        average_computed_edge_num = sum(computed_edge_num) / len(computed_edge_num)
+
+
+        return total_rewards,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num
 
 
 
