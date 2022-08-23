@@ -140,7 +140,7 @@ class main:
         #for n in range(2, 3, 1):
         monitors=[]
         for m_p in range(10, 110, 10):
-            n=int((m_p/100)*len(end_nodes))
+            n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
             self.logger_main.debug(f"{n} monitors will be deployed")
             '''
