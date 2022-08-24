@@ -222,7 +222,7 @@ class multi_armed_bandit:
     def LLC_policy(self, G, monitor1, monitor2):
         # select a path which solves the minimization problem
         for edge in G.edges:
-            llc_factor= self.Dict_edge_theta[edge] - math.sqrt(
+            llc_factor= self.Dict_edge_theta[edge] - 0.5*math.sqrt(
                 (len(G.edges) + 1) * math.log(self.t) / self.Dict_edge_m[edge])
             if llc_factor < 0:
                 G[edge[0]][edge[1]]["llc_factor"]=0
