@@ -199,7 +199,7 @@ class plotter:
             file.write(x)
             file.write(y)
         file.close()
-        # print(x, y)
+        print(x, y)
         fig = plt.figure(figsize=(10, 7))
         barwidth = 0.25
         plt.xlabel("% of nodes selected as monitors")

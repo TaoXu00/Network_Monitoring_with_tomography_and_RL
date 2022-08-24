@@ -77,11 +77,11 @@ class network_topology:
         :param G: the generated graph
         :return: the scales vector for all the edge
         '''
-        '''
+
         scales=np.random.randint(1, 10, len(G.edges))
         np.savetxt('delay_exponential_samples/scales_%s_%s_%s.txt' % (type, n, p), scales)
         
-        '''
+
         '''
         #scales used in the experiments for ER topology - er_graph_dot_file_20.gml
         #scales=np.array([2, 5, 4, 7, 7, 4, 1, 3, 2, 5, 6, 7, 2, 5, 8, 7, 2, 3, 3, 1, 7, 8, 6, 3, 1, 8, 7, 6, 4, 3, 7, 6, 9, 5, 9, 3])
