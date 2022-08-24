@@ -44,12 +44,13 @@ class network_topology:
             nx.write_gml(G, "topology/BR/br_graph_dot_file_%d_%s.gml" %(n, p))
             '''
             #read the graph from an existing file
-            G=nx.read_gml("topology/BR/br_graph_dot_file_50_2.gml")
+            G=nx.read_gml("topology/BR/br_graph_dot_file_%d_2.gml" %(n))
         self.logger.info("Graph Created!")
 
         for edge in G.edges:
             G[edge[0]][edge[1]]['weight']=1
         self.logger.info("all the edge weights in the graph are assigned to 1")
+
         self.construct_link_delay_distribution(G,type,n,p)
         #self.logger.info(f"Edge delay scales: {self.Dict_edge_scales}")
         self.draw_edge_delay_sample(G, type, n, p)
@@ -62,6 +63,7 @@ class network_topology:
         self.logger.info(G.name)
         self.logger.info(f"Graph Nodes: {G.nodes}")
         self.logger.info(f"Graph Edges length:{len(G.edges)}\nGraph Edges data: {G.edges.data()}")
+
         return G
 
 
@@ -75,9 +77,10 @@ class network_topology:
         :param G: the generated graph
         :return: the scales vector for all the edge
         '''
-        '''    
+        '''
         scales=np.random.randint(1, 10, len(G.edges))
         np.savetxt('delay_exponential_samples/scales_%s_%s_%s.txt' % (type, n, p), scales)
+        
         '''
         '''
         #scales used in the experiments for ER topology - er_graph_dot_file_20.gml
@@ -115,6 +118,7 @@ class network_topology:
         '''
 
         #read samples from an existing file
+
         y = np.loadtxt("delay_exponential_samples/samples_%s_%s_%s.txt" %(type, n, p))
         samples=np.array(y)
         for edge in G.edges:
@@ -124,7 +128,6 @@ class network_topology:
             self.Dict_edge_delay_sample[edge] =samples[i]
             i=i+1
         '''
-
         #generate the delay samples from the exponential distribution with the generated scales
         samples=[]
         for edge in G.edges:

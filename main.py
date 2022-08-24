@@ -129,7 +129,7 @@ class main:
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
-        for m_p in range(20,30, 10):
+        for m_p in range(10,100, 10):
             n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
             self.logger_main.debug(f"{n} monitors will be deployed")
@@ -148,7 +148,7 @@ class main:
             self.logger_main.info(f"{expo_count} edges has been explored")
             self.topo.draw_edge_delay_sample(G,type,node_num,p)
 
-        self.plotter.plot_rewards_along_with_different_monitors(total_rewards_list,optimal_delay)
+        #self.plotter.plot_rewards_along_with_different_monitors(total_rewards_list,optimal_delay)
         #self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(G, monitors_list, explored_edges_num)
         #self.plotter.plot_mse_with_increasing_monitor_training(total_edge_mse_list_with_increasing_monitors)
         #self.plotter.plot_edge_exporation_times_with_differrent_monitor_size(G,total_edge_exploration_during_training_list)
@@ -159,11 +159,11 @@ class main:
 
 
 mynetwork=main(3000)
-G =mynetwork.creat_topology("Barabasi", 50, 2)
+G =mynetwork.creat_topology("Barabasi", 20, 2)
 #trimedG=mynetwork.topo.trimNetwrok(G, ['4','19'])
 #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
 trimedG=G
-mynetwork.MAB_with_increasing_monitors(trimedG,'Barabasi',50,2)
+mynetwork.MAB_with_increasing_monitors(trimedG,'Barabasi',20,2)
 
 #monitors=mynetwork.topo.deploy_monitor(G,2,['4','19'])
 #trimedG=G
