@@ -195,10 +195,7 @@ class plotter:
     def plot_edge_computed_during_training(self, G,average_computed_edge_during_training):
         x = ['0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0']
         y = [edges_count / len(G.edges) for edges_count in average_computed_edge_during_training]
-        with open("%identificable edges with increasing monitors") as file:
-            file.write(x)
-            file.write(y)
-        file.close()
+        file=open("%identificable edges with increasing monitors.txt", "w+" )
         print(x, y)
         fig = plt.figure(figsize=(10, 7))
         barwidth = 0.25
@@ -208,3 +205,6 @@ class plotter:
         plt.bar(bar, y, width=barwidth)
         # plt.show()
         plt.savefig(self.directory + 'MAB_edge_computed_with_increasing_monitors.png')
+        file.write(str(x))
+        file.write(str(y))
+        file.close()

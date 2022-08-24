@@ -129,10 +129,19 @@ class main:
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
-        for m_p in range(10,110, 10):
+        for m_p in range(30,40, 10):
             n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
             self.logger_main.debug(f"{n} monitors will be deployed")
+            if n <= len(end_nodes):
+                rest_end_nodes = [elem for elem in end_nodes if elem not in monitors]
+                #self.logger_main.debug(f"rest node {rest_end_nodes}")
+                select = sample(rest_end_nodes, k=n - len(monitors))
+                #self.logger_main.debug(f"select {select}")
+                monitors = monitors + select
+                self.logger_main.info(f"Monitors are deployed in nodes: {monitors}")
+            else:
+                monitors = self.topo.deploy_monitor(G, n, end_nodes)
             monitors = self.topo.deploy_monitor(G, n, monitors)
             self.logger_main.info(f"deloy {n} monitors: {monitors}")
             expo_count, total_mse, total_rewards_dict, optimal_delay, edge_exploration_during_training,average_computed_edge_num = self.run_MAB(
