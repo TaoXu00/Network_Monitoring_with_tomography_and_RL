@@ -206,14 +206,17 @@ class multi_armed_bandit:
             self.Dict_edge_m[edge_g] = self.Dict_edge_m[edge_g] + 1
             self.logger.debug(f"updating {edge} with average {edge_average_delay_Dict[edge]}")
 
-    def optimal_path(self, G, source, destination):
-        optimal_delay = 0
-        optimal_path = nx.shortest_path(G, source=source, target=destination, weight='delay_mean', method='dijkstra')
-        self.logger.info(f"optimal path: {optimal_path}")
-        for i in range(len(optimal_path) - 1):
-            optimal_delay += G[optimal_path[i]][optimal_path[i + 1]]["delay_mean"]
-        self.logger.info(f"optimal_delay: {optimal_delay}")
-        return optimal_delay, optimal_path
+    def optimal_path(self, G, monitor_pair_list):
+        optimal_delay_dict = {}
+        for monitor_pair in monitor_pair_list:
+            optimal_path = nx.shortest_path(G, source=monitor_pair[0], target=monitor_pair[1], weight='delay_mean', method='dijkstra')
+            self.logger.info(f"optimal path: {optimal_path}")
+            optimal_delay=0
+            for i in range(len(optimal_path) - 1):
+                optimal_delay += G[optimal_path[i]][optimal_path[i + 1]]["delay_mean"]
+            optimal_delay_dict[monitor_pair]=optimal_delay
+        self.logger.info(f"optimal_delay: {optimal_delay_dict}")
+        return optimal_delay_dict
 
 
     def LLC_policy(self, G, monitor1, monitor2):
@@ -245,14 +248,17 @@ class multi_armed_bandit:
         b = np.array([path_delays])  # the delay of the selected path
         return b, average_edge_delay_list
 
-    def train_llc(self,G, time, monitor_pair_list,source, destination):
-        optimal_delay, optimal_path = self.optimal_path(G, source, destination)
+    def train_llc(self,G, time, monitor_pair_list):
+        optimal_delay_dict= self.optimal_path(G, monitor_pair_list)
         selected_shortest_path=[]
         total_mse_array = []
-        total_rewards = []   #in the current implementation, it is for only one pair of monitors
+        total_rewards_dict = {}   #in the current implementation, it is for only one pair of monitors
         total_regrets = []
         computed_edge_num=[]
+        rewards_mse=[]
         self.logger.debug("start trainning...")
+        for monitor_pair in monitor_pair_list:
+            total_rewards_dict[monitor_pair]=[]
         for i in range(time-self.t):
             self.logger.info(f"t= {self.t}")
             total_mse = 0
@@ -266,6 +272,8 @@ class multi_armed_bandit:
                 self.LLC_policy(G, m1, m2)
                 shortest_path = self.LLC_policy(G, m1, m2)
                 explored_path_list.append(shortest_path)
+                rewards = nx.path_weight(G, shortest_path, 'delay')
+                total_rewards_dict[monitor_pair].append(rewards)
             path_list = []
             for path in explored_path_list:
                 pathpair = []
@@ -294,14 +302,16 @@ class multi_armed_bandit:
             # the MBA variables should be updated according to the results computed by the NT.
             self.update_MBA_variabels_with_NT(G, x, explored_edge_set, edge_average_delay_dict)
             #self.update_MBA_variabels(G, explored_edge_set)
-            shortest_path=nx.shortest_path(G, source=source, target=destination, weight='llc_factor', method='dijkstra')
-            selected_shortest_path.append(shortest_path)
+
+
+            #shortest_path=nx.shortest_path(G, source=source, target=destination, weight='llc_factor', method='dijkstra')
+            #selected_shortest_path.append(shortest_path)
             #self.logger.debug(f"t={self.t}, selected shortest path:{selected_shortest_path}")
-            rewards=nx.path_weight(G,shortest_path,'delay')
+            '''
             total_rewards.append(rewards)
             regret = sum(total_rewards) - self.t * optimal_delay
             total_regrets.append(regret)
-
+            '''
             self.t = self.t + 1  # the time slot increase 1
             self.topo.assign_link_delay(G)
 
@@ -329,9 +339,9 @@ class multi_armed_bandit:
                 self.plotter.plot_edge_delay_difference(G,self.Dict_edge_theta)
                 plt.savefig(self.directory + 'delay difference from mean at t=3000', format="PNG", dpi=300,
                             bbox_inches='tight')
-
+        mse_list=self.compute_rewards_mse(total_rewards_dict, optimal_delay_dict)
         self.plotter.plot_total_edge_delay_mse(total_mse_array)
-        self.plotter.plot_time_average_rewards(total_rewards, optimal_delay)
+        self.plotter.plot_time_average_rewards(mse_list)
         #plot the delay difference from the mean along time
         self.plotter.plot_edge_delay_difference_alongtime(0,15,self.edge_delay_difference_list,'0-15')
         #plt.savefig(self.directory + 'delay difference from the mean like 0-14', format="PNG")
@@ -364,7 +374,24 @@ class multi_armed_bandit:
         average_computed_edge_num = sum(computed_edge_num) / len(computed_edge_num)
 
 
-        return total_rewards,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num
+        return total_rewards_dict,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num
+
+    def compute_rewards_mse(self,total_rewards_dict, optimal_delay_dict):
+        key_list = list(total_rewards_dict.keys())
+        mse_list = []
+        sum_rewards_Dict = {}
+        time_average_rewards_Dict = {}
+        for key in key_list:
+            sum_rewards_Dict[key] = 0
+            time_average_rewards_Dict[key] = 0
+        for i in range(len(total_rewards_dict[key_list[0]])):
+            sum_square = 0
+            for key in key_list:
+                sum_rewards_Dict[key] += total_rewards_dict[key][i]
+                time_average_rewards_Dict[key] = sum_rewards_Dict[key] / (i + 1)
+                sum_square += (time_average_rewards_Dict[key] - optimal_delay_dict[key]) ** 2
+            mse_list.append(sum_square / len(key_list))
+        return mse_list
 
 
 

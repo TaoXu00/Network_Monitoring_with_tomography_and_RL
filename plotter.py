@@ -98,25 +98,16 @@ class plotter:
         # plt.show()
         plt.savefig(self.directory + 'MAB_total_delay_mse', format="PNG")
 
-    def plot_time_average_rewards(self, total_rewards, optimal_delay):
+    def plot_time_average_rewards(self, mse_list):
         # plot the total rewards
         # print(f"total_rewards:{total_rewards}")
         plt.figure()
-        x = range(len(total_rewards))
-        time_average_rewards = []
-        sum = 0
-        for i in range(len(total_rewards)):
-            sum += total_rewards[i]
-            time_average_rewards.append(sum / (i + 1))
-        print(f"total rewards array x:{x}")
-        print(f"total rewards array:{total_rewards}")
-        plt.plot(x, time_average_rewards)
+        x = range(len(mse_list))
+        plt.plot(x, mse_list)
         plt.xlabel("time")
-        plt.ylabel("rewards of the selected optimal path")
-        plt.hlines(y=optimal_delay, xmin=0, xmax=len(total_rewards), colors='red', linestyles='-', lw=2,
-                   label='optimal delay')
+        plt.ylabel("mse of rewards of selected optimal path among monitors")
         # plt.show()
-        plt.savefig(self.directory + 'rewards', format="PNG")
+        plt.savefig(self.directory + 'mse rewards', format="PNG")
 
     def plot_bar_edge_exploration_training_with_increasing_monitor(self, G, monitors_list, explored_edges_num):
         #x = [str(len(monitors) /len(G.nodes)) for monitors in monitors_list]
