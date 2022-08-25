@@ -129,8 +129,12 @@ class main:
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
+<<<<<<< HEAD
         file = open("identificable edges rate with increasing monitors.txt", "w+")
         for m_p in range(80,90, 10):
+=======
+        for m_p in range(10,110, 10):
+>>>>>>> a3cba32e5110266e3c8bef30949c3b809b13c56f
             n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
             self.logger_main.debug(f"{n} monitors will be deployed")
