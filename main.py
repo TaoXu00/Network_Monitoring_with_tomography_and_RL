@@ -130,7 +130,7 @@ class main:
         #for n in range(2, 3, 1):
         monitors=[]
 
-        file = open("identificable edges rate with increasing monitors.txt", "w+")
+
         for m_p in range(10,110, 10):
             n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
@@ -155,12 +155,14 @@ class main:
             total_edge_exploration_during_training_list.append(edge_exploration_during_training)
             np_array_total_mse = np.array(total_mse)
             average_computed_edge_during_training.append(average_computed_edge_num)
-            file.write(str(m_p))
-            file.write(str(average_computed_edge_num))
+            self.logger_main.info(f"{m_p} monitors, {average_computed_edge_num} edges computed")
+            file = open("identificable edges rate with increasing monitors.txt", "w+")
+            file.write(str(m_p) + " " + str(average_computed_edge_num)+ "\n" )
+            file.close()
             #np.savetxt("mse_with_NT_in_training_node%s.txt" %(len(G.nodes)), np_array_total_mse, delimiter=",")
             self.logger_main.info(f"{expo_count} edges has been explored")
             self.topo.draw_edge_delay_sample(G,type,node_num,p)
-        file.close()
+
         #self.plotter.plot_rewards_along_with_different_monitors(total_rewards_list,optimal_delay)
         #self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(G, monitors_list, explored_edges_num)
         #self.plotter.plot_mse_with_increasing_monitor_training(total_edge_mse_list_with_increasing_monitors)
