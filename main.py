@@ -116,7 +116,7 @@ class main:
         monitor_candidate_list = []
         end_nodes=[]
         total_edge_mse_list_with_increasing_monitors = []
-        total_rewards_list = []
+        total_mse_reward_list = []
         total_edge_exploration_during_training_list = []
         average_computed_edge_during_training = []
         degree_list = list(G.degree(list(G.nodes)))
@@ -129,7 +129,7 @@ class main:
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
-        for m_p in range(10,110, 10):
+        for m_p in range(30,40, 10):
             n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
             self.logger_main.debug(f"{n} monitors will be deployed")
@@ -149,7 +149,7 @@ class main:
             monitors_list.append(monitors)
             explored_edges_num.append(expo_count)
             total_edge_mse_list_with_increasing_monitors.append(total_mse)
-            total_rewards_list.append(total_rewards_dict)
+            #total_rewards_list.append(total_rewards_dict)
             total_edge_exploration_during_training_list.append(edge_exploration_during_training)
             np_array_total_mse = np.array(total_mse)
             average_computed_edge_during_training.append(average_computed_edge_num)
@@ -168,11 +168,11 @@ class main:
 
 
 mynetwork=main(3000)
-G =mynetwork.creat_topology("Barabasi", 50, 2)
+G =mynetwork.creat_topology("Barabasi", 20, 2)
 #trimedG=mynetwork.topo.trimNetwrok(G, ['4','19'])
 #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
 trimedG=G
-mynetwork.MAB_with_increasing_monitors(trimedG,'Barabasi',50,2)
+mynetwork.MAB_with_increasing_monitors(trimedG,'Barabasi',20,2)
 
 #monitors=mynetwork.topo.deploy_monitor(G,2,['4','19'])
 #trimedG=G
