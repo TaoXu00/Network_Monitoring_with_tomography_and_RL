@@ -129,7 +129,7 @@ class main:
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
-        for m_p in range(30,40, 10):
+        for m_p in range(40,50, 10):
             n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
             self.logger_main.debug(f"{n} monitors will be deployed")
@@ -168,11 +168,11 @@ class main:
 
 
 mynetwork=main(3000)
-G =mynetwork.creat_topology("Barabasi", 20, 2)
+G =mynetwork.creat_topology("Barabasi", 50, 2)
 #trimedG=mynetwork.topo.trimNetwrok(G, ['4','19'])
 #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
 trimedG=G
-mynetwork.MAB_with_increasing_monitors(trimedG,'Barabasi',20,2)
+mynetwork.MAB_with_increasing_monitors(trimedG,'Barabasi',50,2)
 
 #monitors=mynetwork.topo.deploy_monitor(G,2,['4','19'])
 #trimedG=G
