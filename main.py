@@ -168,11 +168,11 @@ class main:
 
 
 mynetwork=main(3000)
-G =mynetwork.creat_topology("Barabasi", 50, 2)
+G =mynetwork.creat_topology("Barabasi", 100, 2)
 #trimedG=mynetwork.topo.trimNetwrok(G, ['4','19'])
 #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
 trimedG=G
-mynetwork.MAB_with_increasing_monitors(trimedG,'Barabasi',50,2)
+mynetwork.MAB_with_increasing_monitors(trimedG,'Barabasi',100,2)
 
 #monitors=mynetwork.topo.deploy_monitor(G,2,['4','19'])
 #trimedG=G
