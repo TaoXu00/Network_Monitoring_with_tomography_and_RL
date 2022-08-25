@@ -155,7 +155,7 @@ class main:
             total_edge_exploration_during_training_list.append(edge_exploration_during_training)
             np_array_total_mse = np.array(total_mse)
             average_computed_edge_during_training.append(average_computed_edge_num)
-            self.logger_main.info(f"{m_p} monitors, {average_computed_edge_num} edges computed")
+            self.logger_main.info(f"{m_p}% monitors, {average_computed_edge_num}/{len(G.edges)} edges computed")
             file = open("identificable edges rate with increasing monitors.txt", "w+")
             file.write(str(m_p) + " " + str(average_computed_edge_num)+ "\n" )
             file.close()
