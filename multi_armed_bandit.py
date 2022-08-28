@@ -52,7 +52,7 @@ class multi_armed_bandit:
         for edge_G in G.edges:   #traversal each link to guarantee every link is covered at least once
             n1 = edge_G[0]
             n2 = edge_G[1]
-            #self.logger.debug(f"t= {self.t} initializing edge {n1}, {n2}")
+            self.logger.debug(f"t= {self.t} initializing edge {n1}, {n2}")
             for monitor_pair in monitor_pair_list:
                #self.logger.debug(f"check with the monitor_pair: {monitor_pair}")
                 m1 = monitor_pair[0]
@@ -67,21 +67,26 @@ class multi_armed_bandit:
                 sample_delays.append(delays)
                 # index of time slot
                 found=self.find_path(G, edge_G, n1, n2, m1, m2)
-                if found == 1:  # does not find the path between this monitor pair
-                    #self.logger.debug(f"found the path with monitor1 {m1} monitor2 {m2} and left_node {n1} right_node {n2}")
+                if found == 1:
+                    self.logger.debug(f"found the path with monitor1 {m1} monitor2 {m2} and left_node {n1} right_node {n2}")
                     break
                 elif found ==2:
-                    #self.logger.debug(f"return 2 in Check1")
+                    self.logger.debug(f"return 2 in Check1")
                     continue
-                elif found==3:   #the right node is the same as the source node, now check the edge (n2, n1)
-                    #self.logger.debug("return 3 in check 1")
+                elif found==3 or found==4:   #the right node is the same as the source node, now check the edge (n2, n1)
+                    self.logger.debug(f"return 3 in check 1, found = {found}")
                     found_inverse=self.find_path(G, edge_G, n2, n1, m1, m2)
                     if found_inverse==2:
-                        #self.logger.debug("return 2 in check 2")
+                        self.logger.debug("return 2 in check 2")
                         continue
                     elif found_inverse==1:
-                        #self.logger.debug(f"found the path with monitor {m1} monitor {m2} and left_node {n2} right_node {n1}")
+                        self.logger.debug(f"found the path with monitor {m1} monitor {m2} and left_node {n2} right_node {n1}")
                         break
+                    elif found_inverse==4 or found_inverse==3:
+                        self.logger.debug(f"check with next monitor pair")
+                        continue
+
+
 
 
             #total_rewards.append(rewards)
@@ -111,7 +116,6 @@ class multi_armed_bandit:
         plt.savefig(self.directory + '# of edge exploration after initialization ', format="PNG", dpi=300,
                     bbox_inches='tight')
 
-        #return total_rewards, total_regrets, optimal_delay
 
     def find_path(self, G, edge_G, left_node, right_node, source, destination):
         G_l=G.copy()
@@ -124,7 +128,7 @@ class multi_armed_bandit:
             try:
                 shortest_path_l = nx.shortest_path(G_l, source=source, target=left_node, weight='weight',
                                                    method='dijkstra')
-                #self.logger.debug(f"shortest path from {source} to {left_node}: {shortest_path_l}")
+                self.logger.debug(f"shortest path from {source} to {left_node}: {shortest_path_l}")
                 pathpair_list_l = self.construct_pathPair_from_path(shortest_path_l)
                 G_r = G.copy()
                 # print(G_r.nodes)
@@ -134,7 +138,7 @@ class multi_armed_bandit:
                     else:
                         G_r.remove_edge(edge[1], edge[0])
             except Exception as e:
-                #self.logger.error(str(e)+"occurred, try the inversed direction.")
+                self.logger.error(str(e)+"occurred, try the inversed direction.")
                 return 3
             G_r.remove_node(left_node)
             if(source in G_r.nodes):
@@ -143,7 +147,7 @@ class multi_armed_bandit:
                 try:
                     shortest_path_r = nx.shortest_path(G_r, source=right_node, target=destination, weight='weight',
                                                method='dijkstra')
-                    #self.logger.debug(f"shortest path from {right_node} to {destination}: {shortest_path_r}")
+                    self.logger.debug(f"shortest path from {right_node} to {destination}: {shortest_path_r}")
                     pathpair_list_r = self.construct_pathPair_from_path(shortest_path_r)
                     pathpair_list_l.append(edge_G)
                     pathpair_list = pathpair_list_l + pathpair_list_r
@@ -154,8 +158,10 @@ class multi_armed_bandit:
                         #self.logger.debug(f"rewards: {rewards}")
                         return 1
                 except Exception as e:
-                    #self.logger.error(str(e)+"occurred, try next pair monitor")
-                    return 2
+                    self.logger.error(str(e) + "occurred, try the inversed direction.")
+                    return 4
+                    #self.logger.error(str(e) + "occurred, try the inversed direction.")
+                    #return 3
             else:
                 return 2
 
@@ -222,7 +228,7 @@ class multi_armed_bandit:
     def LLC_policy(self, G, monitor1, monitor2):
         # select a path which solves the minimization problem
         for edge in G.edges:
-            llc_factor= self.Dict_edge_theta[edge] - 0.5*math.sqrt(
+            llc_factor= self.Dict_edge_theta[edge] - math.sqrt(
                 (len(G.edges) + 1) * math.log(self.t) / self.Dict_edge_m[edge])
             if llc_factor < 0:
                 G[edge[0]][edge[1]]["llc_factor"]=0
@@ -339,17 +345,13 @@ class multi_armed_bandit:
                 self.plotter.plot_edge_delay_difference(G,self.Dict_edge_theta)
                 plt.savefig(self.directory + 'delay difference from mean at t=3000', format="PNG", dpi=300,
                             bbox_inches='tight')
-        mse_list=self.compute_rewards_mse(total_rewards_dict, optimal_delay_dict)
+        rewards_mse_list=self.compute_rewards_mse(total_rewards_dict, optimal_delay_dict)
         self.plotter.plot_total_edge_delay_mse(total_mse_array)
-        self.plotter.plot_time_average_rewards(mse_list)
+        self.plotter.plot_time_average_rewards(rewards_mse_list)
         #plot the delay difference from the mean along time
         self.plotter.plot_edge_delay_difference_alongtime(0,15,self.edge_delay_difference_list,'0-15')
-        #plt.savefig(self.directory + 'delay difference from the mean like 0-14', format="PNG")
         self.plotter.plot_edge_delay_difference_alongtime(15, 30,self.edge_delay_difference_list,'15-30')
-        #plt.savefig(self.directory + 'delay difference from the mean like 15-30', format="PNG")
         self.plotter.plot_edge_delay_difference_alongtime(30, 35,self.edge_delay_difference_list, '30-35')
-        #plt.savefig(self.directory + 'delay difference from the mean like 31-35', format="PNG")
-        #plot the number of edges has been explored after the training
 
         self.plotter.plot_edge_exploitation_times_bar('t=3000',self.Dict_edge_m)
         plt.savefig(self.directory + '# of edge exploration after training', format="PNG", dpi=300,
@@ -373,12 +375,11 @@ class multi_armed_bandit:
         self.t=1
         average_computed_edge_num = sum(computed_edge_num) / len(computed_edge_num)
 
-
-        return total_rewards_dict,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num
+        return rewards_mse_list,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num
 
     def compute_rewards_mse(self,total_rewards_dict, optimal_delay_dict):
         key_list = list(total_rewards_dict.keys())
-        mse_list = []
+        rewards_mse_list = []
         sum_rewards_Dict = {}
         time_average_rewards_Dict = {}
         for key in key_list:
@@ -390,8 +391,8 @@ class multi_armed_bandit:
                 sum_rewards_Dict[key] += total_rewards_dict[key][i]
                 time_average_rewards_Dict[key] = sum_rewards_Dict[key] / (i + 1)
                 sum_square += (time_average_rewards_Dict[key] - optimal_delay_dict[key]) ** 2
-            mse_list.append(sum_square / len(key_list))
-        return mse_list
+            rewards_mse_list.append(sum_square / len(key_list))
+        return rewards_mse_list
 
 
 

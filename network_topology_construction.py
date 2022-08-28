@@ -45,6 +45,9 @@ class network_topology:
             '''
             #read the graph from an existing file
             G=nx.read_gml("topology/BR/br_graph_dot_file_%d_2.gml" %(n))
+        elif type=="Bics":
+            G=nx.read_graphml('topology/Topology_Zoo/Bics.graphml')
+
         self.logger.info("Graph Created!")
 
         for edge in G.edges:
@@ -79,7 +82,10 @@ class network_topology:
         '''
         '''
         scales=np.random.randint(1, 10, len(G.edges))
-        np.savetxt('delay_exponential_samples/scales_%s_%s_%s.txt' % (type, n, p), scales)
+        if type== "Barabasi" or type== "ER":
+            np.savetxt('delay_exponential_samples/scales_%s_%s_%s.txt' % (type, n, p), scales)
+        elif type=="Bics":
+            np.savetxt('delay_exponential_samples/scales_%s.txt' % (type), scales)
         '''
 
         '''
@@ -97,7 +103,10 @@ class network_topology:
              6, 7, 6, 6, 2, 6, 5, 3, 7, 9, 8, 4, 7, 4, 1, 8, 7, 3, 3, 4, 5, 1, 1, 1, 1, 8, 6, 3, 9, 9, 4, 6, 4, 3, 2, 7, 7,
              9, 1, 6, 8, 9, 1, 7, 8, 9, 2, 5, 1, 4, 6, 7, 7, 7, 7, 6, 1, 8, 3, 3, 9, 6, 5, 9, 6, 7, 2])
         '''
-        y = np.loadtxt("delay_exponential_samples/scales_%s_%s_%s.txt" % (type, n, p))
+        if type== "Barabasi" or type== "ER":
+            y= np.loadtxt("delay_exponential_samples/scales_%s_%s_%s.txt" % (type, n, p))
+        elif type=="Bics":
+            y = np.loadtxt("delay_exponential_samples/scales_%s.txt" % (type))
         scales = np.array(y)
         self.logger.debug(f"Edge delay scales: {scales}")
         i=0
@@ -119,7 +128,12 @@ class network_topology:
 
         #read samples from an existing file
 
-        y = np.loadtxt("delay_exponential_samples/samples_%s_%s_%s.txt" %(type, n, p))
+        if type== "Barabasi" or type=="ER":
+            y = np.loadtxt("delay_exponential_samples/samples_%s_%s_%s.txt" %(type, n, p))
+        elif type=="Bics":
+            y= np.loadtxt("delay_exponential_samples/samples_%s.txt" %(type))
+
+       
         samples=np.array(y)
         for edge in G.edges:
             self.Dict_edge_delay_sample[edge]=[]
@@ -135,7 +149,10 @@ class network_topology:
             self.Dict_edge_delay_sample[edge]=sample
             samples.append(sample)
         n_samples=np.array(samples)
-        np.savetxt('delay_exponential_samples/samples_%s_%s_%s.txt' %(type, n, p),n_samples)
+        if type== "Barabasi" or type=="ER":
+            np.savetxt('delay_exponential_samples/samples_%s_%s_%s.txt' %(type, n, p),n_samples)
+        elif type=="Bics":
+            np.savetxt('delay_exponential_samples/samples_%s.txt' % (type), n_samples)
         '''
         self.logger.info(f"Draw {self.time} delay examples from exponential distribution for each edge.")
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
@@ -246,7 +263,7 @@ class network_topology:
         for edge in uncovered_edges:
             G.remove_edge(*edge)
 
-        G.remove_nodes_from(['8','10'])
+        #G.remove_nodes_from(['8','10'])
 
         plt.figure()
         nx.draw(G, with_labels=True)

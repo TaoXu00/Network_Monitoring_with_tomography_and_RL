@@ -109,10 +109,10 @@ class plotter:
         # plt.show()
         plt.savefig(self.directory + 'mse rewards', format="PNG")
 
-    def plot_bar_edge_exploration_training_with_increasing_monitor(self, G, monitors_list, explored_edges_num):
+    def plot_bar_edge_exploration_training_with_increasing_monitor(self, monitors_deployment_percentage, explored_edges_rate):
         #x = [str(len(monitors) /len(G.nodes)) for monitors in monitors_list]
-        x = ['0.1', '0.2', '0.3', '0.4','0.5']
-        y = [edges_count / len(G.edges) for edges_count in explored_edges_num]
+        x=['0.1', '0.2', '0.3', '0.4','0.5', '0.6', '0.7', '0.8', '0.9', '1.0']
+        y = explored_edges_rate
         # print(x, y)
         fig = plt.figure(figsize=(10, 7))
         barwidth = 0.25
@@ -145,24 +145,19 @@ class plotter:
         # plt.show()
         plt.savefig('plots/network_tomography_verification_node%s_with_link_weight=1.png'%(len(G.nodes)))
 
-    def plot_rewards_along_with_different_monitors(self, total_rewards_list, optimal_delay):
-        labels = ['0.1', '0.2', '0.3', '0.4', '0.5']
-        line_num = len(total_rewards_list)
-        x = range(len(total_rewards_list[0]))
+    def plot_rewards_mse_along_with_different_monitors(self,monitors_deployment_percentage,total_rewards_mse_list):
+        labels=[]
+        for per in monitors_deployment_percentage:
+            labels.append(str(per)+'%')
+        line_num = len(total_rewards_mse_list)
+        x = range(len(total_rewards_mse_list[0]))
         fig = plt.figure(figsize=(10, 7))
         for i in range(line_num):
-            sum = 0
-            y = []
-            for j in range(len(total_rewards_list[i])):
-                sum += total_rewards_list[i][j]
-                y.append(sum / (j + 1))
-            plt.plot(x, y, label=labels[i])
+            plt.plot(x, total_rewards_mse_list[i], label=labels[i])
         plt.xlabel("time")
-        plt.ylabel("time averaged rewards of the selected optimal path during training")
-        plt.hlines(y=optimal_delay, xmin=0, xmax=len(total_rewards_list[0]), colors='red', linestyles='-', lw=2,
-                   label='optimal delay')
+        plt.ylabel("mse of time averaged rewards of the selected optimal paths during training")
         plt.legend()
-        plt.savefig(self.directory + "rewards with different #minitors")
+        plt.savefig(self.directory + "rewards mse with different #minitors")
 
     def plot_edge_exporation_times_with_differrent_monitor_size(self, G, total_edge_exploration_during_training_list):
             edges_num = len(G.edges)
@@ -192,16 +187,46 @@ class plotter:
             plt.legend()
             plt.savefig(self.directory + " the exploration times of 20 random edges with different monitor numbers")
 
-    def plot_edge_computed_during_training(self, G,average_computed_edge_during_training):
-        x = ['0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0']
-        y = [edges_count / len(G.edges) for edges_count in average_computed_edge_during_training]
-
-        print(x, y)
+    def plot_edge_computed_rate_during_training(self,monitors_deployment_percentage,average_computed_edge_rate_during_training):
+        x = []
+        for per in monitors_deployment_percentage:
+            x.append(str(per)+'%')
+        y = average_computed_edge_rate_during_training
         fig = plt.figure(figsize=(10, 7))
         barwidth = 0.25
         plt.xlabel("% of nodes selected as monitors")
         plt.ylabel("% of computed edges")
         bar = np.array(x)
         plt.bar(bar, y, width=barwidth)
-        # plt.show()
-        plt.savefig(self.directory + 'MAB_edge_computed_with_increasing_monitors.png')
+        plt.savefig(self.directory + 'MAB_edge_computed_rate_with_increasing_monitors.png')
+
+    def plot_edge_computed_rate_with_different_topology_size(self):
+        percentage = ['0.1', '0.2', '0.3', '0.4', '0.5','0.6','0.7','0.8','0.9','1.0']
+        edge_comput_rate_20nodes=[0.0, 0.05796490043874452, 0.10419244759440507, 0.11742978212772341, 0.2896838789515131, 0.3347301908726141, 0.5024843439457007, 0.7434657066786665,0.7759215509806128, 0.8975794052574343]
+        edge_compute_number_50nodes=[1.256631071305546,6.163623837409577,20.436445056837755,30.779193937306236,43.56286600068894,64.29968997588702,64.19910437478471,73.87599035480537,81.72959007922839, 79.74061315880124]
+        edge_compute_rate_50nodes=[x/96 for x in edge_compute_number_50nodes]
+        barWidth = 0.25
+        fig = plt.subplots()
+        # set height of bar
+        nodes_20 = edge_comput_rate_20nodes
+        nodes_50 = edge_compute_rate_50nodes
+        # Set position of bar on X axis
+        br1 = np.arange(len(percentage))
+        br2 = [x + barWidth for x in br1]
+
+        # Make the plot
+        plt.bar(br1, nodes_20, color='r', width=barWidth,
+                edgecolor='grey', label='20 nodes')
+        plt.bar(br2, nodes_50, color='g', width=barWidth,
+                edgecolor='grey', label='50 nodes')
+
+
+        # Adding Xticks
+        xlable = percentage
+        plt.xlabel('%of nodes selected as monitors',  fontsize=15)
+        plt.ylabel('%of the identified links',  fontsize=15)
+        plt.xticks(np.arange(len(percentage)),percentage)
+        plt.legend()
+        plt.savefig(self.directory + '%of identified edges with different topology size and different number of monitors' , format="PNG")
+
+

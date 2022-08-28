@@ -89,7 +89,7 @@ class main:
             optimal_delay= nx.path_weight(G, optimal_path, 'delay_mean')
             optimal_path_dict[monitor_pair]=optimal_path
             optimal_delay_dict[monitor_pair]=optimal_delay
-        total_rewards_dict, selected_shortest_path, expo_count,total_mse_array,edge_exploration_during_training, average_computed_edge_num = self.MAB.train_llc(G, self.time,monitor_pair_list)
+        rewards_mse_list, selected_shortest_path, expo_count,total_mse_array,edge_exploration_during_training, average_computed_edge_num = self.MAB.train_llc(G, self.time,monitor_pair_list)
 
         path_dict = {}
         for path in selected_shortest_path:
@@ -99,7 +99,7 @@ class main:
             else:
                 path_dict[p] = 1
         self.logger_main.info(f"paths are explored during the training:{path_dict}")
-        return expo_count, total_mse_array, total_rewards_dict, optimal_delay, edge_exploration_during_training, average_computed_edge_num
+        return expo_count, total_mse_array, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num
 
     def MAB_with_increasing_monitors(self, G, type, node_num, p):
         '''
@@ -111,14 +111,13 @@ class main:
         '''
 
         monitors_list = []
-        explored_edges_num = []
-        # solved_edges_count = []
-        monitor_candidate_list = []
+        explored_edges_rate = []
         end_nodes=[]
         total_edge_mse_list_with_increasing_monitors = []
         total_mse_reward_list = []
         total_edge_exploration_during_training_list = []
-        average_computed_edge_during_training = []
+        average_computed_edge_rate_during_training = []
+        total_rewards_mse_list=[]
         degree_list = list(G.degree(list(G.nodes)))
         #it does not make sense to differenciate the end nodes from the internal nodes.
         for edge_degree in degree_list:
@@ -129,9 +128,10 @@ class main:
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
-
-
-        for m_p in range(10,110, 10):
+        monitors_deployment_percentage=[]
+        file = open(f"{self.directory}nodes_identificable edges rate with increasing monitors.txt", "w+")
+        for m_p in range(30,40,10):
+            monitors_deployment_percentage.append(m_p)
             n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
             self.logger_main.debug(f"{n} monitors will be deployed")
@@ -146,45 +146,44 @@ class main:
                 monitors = self.topo.deploy_monitor(G, n, end_nodes)
             monitors = self.topo.deploy_monitor(G, n, monitors)
             self.logger_main.info(f"deloy {n} monitors: {monitors}")
-            expo_count, total_mse, total_rewards_dict, optimal_delay, edge_exploration_during_training,average_computed_edge_num = self.run_MAB(
-                G, monitors)
+            trimedG=mynetwork.topo.trimNetwrok(G, monitors)
+            expo_count, total_mse, rewards_mse_list, optimal_delay, edge_exploration_during_training,average_computed_edge_num = self.run_MAB(
+                trimedG, monitors)
             monitors_list.append(monitors)
-            explored_edges_num.append(expo_count)
+            explored_edges_rate.append(expo_count/len(trimedG.edges))
             total_edge_mse_list_with_increasing_monitors.append(total_mse)
-            #total_rewards_list.append(total_rewards_dict)
+            total_rewards_mse_list.append(rewards_mse_list)
             total_edge_exploration_during_training_list.append(edge_exploration_during_training)
-            np_array_total_mse = np.array(total_mse)
-            average_computed_edge_during_training.append(average_computed_edge_num)
-            self.logger_main.info(f"{m_p}% monitors, {average_computed_edge_num}/{len(G.edges)} edges computed")
-            file = open("identificable edges rate with increasing monitors.txt", "w+")
-            file.write(str(m_p) + " " + str(average_computed_edge_num)+ "\n" )
-            file.close()
+            average_computed_edge_rate_during_training.append(average_computed_edge_num/len(trimedG.edges))
+            self.logger_main.info(f"{m_p}% monitors, {expo_count}/{len(trimedG.edges)}  edges are explored")
+            self.logger_main.info(f"{m_p}% monitors, {average_computed_edge_num}/{len(trimedG.edges)}  edges computed")
+            file.write(str(m_p) + " " + str(average_computed_edge_num/len(trimedG.edges))+ "\n" )
             #np.savetxt("mse_with_NT_in_training_node%s.txt" %(len(G.nodes)), np_array_total_mse, delimiter=",")
             self.logger_main.info(f"{expo_count} edges has been explored")
             self.topo.draw_edge_delay_sample(G,type,node_num,p)
-
-        #self.plotter.plot_rewards_along_with_different_monitors(total_rewards_list,optimal_delay)
-        #self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(G, monitors_list, explored_edges_num)
+        file.close()
+        #self.plotter.plot_rewards_mse_along_with_different_monitors(monitors_deployment_percentage,total_rewards_mse_list)
+        self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(monitors_deployment_percentage, explored_edges_rate)
         #self.plotter.plot_mse_with_increasing_monitor_training(total_edge_mse_list_with_increasing_monitors)
         #self.plotter.plot_edge_exporation_times_with_differrent_monitor_size(G,total_edge_exploration_during_training_list)
-        self.plotter.plot_edge_computed_during_training(G, average_computed_edge_during_training)
-
+        self.plotter.plot_edge_computed_rate_during_training(monitors_deployment_percentage,average_computed_edge_rate_during_training)
+    def plot_edge_computed_rate_bar_with_different_topology_size(self):
+        self.plotter.plot_edge_computed_rate_with_different_topology_size()
 
 
 
 
 mynetwork=main(3000)
-G =mynetwork.creat_topology("Barabasi", 50, 2)
-#trimedG=mynetwork.topo.trimNetwrok(G, ['4','19'])
+G =mynetwork.creat_topology("Bics", 50, 2)
 #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-trimedG=G
-mynetwork.MAB_with_increasing_monitors(trimedG,'Barabasi',50,2)
+mynetwork.MAB_with_increasing_monitors(G,'Bics',len(G.nodes),0)
 
 #monitors=mynetwork.topo.deploy_monitor(G,2,['4','19'])
 #trimedG=G
 #trimedG=mynetwork.topo.trimNetwrok(G, monitors)
 #mynetwork.run_tomography(trimedG,monitors)
 #mynetwork.run_MAB(trimedG,monitors,'3','47')
+#mynetwork.plot_edge_computed_rate_bar_with_different_topology_size()
 
 
 
