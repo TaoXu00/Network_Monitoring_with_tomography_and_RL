@@ -121,7 +121,7 @@ class main:
         degree_list = list(G.degree(list(G.nodes)))
         #it does not make sense to differenciate the end nodes from the internal nodes.
         for edge_degree in degree_list:
-            if edge_degree[1] == 2:
+            if edge_degree[1] == 2 or edge_degree[1]==1:
                 end_nodes.append(edge_degree[0])
         self.logger_main.debug(f"degree_list: {degree_list}")
         self.logger_main.debug(f"end nodes list:{end_nodes}")
@@ -174,9 +174,9 @@ class main:
 
 
 mynetwork=main(3000)
-G =mynetwork.creat_topology("Bics", 50, 2)
+G =mynetwork.creat_topology("BTN", 50, 2)
 #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-mynetwork.MAB_with_increasing_monitors(G,'Bics',len(G.nodes),0)
+mynetwork.MAB_with_increasing_monitors(G,'BNT',len(G.nodes),0)
 
 #monitors=mynetwork.topo.deploy_monitor(G,2,['4','19'])
 #trimedG=G
