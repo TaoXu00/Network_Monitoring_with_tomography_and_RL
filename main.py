@@ -130,7 +130,7 @@ class main:
         monitors=[]
         monitors_deployment_percentage=[]
         file = open(f"{self.directory}nodes_identificable edges rate with increasing monitors.txt", "w+")
-        for m_p in range(30,40,10):
+        for m_p in range(10,110,10):
             monitors_deployment_percentage.append(m_p)
             n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
@@ -155,8 +155,8 @@ class main:
             total_rewards_mse_list.append(rewards_mse_list)
             total_edge_exploration_during_training_list.append(edge_exploration_during_training)
             average_computed_edge_rate_during_training.append(average_computed_edge_num/len(trimedG.edges))
-            self.logger_main.info(f"{m_p}% monitors, {expo_count}/{len(trimedG.edges)}  edges are explored")
-            self.logger_main.info(f"{m_p}% monitors, {average_computed_edge_num}/{len(trimedG.edges)}  edges computed")
+            self.logger_main.info(f"{m_p}% monitors, {expo_count/len(trimedG.edges)}  edges are explored")
+            self.logger_main.info(f"{m_p}% monitors, {average_computed_edge_num/len(trimedG.edges)}  edges computed")
             file.write(str(m_p) + " " + str(average_computed_edge_num/len(trimedG.edges))+ "\n" )
             #np.savetxt("mse_with_NT_in_training_node%s.txt" %(len(G.nodes)), np_array_total_mse, delimiter=",")
             self.logger_main.info(f"{expo_count} edges has been explored")

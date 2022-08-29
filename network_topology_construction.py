@@ -259,14 +259,14 @@ class network_topology:
                     uncovered_edges.append(edge_e)
 
         self.logger.info(f"uncovered edges: {uncovered_edges}")
-        old_G=G.copy()   #store the original network topology
+        trimedG=G.copy()   #store the original network topology
         for edge in uncovered_edges:
-            G.remove_edge(*edge)
+            trimedG.remove_edge(*edge)
 
         #G.remove_nodes_from(['8','10'])
 
         plt.figure()
-        nx.draw(G, with_labels=True)
+        nx.draw(trimedG, with_labels=True)
         plt.savefig(self.directory + "trimed_topology", format="PNG")
-        self.logger.info(f"after elimination the Graph has edges {len(list(G.edges))}, {list(G.edges)}")
-        return G
+        self.logger.info(f"after elimination the Graph has edges {len(list(trimedG.edges))}, {list(trimedG.edges)}")
+        return trimedG
