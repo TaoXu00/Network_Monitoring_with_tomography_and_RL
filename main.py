@@ -26,6 +26,8 @@ class main:
         self.directory='temp/'+"_".join([basename,suffix])+'/'
         print(f"Results saved in {self.directory}+myapp.log")
         os.makedirs(self.directory)
+        self.trimedGraph_Dir=self.directory+"trimed_Graph/"
+        os.makedirs(self.trimedGraph_Dir)
         logging.basicConfig(format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                             datefmt='%m-%d %H:%M',
                             filename=self.directory+'myapp.log',
@@ -129,7 +131,7 @@ class main:
         #for n in range(2, 3, 1):
         monitors=[]
         monitors_deployment_percentage=[]
-        file = open(f"{self.directory}nodes_identificable edges rate with increasing monitors.txt", "w+")
+
         for m_p in range(10,110,10):
             monitors_deployment_percentage.append(m_p)
             n=int((m_p/100)*len(G.nodes))
@@ -147,6 +149,7 @@ class main:
             monitors = self.topo.deploy_monitor(G, n, monitors)
             self.logger_main.info(f"deloy {n} monitors: {monitors}")
             trimedG=mynetwork.topo.trimNetwrok(G, monitors)
+            nx.write_gml(G, "%sGraph_%s_%s.gml" % (self.trimedGraph_Dir, type,str(m_p)))
             expo_count, total_mse, rewards_mse_list, optimal_delay, edge_exploration_during_training,average_computed_edge_num = self.run_MAB(
                 trimedG, monitors)
             monitors_list.append(monitors)
@@ -157,11 +160,12 @@ class main:
             average_computed_edge_rate_during_training.append(average_computed_edge_num/len(trimedG.edges))
             self.logger_main.info(f"{m_p}% monitors, {expo_count/len(trimedG.edges)}  edges are explored")
             self.logger_main.info(f"{m_p}% monitors, {average_computed_edge_num/len(trimedG.edges)}  edges computed")
-            file.write(str(m_p) + " " + str(average_computed_edge_num/len(trimedG.edges))+ "\n" )
+
             #np.savetxt("mse_with_NT_in_training_node%s.txt" %(len(G.nodes)), np_array_total_mse, delimiter=",")
             self.logger_main.info(f"{expo_count} edges has been explored")
             self.topo.draw_edge_delay_sample(G,type,node_num,p)
-        file.close()
+        arr=np.array(average_computed_edge_rate_during_training)
+        np.savetxt('%sidentificable edges rate with increasing monitors' % (self.directory),arr)
         #self.plotter.plot_rewards_mse_along_with_different_monitors(monitors_deployment_percentage,total_rewards_mse_list)
         self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(monitors_deployment_percentage, explored_edges_rate)
         #self.plotter.plot_mse_with_increasing_monitor_training(total_edge_mse_list_with_increasing_monitors)
@@ -174,9 +178,9 @@ class main:
 
 
 mynetwork=main(3000)
-G =mynetwork.creat_topology("BTN", 50, 2)
+G =mynetwork.creat_topology("Bics", 50, 2)
 #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-mynetwork.MAB_with_increasing_monitors(G,'BNT',len(G.nodes),0)
+mynetwork.MAB_with_increasing_monitors(G,'Bics',len(G.nodes),0)
 
 #monitors=mynetwork.topo.deploy_monitor(G,2,['4','19'])
 #trimedG=G
@@ -185,6 +189,13 @@ mynetwork.MAB_with_increasing_monitors(G,'BNT',len(G.nodes),0)
 #mynetwork.run_MAB(trimedG,monitors,'3','47')
 #mynetwork.plot_edge_computed_rate_bar_with_different_topology_size()
 
-
-
+#average identified links for Bics topology
+'''
+x=[0,0.04046165465588319,0.0691537904773893,0.2604906937394247, 0.2646806589934552,0.27417437749191303, 0.43764387271496275,0.4368365258616882,0.703425012973534, 0.892734101434542]
+y=[0, 0.00016909029421711196, 1.573465084809768e-05,0.04559115083236303,0.16189382257607704,0.41250576834333175,0.4322544607735154, 0.46593000485872876, 0.736914559990577,0.7869154523890206, 0.892734101434542]
+average=[]
+for i in range(len(x)):
+    average.append((x[i]+y[i])/2)
+print(average)
+'''
 
