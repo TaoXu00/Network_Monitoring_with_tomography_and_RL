@@ -59,7 +59,7 @@ class network_topology:
         self.draw_edge_delay_sample(G, type, n, p)
         self.assign_link_delay(G)
         #show the topology graph
-        nx.draw(G, with_labels=True)
+        #nx.draw(G, with_labels=True)
         plt.savefig(self.directory+"original_topology_%s_%s_%s" %(type,n,p), format="PNG")
         #graphy=plt.subplot(122)
         #nx.draw(G,pos=nx.circular_layout(G),node_color='r', edge_color='b')
@@ -267,7 +267,7 @@ class network_topology:
         #G.remove_nodes_from(['8','10'])
 
         plt.figure()
-        nx.draw(trimedG, with_labels=True)
+        #nx.draw(trimedG, with_labels=True)
         plt.savefig(self.directory + "trimed_topology", format="PNG")
         self.logger.info(f"after elimination the Graph has edges {len(list(trimedG.edges))}, {list(trimedG.edges)}")
         return trimedG
