@@ -160,7 +160,6 @@ class main:
             average_computed_edge_rate_during_training.append(average_computed_edge_num/len(trimedG.edges))
             self.logger_main.info("%d  monitors, %f edges are explored" %(m_p, expo_count/len(trimedG.edges)))
             self.logger_main.info("%d  monitors, %f  edges computed" %(m_p,average_computed_edge_num/len(trimedG.edges)))
-
             #np.savetxt("mse_with_NT_in_training_node%s.txt" %(len(G.nodes)), np_array_total_mse, delimiter=",")
             self.logger_main.info("%d edges has been explored" %(expo_count))
             self.topo.draw_edge_delay_sample(G,type,node_num,p)
