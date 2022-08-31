@@ -19,8 +19,8 @@ class network_tomography:
 
     def nt_engine(self, G, path_list, b):
         path_matrix = self.construct_matrix(G, path_list)
-        print(f"path_matrix:{path_matrix}")
-        print(f"b={b}")
+        print("path_matrix:%s" %(path_matrix))
+        print(f"b=%s" %(b))
         upper_triangular, inds, uninds = self.find_basis(G, path_matrix, b)
         x, count=self.back_substitution(upper_triangular)
         #x, count = self.edge_delay_infercement(G, M, inds, uninds)
@@ -82,11 +82,11 @@ class network_tomography:
         else:
             A=np.array(path_matrix,dtype=float)
             rank = np.linalg.matrix_rank(A)
-            self.logger.debug(f"A(path): rank is: {rank}")
+            self.logger.debug("A(path): rank is: %d" %(rank))
             #Matrix(b).applyfunc(nsimplify)
             M=np.concatenate((A,b.T),axis=1)
             rank = np.linalg.matrix_rank(M)
-            self.logger.debug(f"M(path combined with measurement): rank is: {rank}")
+            self.logger.debug("M(path combined with measurement): rank is: %d" %(rank))
             triangular_matrix = self.upper_triangular(M)
             for row in triangular_matrix:
                 for i in range(len(row)):
@@ -96,12 +96,12 @@ class network_tomography:
                         break
             #self.logger.debug(f"triangular matrix:{np.array(triangular_matrix)}")
             m_rref, inds = sympy.Matrix(M).rref(iszerofunc=lambda x: abs(x) < 1e-12)
-            self.logger.debug(f"{len(list(inds))} pivots(basic variables), their index are: {list(inds)}")
+            self.logger.debug("%d pivots(basic variables), their index are: %s}" %(len(list(inds)),list(inds)))
             uninds=list(range(len(path_matrix[0])))
             for i in inds:
                 if i in uninds:
                     uninds.remove(i)
-        self.logger.info(f"{len(uninds)} free variables,the indexes are: {uninds}")
+        self.logger.info("%d free variables,the indexes are: %s " %(len(uninds), uninds))
         #self.logger.debug(f"the m_rref {m_rref}")
         return triangular_matrix, list(inds), uninds
 
@@ -167,7 +167,7 @@ class network_tomography:
                 if row[i] ==1:
                     inds.append(i)
                     break
-        self.logger.debug(f"after deletion, the final inds are {inds} ")
+        self.logger.debug("after deletion, the final inds are %s " %(inds))
         x=[0]*(n-1)
         #print(f"len of x: {len(x)}")
         #self.logger.debug(f"inds after deletion: {inds}")
@@ -269,8 +269,7 @@ class network_tomography:
         for i in range(0,len(x[0])):
             if x[0][i]<=10**(-5):
                 x[0][i]=0
-        self.logger.debug(f"x= {x}")
-
+        self.logger.debug("x= %s" %(x))
         count=np.count_nonzero(x)
-        self.logger.info(f"{count} edges are computed")
+        self.logger.info("%d edges are computed" %(count))
         return x,count

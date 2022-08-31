@@ -24,7 +24,7 @@ class main:
         basename="log"
         suffix=datetime.datetime.now().strftime("%y%m%d_%H%M%S")
         self.directory='temp/'+"_".join([basename,suffix])+'/'
-        print(f"Results saved in {self.directory}+myapp.log")
+        print("Results saved in %s +myapp.log %(self.directory)")
         os.makedirs(self.directory)
         self.trimedGraph_Dir=self.directory+"trimed_Graph/"
         os.makedirs(self.trimedGraph_Dir)
@@ -100,7 +100,7 @@ class main:
                 path_dict[p] += 1
             else:
                 path_dict[p] = 1
-        self.logger_main.info(f"paths are explored during the training:{path_dict}")
+        self.logger_main.info("paths are explored during the training: %s" %(path_dict))
         return expo_count, total_mse_array, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num
 
     def MAB_with_increasing_monitors(self, G, type, node_num, p):
@@ -125,8 +125,8 @@ class main:
         for edge_degree in degree_list:
             if edge_degree[1] == 2 or edge_degree[1]==1:
                 end_nodes.append(edge_degree[0])
-        self.logger_main.debug(f"degree_list: {degree_list}")
-        self.logger_main.debug(f"end nodes list:{end_nodes}")
+        self.logger_main.debug("degree_list: %s" %(degree_list))
+        self.logger_main.debug("end nodes list:%s" %(end_nodes))
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
@@ -136,20 +136,20 @@ class main:
             monitors_deployment_percentage.append(m_p)
             n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
-            self.logger_main.debug(f"{n} monitors will be deployed")
+            self.logger_main.debug("%d monitors will be deployed" %(n))
             if n <= len(end_nodes):
                 rest_end_nodes = [elem for elem in end_nodes if elem not in monitors]
                 #self.logger_main.debug(f"rest node {rest_end_nodes}")
                 select = sample(rest_end_nodes, k=n - len(monitors))
                 #self.logger_main.debug(f"select {select}")
                 monitors = monitors + select
-                self.logger_main.info(f"Monitors are deployed in nodes: {monitors}")
+                self.logger_main.info("Monitors are deployed in nodes: %s " %(monitors))
             else:
                 monitors = self.topo.deploy_monitor(G, n, end_nodes)
             monitors = self.topo.deploy_monitor(G, n, monitors)
-            self.logger_main.info(f"deloy {n} monitors: {monitors}")
+            self.logger_main.info("deloy %d monitors: %s" %(n,monitors))
             trimedG=mynetwork.topo.trimNetwrok(G, monitors)
-            nx.write_gml(G, "%sGraph_%s_%s.gml" % (self.trimedGraph_Dir, type,str(m_p)))
+            nx.write_gml(G, "%sGraph_%s_%s.gml" %(self.trimedGraph_Dir,type,str(m_p)))
             expo_count, total_mse, rewards_mse_list, optimal_delay, edge_exploration_during_training,average_computed_edge_num = self.run_MAB(
                 trimedG, monitors)
             monitors_list.append(monitors)
@@ -158,11 +158,11 @@ class main:
             total_rewards_mse_list.append(rewards_mse_list)
             total_edge_exploration_during_training_list.append(edge_exploration_during_training)
             average_computed_edge_rate_during_training.append(average_computed_edge_num/len(trimedG.edges))
-            self.logger_main.info(f"{m_p}% monitors, {expo_count/len(trimedG.edges)}  edges are explored")
-            self.logger_main.info(f"{m_p}% monitors, {average_computed_edge_num/len(trimedG.edges)}  edges computed")
+            self.logger_main.info("%d  monitors, %f edges are explored" %(m_p, expo_count/len(trimedG.edges)))
+            self.logger_main.info("%d  monitors, %f  edges computed" %(m_p,average_computed_edge_num/len(trimedG.edges)))
 
             #np.savetxt("mse_with_NT_in_training_node%s.txt" %(len(G.nodes)), np_array_total_mse, delimiter=",")
-            self.logger_main.info(f"{expo_count} edges has been explored")
+            self.logger_main.info("%d edges has been explored" %(expo_count))
             self.topo.draw_edge_delay_sample(G,type,node_num,p)
         arr=np.array(average_computed_edge_rate_during_training)
         np.savetxt('%sidentificable edges rate with increasing monitors' % (self.directory),arr)
