@@ -25,7 +25,7 @@ class network_topology:
         self.logger=logger
         self.directory=directory
     def graph_Generator(self,type, n, p):
-        '''
+        '''3
         :param type: the type of the topology
         :param n: the number of the nodes in the topology
         :param p: if it is 'ER' model, p:possibility of each edge in a complete graph to be present
@@ -50,6 +50,7 @@ class network_topology:
             G=nx.read_gml("topology/BR/br_graph_dot_file_%d_2.gml" %(n))
         elif type=="Bics":
             G=nx.read_graphml('topology/Topology_Zoo/Bics.graphml')
+            #G = nx.read_gml('topology/Topology_Zoo/Graph_Bics_10.gml')
         elif type=="BTN":
             G=nx.read_graphml('topology/Topology_Zoo/BeyondTheNetwork.graphml')
         self.logger.info("Graph Created!")
@@ -62,7 +63,7 @@ class network_topology:
         self.draw_edge_delay_sample(G, type, n, p)
         self.assign_link_delay(G)
         #show the topology graph
-        #nx.draw(G, with_labels=True)
+        nx.draw(G, with_labels=True)
         plt.savefig(self.directory+"original_topology_%s_%s_%s" %(type,n,p), format="PNG")
         #graphy=plt.subplot(122)
         #nx.draw(G,pos=nx.circular_layout(G),node_color='r', edge_color='b')

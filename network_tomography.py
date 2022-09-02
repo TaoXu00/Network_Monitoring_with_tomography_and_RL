@@ -86,7 +86,7 @@ class network_tomography:
             #Matrix(b).applyfunc(nsimplify)
             M=np.concatenate((A,b.T),axis=1)
             rank = np.linalg.matrix_rank(M)
-            self.logger.debug("M(path combined with measurement): rank is: %d" %(rank))
+            #self.logger.debug("M(path combined with measurement): rank is: %d" %(rank))
             triangular_matrix = self.upper_triangular(M)
             for row in triangular_matrix:
                 for i in range(len(row)):

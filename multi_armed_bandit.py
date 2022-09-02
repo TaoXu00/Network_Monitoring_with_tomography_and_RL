@@ -128,7 +128,7 @@ class multi_armed_bandit:
             try:
                 shortest_path_l = nx.shortest_path(G_l, source=source, target=left_node, weight='weight',
                                                    method='dijkstra')
-                self.logger.debug("shortest path from %s to %s: %s" %(source, left_node,shortest_path_l))
+                #self.logger.debug("shortest path from %s to %s: %s" %(source, left_node,shortest_path_l))
                 pathpair_list_l = self.construct_pathPair_from_path(shortest_path_l)
                 G_r = G.copy()
                 # print(G_r.nodes)
@@ -147,7 +147,7 @@ class multi_armed_bandit:
                 try:
                     shortest_path_r = nx.shortest_path(G_r, source=right_node, target=destination, weight='weight',
                                                method='dijkstra')
-                    self.logger.debug("shortest path from %s to %s: %s" %(right_node,destination,shortest_path_r))
+                    #.logger.debug("shortest path from %s to %s: %s" %(right_node,destination,shortest_path_r))
                     pathpair_list_r = self.construct_pathPair_from_path(shortest_path_r)
                     pathpair_list_l.append(edge_G)
                     pathpair_list = pathpair_list_l + pathpair_list_r
@@ -158,7 +158,7 @@ class multi_armed_bandit:
                         #self.logger.debug(f"rewards: {rewards}")
                         return 1
                 except Exception as e:
-                    self.logger.error(str(e) + "occurred, try the inversed direction.")
+                    #self.logger.error(str(e) + "occurred, try the inversed direction.")
                     return 4
                     #self.logger.error(str(e) + "occurred, try the inversed direction.")
                     #return 3
@@ -216,7 +216,7 @@ class multi_armed_bandit:
         optimal_delay_dict = {}
         for monitor_pair in monitor_pair_list:
             optimal_path = nx.shortest_path(G, source=monitor_pair[0], target=monitor_pair[1], weight='delay_mean', method='dijkstra')
-            self.logger.info("optimal path: {optimal_path}" %(optimal_path))
+            self.logger.info("optimal path: %s" %(optimal_path))
             optimal_delay=0
             for i in range(len(optimal_path) - 1):
                 optimal_delay += G[optimal_path[i]][optimal_path[i + 1]]["delay_mean"]
@@ -238,13 +238,20 @@ class multi_armed_bandit:
 
         shortest_path = nx.shortest_path(G, source=monitor1, target=monitor2, weight='llc_factor', method='dijkstra')
         return shortest_path
+    def LLC_policy_without_MAB(self, G, monitor1, monitor2):
+        # select a path which solves the minimization problem
+        for edge in G.edges:
+            average= self.Dict_edge_theta[edge]
+            G[edge[0]][edge[1]]["average-delay"]=average
+        shortest_path = nx.shortest_path(G, source=monitor1, target=monitor2, weight='average-delay', method='dijkstra')
+        return shortest_path
 
     def end_to_end_measurement(self, G, path_list):
-        print("pathlist= %s" %(path_list))
+        #print("pathlist= %s" %(path_list))
         path_delays = []
         average_edge_delay_list=[]
         for path in path_list:
-            print("path: %s" %(path))
+            #print("path: %s" %(path))
             path_delay = 0
             for edge in path:
                 path_delay = path_delay + G[edge[0]][edge[1]]['delay']
@@ -275,8 +282,8 @@ class multi_armed_bandit:
             for monitor_pair in monitor_pair_list:
                 m1=monitor_pair[0]
                 m2=monitor_pair[1]
-                self.LLC_policy(G, m1, m2)
-                shortest_path = self.LLC_policy(G, m1, m2)
+                #self.LLC_policy(G, m1, m2)
+                shortest_path = self.LLC_policy_without_MAB(G, m1, m2)
                 explored_path_list.append(shortest_path)
                 rewards = nx.path_weight(G, shortest_path, 'delay')
                 total_rewards_dict[monitor_pair].append(rewards)
@@ -286,12 +293,17 @@ class multi_armed_bandit:
                 for i in range(len(path) - 1):
                     pathpair.append((path[i], path[i + 1]))
                 path_list.append(pathpair)
-            self.logger.debug("path_list: %s" %(path_list))
+            #self.logger.debug("path_list: %s" %(path_list))
+            edge_average_delay_list_dict={}
             edge_average_delay_dict={}
             b, average_delay_list = self.end_to_end_measurement(G, path_list)
             for i in range(len(average_delay_list)):
                 for edge in path_list[i]:
-                    edge_average_delay_dict[edge]=average_delay_list[i]
+                    if edge not in edge_average_delay_list_dict:
+                        edge_average_delay_list_dict[edge] = []
+                    edge_average_delay_list_dict[edge].append(average_delay_list[i])
+            for edge in edge_average_delay_list_dict:
+                edge_average_delay_dict[edge]=sum(edge_average_delay_list_dict[edge])/len(edge_average_delay_list_dict[edge])
             self.logger.debug("Dict=%s" %(edge_average_delay_dict))
             # get the explored edge set
             explored_edge_set = []
@@ -299,7 +311,6 @@ class multi_armed_bandit:
                 for edge in path:
                     if (edge[0], edge[1]) not in explored_edge_set and (edge[1], edge[0]) not in explored_edge_set:
                         explored_edge_set.append(edge)
-
             #call NT as a submoudle
             x, count = self.nt.nt_engine(G, path_list, b)
             self.logger.debug("%d edges has been explored, they are: %s" %(len(explored_edge_set),explored_edge_set))
@@ -361,7 +372,7 @@ class multi_armed_bandit:
 
         #check how many edges has been explored during the training
         self.logger.debug("training is finished")
-        self.logger.debug("Dict_edge_m values are added to the edge_exploration_times array")
+        #self.logger.debug("Dict_edge_m values are added to the edge_exploration_times array")
         self.logger.debug("%s" %(self.edge_exploration_times))
         init=np.array(self.edge_exploration_times[0])
         end=np.array(self.edge_exploration_times[1])
