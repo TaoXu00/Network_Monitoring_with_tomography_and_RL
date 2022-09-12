@@ -56,7 +56,7 @@ class network_topology:
         self.logger.info("Graph Created!")
         for edge in G.edges:
             G[edge[0]][edge[1]]['weight']=1
-        self.logger.info("all the edge weights in the graph are assigned to 1")
+        self.logger.info("all the edge weights in the graph are assigned to a random number")
 
         self.construct_link_delay_distribution(G,type,n,p)
         #self.logger.info(f"Edge delay scales: {self.Dict_edge_scales}")

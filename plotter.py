@@ -229,4 +229,42 @@ class plotter:
         plt.legend()
         plt.savefig(self.directory + '%of identified edges with different topology size and different number of monitors' , format="PNG")
 
+    def plot_average_regrets(self, averaged_regret_list):
+        plt.figure()
+        x = range(len(averaged_regret_list))
+        plt.plot(x, averaged_regret_list)
+        plt.xlabel("time")
+        plt.ylabel("averaged regret of selected shortest path among monitors")
+        plt.savefig(self.directory + 'averaged regret', format="PNG")
+
+    def plot_rate_of_correct_shortest_path(self,correct_shortest_path_selected_rate):
+        plt.figure()
+        x = range(len(correct_shortest_path_selected_rate))
+        plt.plot(x, correct_shortest_path_selected_rate)
+        plt.xlabel("time")
+        plt.ylabel("rate of correctly selected shortest path among monitors")
+        plt.savefig(self.directory + 'rate of correctly selected shortest path among monitors', format="PNG")
+
+    def plot_edge_delay_difference_for_some_edges(self, optimal_edges_delay_difference_after_inti, optimal_edges_delay_difference_after_training):
+        barWidth = 0.25
+        fig = plt.subplots()
+        # set height of bar
+        init = optimal_edges_delay_difference_after_inti
+        after_training = optimal_edges_delay_difference_after_training
+        br1 = np.arange(len(init))
+        br2 = [x + barWidth for x in br1]
+        # Make the plot
+        plt.bar(br1, init, color='r', width=barWidth,
+                edgecolor='grey', label='after_init')
+        plt.bar(br2, after_training, color='g', width=barWidth,
+                edgecolor='grey', label='after_training')
+
+        # Adding Xticks
+        xlable = np.arange(len(init))
+        plt.xlabel('linkID', fontweight='bold', fontsize=15)
+        plt.ylabel('delay difference from the mean', fontweight='bold', fontsize=15)
+        plt.xticks(xlable)
+        plt.legend()
+        plt.savefig(self.directory + 'delay difference of optimal edges from mean after init and after training')
+
 
