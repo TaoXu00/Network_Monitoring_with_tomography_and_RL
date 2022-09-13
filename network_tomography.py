@@ -19,9 +19,8 @@ class network_tomography:
 
     def nt_engine(self, G, path_list, b):
         path_matrix = self.construct_matrix(G, path_list)
-        print("path_matrix:%s" %(path_matrix))
-        print(f"b=%s" %(b))
-        upper_triangular, inds, uninds = self.find_basis(G, path_matrix, b)
+        #upper_triangular, inds, uninds = self.find_basis(G, path_matrix, b)
+        upper_triangular = self.find_basis(G, path_matrix, b)
         x, count=self.back_substitution(upper_triangular)
         #x, count = self.edge_delay_infercement(G, M, inds, uninds)
         return x, count
@@ -95,15 +94,18 @@ class network_tomography:
                         #self.logger.debug(f"i: {i}")
                         break
             #self.logger.debug(f"triangular matrix:{np.array(triangular_matrix)}")
-            m_rref, inds = sympy.Matrix(M).rref(iszerofunc=lambda x: abs(x) < 1e-12)
-            self.logger.debug("%d pivots(basic variables), their index are: %s}" %(len(list(inds)),list(inds)))
+            #m_rref, inds = sympy.Matrix(M).rref(iszerofunc=lambda x: abs(x) < 1e-12)
+            #self.logger.debug("%d pivots(basic variables), their index are: %s}" %(len(list(inds)),list(inds)))
             uninds=list(range(len(path_matrix[0])))
+            '''
             for i in inds:
                 if i in uninds:
                     uninds.remove(i)
+            '''
         self.logger.info("%d free variables,the indexes are: %s " %(len(uninds), uninds))
         #self.logger.debug(f"the m_rref {m_rref}")
-        return triangular_matrix, list(inds), uninds
+        #return triangular_matrix, list(inds), uninds
+        return triangular_matrix
 
     def upper_triangular(self,M):
         '''
@@ -194,9 +196,13 @@ class network_tomography:
         for i in range(total_row-2,-1,-1):
             #self.logger.debug(f"row i= {i}")
             for j in range(n-1):
+                found_pivot = False
                 if(upper_triangular_after_deletion[i][j]==1):
                     pivot=j
+                    found_pivot=True
                     break
+            if found_pivot == False:
+                continue
             x[pivot] = upper_triangular_after_deletion[i][n - 1]
             #self.logger.debug(f"pivot= {j}, sum ={x[pivot]}")
             for k in range(pivot+1, n-1):

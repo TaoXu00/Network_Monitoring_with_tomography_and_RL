@@ -1,16 +1,7 @@
 import networkx as nx
-import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 from random import sample
-from numpy import linalg
-import sympy
-from numpy.random import seed
-from numpy.random import randint
-from numpy import random
-import matplotlib.pyplot as plt
-import math
-import seaborn as sns
+import sys
 from itertools import combinations
 import datetime
 import multi_armed_bandit
@@ -100,7 +91,7 @@ class main:
                 path_dict[p] += 1
             else:
                 path_dict[p] = 1
-        self.logger_main.info("paths are explored during the training: %s" %(path_dict))
+        #self.logger_main.info("paths are explored during the training: %s" %(path_dict))
         return expo_count, total_mse_array, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num
 
     def MAB_with_increasing_monitors(self, G, type, node_num, p):
@@ -132,24 +123,23 @@ class main:
         monitors=[]
         monitors_deployment_percentage=[]
 
-        for m_p in range(10,110,10):
+        for m_p in range(20,30,10):
             monitors_deployment_percentage.append(m_p)
             n=int((m_p/100)*len(G.nodes))
-            #self.logger_main.debug(f"m_p {m_p}")
-            self.logger_main.debug("%d monitors will be deployed" %(n))
             if n <= len(end_nodes):
                 rest_end_nodes = [elem for elem in end_nodes if elem not in monitors]
                 #self.logger_main.debug(f"rest node {rest_end_nodes}")
                 select = sample(rest_end_nodes, k=n - len(monitors))
                 #self.logger_main.debug(f"select {select}")
                 monitors = monitors + select
-                self.logger_main.info("Monitors are deployed in nodes: %s " %(monitors))
             else:
                 monitors = self.topo.deploy_monitor(G, n, end_nodes)
-            monitors = self.topo.deploy_monitor(G, n, monitors)
+            #monitors = self.topo.deploy_monitor(G, n, monitors)
+            monitors=['45', '32', '28', '46', '29', '24', '36', '44', '42', '37']
             self.logger_main.info("deloy %d monitors: %s" %(n,monitors))
-            trimedG=mynetwork.topo.trimNetwrok(G, monitors)
-            nx.write_gml(G, "%sGraph_%s_%s.gml" %(self.trimedGraph_Dir,type,str(m_p)))
+            #trimedG=mynetwork.topo.trimNetwrok(G, monitors)
+            trimedG=G
+            nx.write_gml(trimedG, "%sGraph_%s_%s.gml" %(self.trimedGraph_Dir,type,str(m_p)))
             expo_count, total_mse, rewards_mse_list, optimal_delay, edge_exploration_during_training,average_computed_edge_num = self.run_MAB(
                 trimedG, monitors)
             monitors_list.append(monitors)
@@ -175,11 +165,23 @@ class main:
 
 
 
+'''
+argv1: network topology type
+argv2: number of nodes
+argv3: degree of new added nodes in Barabasi network
+argv4: enable MAB (1 enable, 0 disable)
+'''
+if len(sys.argv)!=4:
+    raise ValueError('missing parameters')
+topo_type=sys.argv[1]
+num_node=int(sys.argv[2])
+degree=int(sys.argv[3])
+print(topo_type, num_node, degree)
 
 mynetwork=main(3000)
-G =mynetwork.creat_topology("Bics", 50, 2)
+G =mynetwork.creat_topology(topo_type, num_node, degree)
 #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-mynetwork.MAB_with_increasing_monitors(G,'Bics',len(G.nodes),0)
+mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree)
 
 #monitors=mynetwork.topo.deploy_monitor(G,2,['4','19'])
 #trimedG=G
@@ -188,14 +190,3 @@ mynetwork.MAB_with_increasing_monitors(G,'Bics',len(G.nodes),0)
 #mynetwork.run_MAB(trimedG,monitors,'3','47')
 #mynetwork.plot_edge_computed_rate_bar_with_different_topology_size()
 
-#average identified links for Bics topology
-'''
-x=[0,0.04046165465588319,0.0691537904773893,0.2604906937394247, 0.2646806589934552,0.27417437749191303, 0.43764387271496275,0.4368365258616882,0.703425012973534, 0.892734101434542]
-y=[0, 0.00016909029421711196, 1.573465084809768e-05,0.04559115083236303,0.16189382257607704,0.41250576834333175,0.4322544607735154, 0.46593000485872876, 0.736914559990577,0.7869154523890206, 0.892734101434542]
-z=[0, 0.000315, 0.142526,  0.197861, 0.117545,  0.421997, 0.481539, 0.504617,  0.416356, 0.89]
-w=[0,  0.000196,  0.043191 , 0.216788, 0.278260,  0.122204,  0.416031, 0.599034, 0.344290,0.89]
-average=[]
-for i in range(len(x)):
-    average.append((x[i]+y[i])/2)
-print(average)
-'''
