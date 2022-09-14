@@ -131,6 +131,7 @@ class network_topology:
         :param p: if it is ER, p is the possibility that a link in a fully connected graph exists in the current topology, here it is used to name the sample file
         :return: NULL, the samples will be saved in a file
         '''
+        '''
 
         #read samples from an existing file
 
@@ -158,7 +159,7 @@ class network_topology:
             np.savetxt('delay_exponential_samples/samples_%s_%s_%s.txt' %(type, n, p),n_samples)
         elif type=="Bics" or type=="BTN":
             np.savetxt('delay_exponential_samples/samples_%s.txt' % (type), n_samples)
-        '''
+
         self.logger.info("Draw %d delay examples from exponential distribution for each edge." %(self.time))
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
         self.logger.info("edge delay sample average %s" %(average))

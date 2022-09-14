@@ -158,33 +158,37 @@ class multi_armed_bandit:
         optimal_delay_dict,optimal_path_dict= self.optimal_path(G, monitor_pair_list)
         selected_shortest_path=[]
         total_rewards_dict = {}   #in the current implementation, it is for only one pair of monitors
-        total_regrets = []
-        computed_edge_num=[]
         correct_shortest_path_selected_rate=[]
-        rewards_mse=[]
         ## check the delay difference of  edges in the optimal path before training
         self.logger.debug("start trainning...")
         for monitor_pair in monitor_pair_list:
             total_rewards_dict[monitor_pair]=[]
+
+        diff_of_delay_from_optimal = []
         for i in range(time-self.t):
             self.logger.info("t= %s" %(self.t))
             explored_path_list = []
             num_correct_shortest_path=0
+            total_diff = 0
             for monitor_pair in monitor_pair_list:
                 shortest_path=self.LLC_policy(G, monitor_pair)
                 self.logger.debug("shortest_path: %s, optimal path: %s" % (shortest_path, optimal_path_dict[monitor_pair]))
                 if shortest_path == optimal_path_dict[monitor_pair]:
                     num_correct_shortest_path+=1
+                else:#check how far it is different from the real optimal path
+                  total_diff+= abs(nx.path_weight(G,shortest_path,"delay_mean")- optimal_delay_dict[monitor_pair])
                 explored_path_list.append(shortest_path)
                 rewards = nx.path_weight(G, shortest_path, 'delay')
                 total_rewards_dict[monitor_pair].append(rewards)
-            self.logger.info("selected shortest path: %s" %(explored_path_list))
+            diff_of_delay_from_optimal.append(total_diff / len(optimal_delay_dict))
+            #self.logger.info("selected shortest path: %s" %(explored_path_list))
             correct_shortest_path_selected_rate.append(num_correct_shortest_path/len(monitor_pair_list))
             self.update_MBA_variabels(G, explored_path_list)
             self.t = self.t + 1  # the time slot increase 1
             self.topo.assign_link_delay(G)
         rewards_mse_list=self.compute_rewards_mse(total_rewards_dict, optimal_delay_dict)
-        average_regret_list=self.compute_averaged_regret(total_rewards_dict, optimal_delay_dict)
+        average_regret_list=self.compute_regret(total_rewards_dict, optimal_delay_dict)
+        self.plotter.plot_diff_from_optimal_path_of_the_wrong_selected_shortest_path(diff_of_delay_from_optimal)
         self.plotter.plot_time_average_rewards(rewards_mse_list)
         self.plotter.plot_average_regrets(average_regret_list)
         self.plotter.plot_rate_of_correct_shortest_path(correct_shortest_path_selected_rate)  #implement this function
@@ -204,13 +208,19 @@ class multi_armed_bandit:
         for i in range(len(total_rewards_dict[key_list[0]])):
             sum_square = 0
             for key in key_list:
-                sum_rewards_Dict[key] += total_rewards_dict[key][i]
-                time_average_rewards_Dict[key] = sum_rewards_Dict[key] /(i + 1)
-                sum_square += (time_average_rewards_Dict[key] - optimal_delay_dict[key]) ** 2
-            rewards_mse_list.append(sum_square /len(key_list))
+                '''solution 1'''
+                # sum_rewards_Dict[key] += total_rewards_dict[key][i]
+                # time_average_rewards_Dict[key] = sum_rewards_Dict[key] / (i + 1)
+                # sum_square += (time_average_rewards_Dict[key] - optimal_delay_dict[key]) ** 2
+                '''sulution 2'''
+                sum_square += (total_rewards_dict[key][i] - optimal_delay_dict[key]) ** 2
+                '''solution 3'''
+                # sum_square += abs(total_rewards_dict[key][i] - optimal_delay_dict[key])
+            rewards_mse_list.append(sum_square / len(key_list) / (i + 1))
         return rewards_mse_list
 
-    def compute_averaged_regret(self, total_rewards_dict, optimal_delay_dict):
+
+    def compute_regret(self, total_rewards_dict, optimal_delay_dict):
         key_list = list(total_rewards_dict.keys())
         sum_rewards_Dict = {}
         average_regret_list = []
@@ -229,8 +239,6 @@ class multi_armed_bandit:
             #time_averaged_regret_list.append(sum(regret_list)/len(key_list)/(i+1))
             self.logger.info("average_regret_list: %s" %average_regret_list)
         return average_regret_list
-
-
 
 
 

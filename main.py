@@ -91,7 +91,7 @@ class main:
         monitors=[]
         monitors_deployment_percentage=[]
 
-        for m_p in range(20,30,10):
+        for m_p in range(60,70,10):
             monitors_deployment_percentage.append(m_p)
             n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
@@ -103,8 +103,8 @@ class main:
                 monitors = monitors + select
             else:
                 monitors = self.topo.deploy_monitor(G, n, end_nodes)
-            #monitors = self.topo.deploy_monitor(G, n, monitors)
-            monitors=['45', '32', '28', '46', '29', '24', '36', '44', '42', '37']
+            monitors = self.topo.deploy_monitor(G, n, monitors)
+            #monitors=['45', '32', '28', '46', '29', '24', '36', '44', '42', '37']
             self.logger_main.info("deloy %d monitors: %s" %(n,monitors))
             trimedG=G
             #trimedG=mynetwork.topo.trimNetwrok(G, monitors)

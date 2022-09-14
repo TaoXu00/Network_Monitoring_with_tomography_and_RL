@@ -267,4 +267,16 @@ class plotter:
         plt.legend()
         plt.savefig(self.directory + 'delay difference of optimal edges from mean after init and after training')
 
+    def plot_diff_from_optimal_path_of_the_wrong_selected_shortest_path(self, diff_of_delay_from_optimal):
+        plt.figure()
+        x = range(len(diff_of_delay_from_optimal))
+        plt.plot(x, diff_of_delay_from_optimal)
+        plt.xlabel("time")
+        plt.ylabel("diff of the selected shortest path delay from optimal shortest path")
+        plt.savefig(self.directory + 'diff of the selected shortest path from optimal shortest path', format="PNG")
+        plt.close()
+
+
+
+
 
