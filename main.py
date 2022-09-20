@@ -82,7 +82,7 @@ class main:
             optimal_delay= nx.path_weight(G, optimal_path, 'delay_mean')
             optimal_path_dict[monitor_pair]=optimal_path
             optimal_delay_dict[monitor_pair]=optimal_delay
-        rewards_mse_list, selected_shortest_path, expo_count,total_mse_array,edge_exploration_during_training, average_computed_edge_num = self.MAB.train_llc(G, self.time,monitor_pair_list)
+        rewards_mse_list, selected_shortest_path, expo_count,total_mse_array,edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal = self.MAB.train_llc(G, self.time,monitor_pair_list)
 
         path_dict = {}
         for path in selected_shortest_path:
@@ -92,7 +92,7 @@ class main:
             else:
                 path_dict[p] = 1
         #self.logger_main.info("paths are explored during the training: %s" %(path_dict))
-        return expo_count, total_mse_array, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num
+        return expo_count, total_mse_array, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal
 
     def MAB_with_increasing_monitors(self, G, type, node_num, p):
         '''
@@ -107,59 +107,64 @@ class main:
         explored_edges_rate = []
         end_nodes=[]
         total_edge_mse_list_with_increasing_monitors = []
-        total_mse_reward_list = []
         total_edge_exploration_during_training_list = []
         average_computed_edge_rate_during_training = []
         total_rewards_mse_list=[]
+        optimal_path_selected_percentage_list=[]
+        avg_diff_of_delay_from_optimal_list=[]
         degree_list = list(G.degree(list(G.nodes)))
         #it does not make sense to differenciate the end nodes from the internal nodes.
         for edge_degree in degree_list:
             if edge_degree[1] == 2 or edge_degree[1]==1:
                 end_nodes.append(edge_degree[0])
-        self.logger_main.debug("degree_list: %s" %(degree_list))
-        self.logger_main.debug("end nodes list:%s" %(end_nodes))
+        #self.logger_main.debug("degree_list: %s" %(degree_list))
+        #self.logger_main.debug("end nodes list:%s" %(end_nodes))
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
         monitors_deployment_percentage=[]
-
-        for m_p in range(20,30,10):
+        for m_p in [10, 20, 30, 40, 50]:
+        #for m_p in [20, 30]:
             monitors_deployment_percentage.append(m_p)
-            n=int((m_p/100)*len(G.nodes))
+            n = int((m_p / 100) * len(G.nodes))
             if n <= len(end_nodes):
                 rest_end_nodes = [elem for elem in end_nodes if elem not in monitors]
-                #self.logger_main.debug(f"rest node {rest_end_nodes}")
+                # self.logger_main.debug(f"rest node {rest_end_nodes}")
                 select = sample(rest_end_nodes, k=n - len(monitors))
-                #self.logger_main.debug(f"select {select}")
+                # self.logger_main.debug(f"select {select}")
                 monitors = monitors + select
             else:
                 monitors = self.topo.deploy_monitor(G, n, end_nodes)
-            #monitors = self.topo.deploy_monitor(G, n, monitors)
-            monitors=['45', '32', '28', '46', '29', '24', '36', '44', '42', '37']
-            self.logger_main.info("deloy %d monitors: %s" %(n,monitors))
-            #trimedG=mynetwork.topo.trimNetwrok(G, monitors)
-            trimedG=G
-            nx.write_gml(trimedG, "%sGraph_%s_%s.gml" %(self.trimedGraph_Dir,type,str(m_p)))
-            expo_count, total_mse, rewards_mse_list, optimal_delay, edge_exploration_during_training,average_computed_edge_num = self.run_MAB(
+            monitors = self.topo.deploy_monitor(G, n, monitors)
+            # monitors=['45', '32', '28', '46', '29', '24', '36', '44', '42', '37']
+            self.logger_main.info("deloy %d pert monitors: %s" % (m_p, monitors))
+            # trimedG=mynetwork.topo.trimNetwrok(G, monitors)
+            trimedG = G
+            nx.write_gml(trimedG, "%sGraph_%s_%s.gml" % (self.trimedGraph_Dir, type, str(m_p)))
+            expo_count, total_mse, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal = self.run_MAB(
                 trimedG, monitors)
             monitors_list.append(monitors)
-            explored_edges_rate.append(expo_count/len(trimedG.edges))
+            explored_edges_rate.append(expo_count / len(trimedG.edges))
             total_edge_mse_list_with_increasing_monitors.append(total_mse)
             total_rewards_mse_list.append(rewards_mse_list)
             total_edge_exploration_during_training_list.append(edge_exploration_during_training)
-            average_computed_edge_rate_during_training.append(average_computed_edge_num/len(trimedG.edges))
-            self.logger_main.info("%d pert  monitors, %f edges are explored" %(m_p, expo_count/len(trimedG.edges)))
-            self.logger_main.info("%d pert  monitors, %f  edges computed" %(m_p,average_computed_edge_num/len(trimedG.edges)))
-            #np.savetxt("mse_with_NT_in_training_node%s.txt" %(len(G.nodes)), np_array_total_mse, delimiter=",")
-            self.logger_main.info("%d edges has been explored" %(expo_count))
-            self.topo.draw_edge_delay_sample(G,type,node_num,p)
-        arr=np.array(average_computed_edge_rate_during_training)
-        np.savetxt('%sidentificable edges rate with increasing monitors' % (self.directory),arr)
-        #self.plotter.plot_rewards_mse_along_with_different_monitors(monitors_deployment_percentage,total_rewards_mse_list)
-        self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(monitors_deployment_percentage, explored_edges_rate)
-        #self.plotter.plot_mse_with_increasing_monitor_training(total_edge_mse_list_with_increasing_monitors)
-        #self.plotter.plot_edge_exporation_times_with_differrent_monitor_size(G,total_edge_exploration_during_training_list)
-        self.plotter.plot_edge_computed_rate_during_training(monitors_deployment_percentage,average_computed_edge_rate_during_training)
+            average_computed_edge_rate_during_training.append(average_computed_edge_num / len(trimedG.edges))
+            optimal_path_selected_percentage_list.append(optimal_path_selected_rate)
+            avg_diff_of_delay_from_optimal_list.append(avg_diff_of_delay_from_optimal)
+            self.logger_main.info("edges explored: %f" % (expo_count / len(trimedG.edges)))
+            self.logger_main.info("edges computed: %f" % (average_computed_edge_num / len(trimedG.edges)))
+            # np.savetxt("mse_with_NT_in_training_node%s.txt" %(len(G.nodes)), np_array_total_mse, delimiter=",")
+            self.logger_main.info("percentage of the optimal path selected: %f" % (optimal_path_selected_rate))
+            self.logger_main.info(" abs diff from the real optimal path: %f" %(avg_diff_of_delay_from_optimal))
+            self.topo.draw_edge_delay_sample(G, type, node_num, p)
+        arr = np.array(average_computed_edge_rate_during_training)
+        np.savetxt('%sidentificable edges rate with increasing monitors' % (self.directory), arr)
+        # self.plotter.plot_rewards_mse_along_with_different_monitors(monitors_deployment_percentage,total_rewards_mse_list)
+        # self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(monitors_deployment_percentage, explored_edges_rate)
+        self.plotter.plot_edge_computed_rate_during_training(monitors_deployment_percentage,
+                                                                  average_computed_edge_rate_during_training)
+        return optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage
+
     def plot_edge_computed_rate_bar_with_different_topology_size(self):
         self.plotter.plot_edge_computed_rate_with_different_topology_size()
 
@@ -178,10 +183,44 @@ num_node=int(sys.argv[2])
 degree=int(sys.argv[3])
 print(topo_type, num_node, degree)
 
-mynetwork=main(3000)
-G =mynetwork.creat_topology(topo_type, num_node, degree)
-#mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree)
+
+multi_times_optimal_path_selected_percentage_list=[]
+multi_times_avg_diff_of_delay_from_optimal_list=[]
+n=2
+i=0
+while(i<n):
+    mynetwork=main(3000)
+    G =mynetwork.creat_topology(topo_type, num_node, degree)
+    #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
+    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage =mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree)
+    #print("n=%d" %(i))
+    #print(optimal_path_selected_percentage_list,avg_diff_of_delay_from_optimal_list)
+    if i==0:
+        multi_times_mse_total_link_delay_array=np.array(total_edge_mse_list_with_increasing_monitors, dtype=float)
+        multi_times_optimal_path_selected_percentage_array=np.array([optimal_path_selected_percentage_list])
+        multi_times_avg_diff_of_delay_from_optimal_array=np.array([avg_diff_of_delay_from_optimal_list])
+    else:
+        current_mse_arrary=np.array(total_edge_mse_list_with_increasing_monitors)
+        multi_times_mse_total_link_delay_array=np.add(multi_times_mse_total_link_delay_array,current_mse_arrary)
+        np.append(multi_times_optimal_path_selected_percentage_array,np.array(optimal_path_selected_percentage_list))
+        np.append(multi_times_avg_diff_of_delay_from_optimal_array,np.array(avg_diff_of_delay_from_optimal_list))
+    i += 1
+multi_times_avg_mse_total_link_delay_array=multi_times_mse_total_link_delay_array/n
+mynetwork.logger_main.info("Statistics:")
+mynetwork.logger_main.info("Before average: percentage of the optimal path selected: %f" % (multi_times_optimal_path_selected_percentage_array))
+mynetwork.logger_main.info("Before average: diff from the real optimal path: %f" %(multi_times_avg_diff_of_delay_from_optimal_array))
+
+multi_avg_percentage_of_select_optimal_path=np.average(multi_times_optimal_path_selected_percentage_array,axis=0)
+multi_avg_percentage_of_abs_diff_from_optimal=np.average(multi_times_avg_diff_of_delay_from_optimal_array,axis=0)
+mynetwork.logger_main.info("after average: percentage of the optimal path selected: %f" % (multi_avg_percentage_of_select_optimal_path))
+mynetwork.logger_main.info("after average: diff from the real optimal path: %f" %(multi_avg_percentage_of_abs_diff_from_optimal))
+
+
+mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training(monitors_deployment_percentage,multi_times_avg_mse_total_link_delay_array)
+# self.plotter.plot_edge_exporation_times_with_differrent_monitor_size(G,total_edge_exploration_during_training_list)
+mynetwork.plotter.plot_optimal_path_selected_percentage_list_with_increasing_monitors(monitors_deployment_percentage, multi_avg_percentage_of_select_optimal_path)
+mynetwork.plotter.plot_abs_diff_path_delay_from_the_optimal(monitors_deployment_percentage,multi_avg_percentage_of_abs_diff_from_optimal )
+
 
 #monitors=mynetwork.topo.deploy_monitor(G,2,['4','19'])
 #trimedG=G
@@ -190,3 +229,15 @@ mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree)
 #mynetwork.run_MAB(trimedG,monitors,'3','47')
 #mynetwork.plot_edge_computed_rate_bar_with_different_topology_size()
 
+
+''' test
+array1=np.array([[0.1, 0.2, 0.3],
+                [0.2, 0.3, 0.4],
+                [0.4, 0.5, 0.6]])
+array2=np.array([[0.2, 0.3, 0.4],
+                [0.1, 0.2, 0.3],
+                [0.4, 0.5, 0.6]])
+sum=np.add(array1,array2)
+three_avg=sum/3
+print(three_avg)
+'''

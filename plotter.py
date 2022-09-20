@@ -130,15 +130,19 @@ class plotter:
         plt.savefig(self.directory + 'MAB_edge_exploration_with_increasing_monitors.png')
         plt.close()
 
-    def plot_mse_with_increasing_monitor_training(self, total_edge_mse_list_with_increasing_monitors):
-        labels=['0.1', '0.2', '0.3', '0.4','0.5']
+    def plot_total_edge_delay_mse_with_increasing_monitor_training(self, monitors_deployment_percentage, total_edge_mse_list_with_increasing_monitors):
+        labels = []
+        for per in monitors_deployment_percentage:
+            labels.append(str(per) + '%')
         #line_num=len(total_edge_mse_list_with_increasing_monitors)
         x=range(len(total_edge_mse_list_with_increasing_monitors[0]))
         fig = plt.figure(figsize=(10, 7))
         for i in range (len(total_edge_mse_list_with_increasing_monitors)):
             plt.plot(x, total_edge_mse_list_with_increasing_monitors[i], label=labels[i])
+        plt.xlabel("time")
+        plt.ylabel("MSE of total links delay during training")
         plt.legend()
-        plt.savefig(self.directory + "mse_with_increasing_monitor_training")
+        plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training")
         plt.close()
 
 
@@ -201,7 +205,7 @@ class plotter:
     def plot_edge_computed_rate_during_training(self,monitors_deployment_percentage,average_computed_edge_rate_during_training):
         x = []
         for per in monitors_deployment_percentage:
-            x.append(str(per)+'%')
+            x.append(str(per))
         y = average_computed_edge_rate_during_training
         fig = plt.figure(figsize=(10, 7))
         barwidth = 0.25
@@ -234,7 +238,6 @@ class plotter:
 
 
         # Adding Xticks
-        xlable = percentage
         plt.xlabel('%of nodes selected as monitors',  fontsize=15)
         plt.ylabel('%of the identified links',  fontsize=15)
         plt.xticks(np.arange(len(percentage)),percentage)
@@ -284,12 +287,40 @@ class plotter:
         plt.savefig(self.directory + 'delay difference of optimal edges from mean after init and after training')
         plt.close()
 
-    def plot_diff_from_optimal_path_of_the_wrong_selected_shortest_path(self, mse_diff_of_delay_from_optimal):
+    def plot_diff_from_optimal_path_of_selected_shortest_paths(self, abs_diff_of_delay_from_optimal):
         plt.figure()
-        x = range(len(mse_diff_of_delay_from_optimal))
-        plt.plot(x, mse_diff_of_delay_from_optimal)
+        x = range(len(abs_diff_of_delay_from_optimal))
+        plt.plot(x, abs_diff_of_delay_from_optimal)
         plt.xlabel("time")
         plt.ylabel("mse of the selected shortest path from optimal shortest path")
-        plt.savefig(self.directory + 'mse of the selected shortest path from optimal shortest path', format="PNG")
+        plt.savefig(self.directory + 'absolute difference of the selected shortest path from optimal shortest path', format="PNG")
         plt.close()
 
+    def plot_optimal_path_selected_percentage_list_with_increasing_monitors(self, monitors_deployment_percentage, optimal_path_selected_rate):
+        x=monitors_deployment_percentage
+        x_label = [str(pert) for pert in monitors_deployment_percentage]
+        y = optimal_path_selected_rate
+        fig = plt.figure(figsize=(10, 7))
+        barwidth = 0.25
+        plt.xlabel("% of nodes selected as monitors")
+        plt.ylabel(" % of the optimal paths selected")
+        bar = np.arange(len(x_label))
+        plt.bar(bar, y, width=barwidth)
+        plt.xticks(bar,x_label)
+        plt.savefig(self.directory + 'MAB_edge_computed_rate_with_increasing_monitors.png')
+        plt.close()
+
+    def plot_abs_diff_path_delay_from_the_optimal(self, monitors_deployment_percentage, optimal_path_selected_percentage_list):
+        x=monitors_deployment_percentage
+        x_label = [str(pert) for pert in monitors_deployment_percentage]
+        y = optimal_path_selected_percentage_list
+        fig = plt.figure(figsize=(10, 7))
+        barwidth = 0.25
+        plt.xlabel("% of nodes selected as monitors")
+        plt.ylabel(" abs error from the optimal shortest paths")
+        bar = np.arange(len(x_label))
+        plt.bar(bar, y, width=barwidth)
+        plt.xticks(bar, x_label)
+        plt.savefig(self.directory + 'abs error from the optimal shortest paths.png')
+        plt.legend()
+        plt.close()

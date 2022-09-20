@@ -81,7 +81,7 @@ class network_tomography:
         else:
             A=np.array(path_matrix,dtype=float)
             rank = np.linalg.matrix_rank(A)
-            self.logger.debug("A(path): rank is: %d" %(rank))
+            #self.logger.debug("A(path): rank is: %d" %(rank))
             #Matrix(b).applyfunc(nsimplify)
             M=np.concatenate((A,b.T),axis=1)
             rank = np.linalg.matrix_rank(M)
@@ -102,7 +102,7 @@ class network_tomography:
                 if i in uninds:
                     uninds.remove(i)
             '''
-        self.logger.info("%d free variables,the indexes are: %s " %(len(uninds), uninds))
+        #self.logger.info("%d free variables,the indexes are: %s " %(len(uninds), uninds))
         #self.logger.debug(f"the m_rref {m_rref}")
         #return triangular_matrix, list(inds), uninds
         return triangular_matrix
@@ -169,7 +169,7 @@ class network_tomography:
                 if row[i] ==1:
                     inds.append(i)
                     break
-        self.logger.debug("after deletion, the final inds are %s " %(inds))
+        #self.logger.debug("after deletion, the final inds are %s " %(inds))
         x=[0]*(n-1)
         #print(f"len of x: {len(x)}")
         #self.logger.debug(f"inds after deletion: {inds}")
@@ -185,14 +185,14 @@ class network_tomography:
         ##modify here if the last row has more than one '1', there is no solution
         last_row_path=last_row[:(n-1)]
         num_one=np.count_nonzero(last_row_path==1)
-        if num_one >1:
-            self.logger.debug(f"no edges has been computed in the last row")
-        elif num_one==1:
+        if num_one==1:
             for i in range(len(last_row)-1):
                 if last_row[i]==1:
                     x[i]=last_row[n-1]
                     #self.logger.debug(f"computed i {i} is {x[i]}")
                     break
+        #elif num_one > 1:
+        #    self.logger.debug(f"no edges has been computed in the last row")
         for i in range(total_row-2,-1,-1):
             #self.logger.debug(f"row i= {i}")
             for j in range(n-1):
