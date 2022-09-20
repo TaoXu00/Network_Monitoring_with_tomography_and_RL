@@ -176,17 +176,18 @@ argv2: number of nodes
 argv3: degree of new added nodes in Barabasi network
 argv4: enable MAB (1 enable, 0 disable)
 '''
-if len(sys.argv)!=4:
+if len(sys.argv)!=5:
     raise ValueError('missing parameters')
 topo_type=sys.argv[1]
 num_node=int(sys.argv[2])
 degree=int(sys.argv[3])
-print(topo_type, num_node, degree)
+num_run=int(sys.argv[4])
+print(topo_type, num_node, degree,num_run)
 
 
 multi_times_optimal_path_selected_percentage_list=[]
 multi_times_avg_diff_of_delay_from_optimal_list=[]
-n=2
+n=num_run
 i=0
 while(i<n):
     mynetwork=main(3000)
