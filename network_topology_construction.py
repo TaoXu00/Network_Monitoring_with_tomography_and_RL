@@ -25,7 +25,7 @@ class network_topology:
         self.logger=logger
         self.directory=directory
     def graph_Generator(self,type, n, p):
-        '''
+        '''3
         :param type: the type of the topology
         :param n: the number of the nodes in the topology
         :param p: if it is 'ER' model, p:possibility of each edge in a complete graph to be present
@@ -35,8 +35,11 @@ class network_topology:
 
         G=nx.Graph(name="my network")
         if type=="ER":  #generate a random ER topology model
+            '''
             G=nx.erdos_renyi_graph(n, p)
             nx.write_gml(G,"topology/ER/er_graph_dot_file_%d_%s.gml" %(n, p))
+            '''
+            G=nx.read_graphml("topology/ER/er_graph_dot_file_%d_%s.gml" %(n, p))
         elif type=="Barabasi":
             '''
             #generate a new graph
@@ -44,12 +47,17 @@ class network_topology:
             nx.write_gml(G, "topology/BR/br_graph_dot_file_%d_%s.gml" %(n, p))
             '''
             #read the graph from an existing file
-            G=nx.read_gml("topology/BR/br_graph_dot_file_50_2.gml")
+            G=nx.read_gml("topology/BR/br_graph_dot_file_%d_2.gml" %(n))
+        elif type=="Bics":
+            G=nx.read_graphml('topology/Topology_Zoo/Bics.graphml')
+            #G = nx.read_gml('topology/Topology_Zoo/Graph_Bics_10.gml')
+        elif type=="BTN":
+            G=nx.read_graphml('topology/Topology_Zoo/BeyondTheNetwork.graphml')
         self.logger.info("Graph Created!")
-
         for edge in G.edges:
             G[edge[0]][edge[1]]['weight']=1
         self.logger.info("all the edge weights in the graph are assigned to 1")
+
         self.construct_link_delay_distribution(G,type,n,p)
         #self.logger.info(f"Edge delay scales: {self.Dict_edge_scales}")
         self.draw_edge_delay_sample(G, type, n, p)
@@ -60,8 +68,9 @@ class network_topology:
         #graphy=plt.subplot(122)
         #nx.draw(G,pos=nx.circular_layout(G),node_color='r', edge_color='b')
         self.logger.info(G.name)
-        self.logger.info(f"Graph Nodes: {G.nodes}")
-        self.logger.info(f"Graph Edges length:{len(G.edges)}\nGraph Edges data: {G.edges.data()}")
+        self.logger.info("Graph Nodes: %s" %(G.nodes))
+        self.logger.info("Graph Edges length: %d \n Graph Edges data: %s" %(len(G.edges),G.edges.data()))
+
         return G
 
 
@@ -75,9 +84,14 @@ class network_topology:
         :param G: the generated graph
         :return: the scales vector for all the edge
         '''
-        '''    
+        '''
         scales=np.random.randint(1, 10, len(G.edges))
-        np.savetxt('delay_exponential_samples/scales_%s_%s_%s.txt' % (type, n, p), scales)
+        if type== "Barabasi" or type== "ER":
+            np.savetxt('delay_exponential_samples/scales_%s_%s_%s.txt' % (type, n, p), scales)
+        elif type=="Bics" or type=="BTN":
+            np.savetxt('delay_exponential_samples/scales_%s.txt' % (type), scales)
+
+
         '''
         '''
         #scales used in the experiments for ER topology - er_graph_dot_file_20.gml
@@ -94,9 +108,13 @@ class network_topology:
              6, 7, 6, 6, 2, 6, 5, 3, 7, 9, 8, 4, 7, 4, 1, 8, 7, 3, 3, 4, 5, 1, 1, 1, 1, 8, 6, 3, 9, 9, 4, 6, 4, 3, 2, 7, 7,
              9, 1, 6, 8, 9, 1, 7, 8, 9, 2, 5, 1, 4, 6, 7, 7, 7, 7, 6, 1, 8, 3, 3, 9, 6, 5, 9, 6, 7, 2])
         '''
-        y = np.loadtxt("delay_exponential_samples/scales_%s_%s_%s.txt" % (type, n, p))
+
+        if type== "Barabasi" or type== "ER":
+            y= np.loadtxt("delay_exponential_samples/scales_%s_%s_%s.txt" % (type, n, p))
+        elif type=="Bics" or type=="BTN":
+            y = np.loadtxt("delay_exponential_samples/scales_%s.txt" % (type))
         scales = np.array(y)
-        self.logger.debug(f"Edge delay scales: {scales}")
+        self.logger.debug("Edge delay scales: %s" %(scales))
         i=0
         for edge in G.edges:
            self.Dict_edge_scales[edge]=scales[i]
@@ -115,7 +133,12 @@ class network_topology:
         '''
 
         #read samples from an existing file
-        y = np.loadtxt("delay_exponential_samples/samples_%s_%s_%s.txt" %(type, n, p))
+
+        if type== "Barabasi" or type=="ER":
+            y = np.loadtxt("delay_exponential_samples/samples_%s_%s_%s.txt" %(type, n, p))
+        elif type=="Bics" or type=="BTN":
+            y= np.loadtxt("delay_exponential_samples/samples_%s.txt" %(type))
+       
         samples=np.array(y)
         for edge in G.edges:
             self.Dict_edge_delay_sample[edge]=[]
@@ -124,7 +147,6 @@ class network_topology:
             self.Dict_edge_delay_sample[edge] =samples[i]
             i=i+1
         '''
-
         #generate the delay samples from the exponential distribution with the generated scales
         samples=[]
         for edge in G.edges:
@@ -132,11 +154,14 @@ class network_topology:
             self.Dict_edge_delay_sample[edge]=sample
             samples.append(sample)
         n_samples=np.array(samples)
-        np.savetxt('delay_exponential_samples/samples_%s_%s_%s.txt' %(type, n, p),n_samples)
+        if type== "Barabasi" or type=="ER":
+            np.savetxt('delay_exponential_samples/samples_%s_%s_%s.txt' %(type, n, p),n_samples)
+        elif type=="Bics" or type=="BTN":
+            np.savetxt('delay_exponential_samples/samples_%s.txt' % (type), n_samples)
         '''
-        self.logger.info(f"Draw {self.time} delay examples from exponential distribution for each edge.")
+        self.logger.info("Draw %d delay examples from exponential distribution for each edge." %(self.time))
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
-        self.logger.info(f"edge delay sample average {average}")
+        self.logger.info("edge delay sample average %s" %(average))
 
     def assign_link_delay(self,G):
         '''
@@ -172,7 +197,7 @@ class network_topology:
         :return: the nodes which are selected to deploy the monitor
         '''
         monitors = []
-        self.logger.debug(f"n={n} monitor_candidate_list={len(monitor_candidate_list)}")
+        self.logger.debug("n=%d monitor_candidate_list=%d" %(n, len(monitor_candidate_list)))
         if len(monitor_candidate_list) == n:
             monitors = monitor_candidate_list
         elif len(monitor_candidate_list) < n:
@@ -180,7 +205,7 @@ class network_topology:
             rest_nodes = [elem for elem in G.nodes if elem not in monitors]
             select = sample(rest_nodes, k=n - len(monitor_candidate_list))
             monitors = monitors + select
-        self.logger.info(f"Monitors are deployed in nodes: {monitors}")
+        self.logger.info("Monitors are deployed in nodes: %s" %(monitors))
         return monitors
 
     def getPath(self,G, monitors,weight):
@@ -227,8 +252,8 @@ class network_topology:
             for path in map(nx.utils.pairwise, paths):
                for edge in list(path):
                     all_paths_set.add(edge)
-            self.logger.info(f"there are {len(all_paths_set)} between monitor pair node {n1} {n2}: they are:")
-            self.logger.info(paths)
+            #self.logger.info(f"there are {len(all_paths_set)} between monitor pair node {n1} {n2}: they are:")
+            #self.logger.info(paths)
         #print(f"end to end paths set: {all_paths_set}")
         edges=list(G.edges)
         uncovered_edges=[]
@@ -238,15 +263,15 @@ class network_topology:
                     #print(f"1 {edge_e}")
                     uncovered_edges.append(edge_e)
 
-        self.logger.info(f"uncovered edges: {uncovered_edges}")
-        old_G=G.copy()   #store the original network topology
+        self.logger.info("uncovered edges: %s" %(uncovered_edges))
+        trimedG=G.copy()   #store the original network topology
         for edge in uncovered_edges:
-            G.remove_edge(*edge)
+            trimedG.remove_edge(*edge)
 
-        G.remove_nodes_from(['8','10'])
+        #G.remove_nodes_from(['8','10'])
 
         plt.figure()
-        nx.draw(G, with_labels=True)
+        #nx.draw(trimedG, with_labels=True)
         plt.savefig(self.directory + "trimed_topology", format="PNG")
-        self.logger.info(f"after elimination the Graph has edges {len(list(G.edges))}, {list(G.edges)}")
-        return G
+        self.logger.info("after elimination the Graph has %d edges  %s" %(len(list(trimedG.edges)),list(trimedG.edges)))
+        return trimedG
