@@ -168,16 +168,16 @@ class multi_armed_bandit:
         Dict_time_of_optimal_path_selected={}
         rate_optimal_path_selected=[]
         T_total=time-self.t
+        for monitor_pair in monitor_pair_list:
+            Dict_time_of_optimal_path_selected[monitor_pair] = 0
         for i in range(T_total):
             #self.logger.info("t= %s" %(self.t))
             explored_path_list = []
             num_correct_shortest_path=0
             total_diff = 0
             for monitor_pair in monitor_pair_list:
-                Dict_time_of_optimal_path_selected[monitor_pair]=0
-            for monitor_pair in monitor_pair_list:
                 shortest_path=self.LLC_policy(G, monitor_pair)
-                self.logger.debug("shortest_path: %s, optimal path: %s" % (shortest_path, optimal_path_dict[monitor_pair]))
+                #self.logger.debug("shortest_path: %s, optimal path: %s" % (shortest_path, optimal_path_dict[monitor_pair]))
                 if shortest_path == optimal_path_dict[monitor_pair] and self.t>=T_total-1001:
                     #num_correct_shortest_path+=1
                     Dict_time_of_optimal_path_selected[monitor_pair]+=1
