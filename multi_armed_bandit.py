@@ -287,7 +287,12 @@ class multi_armed_bandit:
         for monitor_pair in monitor_pair_list:
             total_rewards_dict[monitor_pair]=[]
         diff_of_delay_from_optimal_real_time=[]
-        for i in range(time-self.t):
+        Dict_time_of_optimal_path_selected = {}
+        rate_optimal_path_selected = []
+        T_total=time-self.t
+        for monitor_pair in monitor_pair_list:
+            Dict_time_of_optimal_path_selected[monitor_pair] = 0
+        for i in range(T_total):
             #self.logger.info("t= %s" %(self.t))
             total_mse = 0
             for edge in G.edges:
@@ -301,8 +306,9 @@ class multi_armed_bandit:
                 m2=monitor_pair[1]
                 shortest_path=self.LLC_policy(G, m1, m2)
                 #shortest_path = self.LLC_policy_without_MAB(G, m1, m2)
-                if shortest_path == optimal_path_dict[monitor_pair]:
-                    num_correct_shortest_path += 1
+                if shortest_path == optimal_path_dict[monitor_pair] and self.t>=T_total-1001:
+                    #num_correct_shortest_path += 1
+                    Dict_time_of_optimal_path_selected[monitor_pair] += 1
                 #else:  #check how far it is different from the real optimal path
                     #total_diff+= abs(nx.path_weight(G,shortest_path,"delay_mean")- optimal_delay_dict[monitor_pair])
                 total_diff += abs(nx.path_weight(G,optimal_path_dict[monitor_pair], "delay")-nx.path_weight(G, shortest_path, "delay"))
@@ -356,7 +362,10 @@ class multi_armed_bandit:
             self.t = self.t + 1  # the time slot increase 1
             self.topo.assign_link_delay(G)
             self.plot_edge_delay_difference_at_different_time_point(G)
-
+        for monitor_pair in monitor_pair_list:
+            rate = Dict_time_of_optimal_path_selected[monitor_pair] / 1000
+            rate_optimal_path_selected.append(rate)
+        average_optimal_path_selected_rate = np.average(np.array(rate_optimal_path_selected))
         avg_diff_of_delay_from_optimal = (sum(diff_of_delay_from_optimal_real_time) / len(diff_of_delay_from_optimal_real_time))
         rewards_mse_list=self.compute_rewards_mse(total_rewards_dict, optimal_delay_dict)
         average_regret_list = self.compute_regret(total_rewards_dict, optimal_delay_dict)
@@ -396,9 +405,9 @@ class multi_armed_bandit:
         self.plotter.plot_edge_delay_difference_for_some_edges(optimal_edges_delay_difference_after_inti,optimal_edges_delay_difference_after_training)
         average_computed_edge_num = sum(computed_edge_num) / len(computed_edge_num)
         #compute the last 1000 correct select
-        optimal_path_selected_rate=sum(correct_shortest_path_selected_rate[-1000:])/1000
-        return rewards_mse_list,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num,optimal_path_selected_rate, avg_diff_of_delay_from_optimal
-
+        #optimal_path_selected_rate=sum(correct_shortest_path_selected_rate[-1000:])/1000
+        #return rewards_mse_list,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num,optimal_path_selected_rate, avg_diff_of_delay_from_optimal
+        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal
     def compute_rewards_mse(self,total_rewards_dict, optimal_delay_dict):
         key_list = list(total_rewards_dict.keys())
         rewards_mse_list = []
