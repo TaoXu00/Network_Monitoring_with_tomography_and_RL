@@ -178,7 +178,7 @@ class multi_armed_bandit:
             for monitor_pair in monitor_pair_list:
                 shortest_path=self.LLC_policy(G, monitor_pair)
                 self.logger.debug("shortest_path: %s, optimal path: %s" % (shortest_path, optimal_path_dict[monitor_pair]))
-                if shortest_path == optimal_path_dict[monitor_pair]:
+                if shortest_path == optimal_path_dict[monitor_pair] and self.t>=T_total-1001:
                     #num_correct_shortest_path+=1
                     Dict_time_of_optimal_path_selected[monitor_pair]+=1
                 #else:#check how far it is different from the real optimal path
@@ -195,7 +195,7 @@ class multi_armed_bandit:
             self.topo.assign_link_delay(G)
         #print("len:%d" %len(diff_of_delay_from_optimal_real_time))
         for monitor_pair in monitor_pair_list:
-            rate=Dict_time_of_optimal_path_selected[monitor_pair]/T_total
+            rate=Dict_time_of_optimal_path_selected[monitor_pair]/1000
             rate_optimal_path_selected.append(rate)
         average_optimal_path_selected_rate = np.average(np.array(rate_optimal_path_selected))
         avg_diff_of_delay_from_optimal = (sum(diff_of_delay_from_optimal_real_time) / len(diff_of_delay_from_optimal_real_time))
