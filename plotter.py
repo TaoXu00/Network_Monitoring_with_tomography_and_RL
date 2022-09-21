@@ -30,6 +30,7 @@ class plotter:
         plt.legend()
         plt.savefig(self.directory + '# of edge exploration', format="PNG", dpi=300,
                     bbox_inches='tight')
+        plt.close()
 
     def plot_edge_exploitation_times_bar(self,label,Dict_edge_m):
         fig = plt.figure(figsize=(10, 7))
@@ -40,6 +41,7 @@ class plotter:
         plt.bar(bar,Dict_edge_m.values(), label= label)
         #plt.xticks(np.arange(len(Dict_edge_m)))
         plt.legend()
+        plt.close()
 
     def plot_edge_delay_difference_alongtime(self, s,e, edge_delay_difference_list,link_range):
         # set width of bar
@@ -72,6 +74,7 @@ class plotter:
         plt.xticks([r for r in range(e-s)], range(s,e,1))
         plt.legend()
         plt.savefig(self.directory + 'delay difference from the mean link %s' %link_range, format="PNG")
+        plt.close()
 
     def plot_edge_delay_difference(self,G,Dict_edge_theta):
         fig = plt.figure()
@@ -85,6 +88,7 @@ class plotter:
         ax.bar(langs, delay_diff)
         plt.xlabel("Link ID")
         plt.ylabel("delay difference from mean")
+        plt.close()
 
     def plot_total_edge_delay_mse(self,total_mse_array):
         # plot the mse
@@ -97,6 +101,7 @@ class plotter:
         plt.ylabel("total_mse of all edges dalay")
         # plt.show()
         plt.savefig(self.directory + 'MAB_total_delay_mse', format="PNG")
+        plt.close()
 
     def plot_time_average_rewards(self, mse_list):
         # plot the total rewards
@@ -108,6 +113,7 @@ class plotter:
         plt.ylabel("mse of rewards of selected optimal path among monitors")
         # plt.show()
         plt.savefig(self.directory + 'mse rewards', format="PNG")
+        plt.close()
 
     def plot_bar_edge_exploration_training_with_increasing_monitor(self, monitors_deployment_percentage, explored_edges_rate):
         #x = [str(len(monitors) /len(G.nodes)) for monitors in monitors_list]
@@ -122,6 +128,7 @@ class plotter:
         plt.bar(bar, y, width=barwidth)
         # plt.show()
         plt.savefig(self.directory + 'MAB_edge_exploration_with_increasing_monitors.png')
+        plt.close()
 
     def plot_mse_with_increasing_monitor_training(self, total_edge_mse_list_with_increasing_monitors):
         labels=['0.1', '0.2', '0.3', '0.4','0.5']
@@ -132,6 +139,7 @@ class plotter:
             plt.plot(x, total_edge_mse_list_with_increasing_monitors[i], label=labels[i])
         plt.legend()
         plt.savefig(self.directory + "mse_with_increasing_monitor_training")
+        plt.close()
 
 
     def plot_NT_verification_edge_computed_rate_with_monitors_increasing(self, G, monitors_list, solved_edges_count ):
@@ -144,6 +152,7 @@ class plotter:
         plt.ylabel("% of solved links")
         # plt.show()
         plt.savefig('plots/network_tomography_verification_node%s_with_link_weight=1.png'%(len(G.nodes)))
+        plt.close()
 
     def plot_rewards_mse_along_with_different_monitors(self,monitors_deployment_percentage,total_rewards_mse_list):
         labels=[]
@@ -158,6 +167,7 @@ class plotter:
         plt.ylabel("mse of time averaged rewards of the selected optimal paths during training")
         plt.legend()
         plt.savefig(self.directory + "rewards mse with different #minitors")
+        plt.close()
 
     def plot_edge_exporation_times_with_differrent_monitor_size(self, G, total_edge_exploration_during_training_list):
             edges_num = len(G.edges)
@@ -186,6 +196,7 @@ class plotter:
             plt.tight_layout()
             plt.legend()
             plt.savefig(self.directory + " the exploration times of 20 random edges with different monitor numbers")
+            plt.close()
 
     def plot_edge_computed_rate_during_training(self,monitors_deployment_percentage,average_computed_edge_rate_during_training):
         x = []
@@ -199,6 +210,7 @@ class plotter:
         bar = np.array(x)
         plt.bar(bar, y, width=barwidth)
         plt.savefig(self.directory + 'MAB_edge_computed_rate_with_increasing_monitors.png')
+        plt.close()
 
     def plot_edge_computed_rate_with_different_topology_size(self):
         percentage = ['0.1', '0.2', '0.3', '0.4', '0.5','0.6','0.7','0.8','0.9','1.0']
@@ -228,6 +240,7 @@ class plotter:
         plt.xticks(np.arange(len(percentage)),percentage)
         plt.legend()
         plt.savefig(self.directory + '%of identified edges with different topology size and different number of monitors' , format="PNG")
+        plt.close()
 
     def plot_average_regrets(self, averaged_regret_list):
         plt.figure()
@@ -236,6 +249,7 @@ class plotter:
         plt.xlabel("time")
         plt.ylabel("averaged regret of selected shortest path among monitors")
         plt.savefig(self.directory + 'averaged regret', format="PNG")
+        plt.close()
 
     def plot_rate_of_correct_shortest_path(self,correct_shortest_path_selected_rate):
         plt.figure()
@@ -244,6 +258,7 @@ class plotter:
         plt.xlabel("time")
         plt.ylabel("rate of correctly selected shortest path among monitors")
         plt.savefig(self.directory + 'rate of correctly selected shortest path among monitors', format="PNG")
+        plt.close()
 
     def plot_edge_delay_difference_for_some_edges(self, optimal_edges_delay_difference_after_inti, optimal_edges_delay_difference_after_training):
         barWidth = 0.25
@@ -266,6 +281,7 @@ class plotter:
         plt.xticks(xlable)
         plt.legend()
         plt.savefig(self.directory + 'delay difference of optimal edges from mean after init and after training')
+        plt.close()
 
     def plot_diff_from_optimal_path_of_selected_shortest_paths(self, abs_diff_of_delay_from_optimal):
         plt.figure()
