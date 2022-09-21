@@ -203,12 +203,12 @@ while(i<n):
     else:
         current_mse_arrary=np.array(total_edge_mse_list_with_increasing_monitors)
         multi_times_mse_total_link_delay_array=np.add(multi_times_mse_total_link_delay_array,current_mse_arrary)
-        np.append(multi_times_optimal_path_selected_percentage_array,np.array(optimal_path_selected_percentage_list))
-        np.append(multi_times_avg_diff_of_delay_from_optimal_array,np.array(avg_diff_of_delay_from_optimal_list))
+        multi_times_optimal_path_selected_percentage_array=np.append(multi_times_optimal_path_selected_percentage_array,np.array([optimal_path_selected_percentage_list]),axis=0)
+        multi_times_avg_diff_of_delay_from_optimal_array=np.append(multi_times_avg_diff_of_delay_from_optimal_array,np.array([avg_diff_of_delay_from_optimal_list]), axis=0)
     i += 1
 multi_times_avg_mse_total_link_delay_array=multi_times_mse_total_link_delay_array/n
 mynetwork.logger_main.info("Statistics:")
-mynetwork.logger_main.info("Before average: percentage of the optimal path selected:" )
+mynetwork.logger_main.info("Before average: percentage of the optimal path selected:")
 mynetwork.logger_main.info(multi_times_optimal_path_selected_percentage_array)
 mynetwork.logger_main.info("Before average: diff from the real optimal path: ")
 mynetwork.logger_main.info(multi_times_avg_diff_of_delay_from_optimal_array)
