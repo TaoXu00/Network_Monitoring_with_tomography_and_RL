@@ -208,13 +208,17 @@ while(i<n):
     i += 1
 multi_times_avg_mse_total_link_delay_array=multi_times_mse_total_link_delay_array/n
 mynetwork.logger_main.info("Statistics:")
-mynetwork.logger_main.info("Before average: percentage of the optimal path selected: %f" % (multi_times_optimal_path_selected_percentage_array))
-mynetwork.logger_main.info("Before average: diff from the real optimal path: %f" %(multi_times_avg_diff_of_delay_from_optimal_array))
+mynetwork.logger_main.info("Before average: percentage of the optimal path selected:" )
+mynetwork.logger_main.info(multi_times_optimal_path_selected_percentage_array)
+mynetwork.logger_main.info("Before average: diff from the real optimal path: ")
+mynetwork.logger_main.info(multi_times_avg_diff_of_delay_from_optimal_array)
 
 multi_avg_percentage_of_select_optimal_path=np.average(multi_times_optimal_path_selected_percentage_array,axis=0)
 multi_avg_percentage_of_abs_diff_from_optimal=np.average(multi_times_avg_diff_of_delay_from_optimal_array,axis=0)
-mynetwork.logger_main.info("after average: percentage of the optimal path selected: %f" % (multi_avg_percentage_of_select_optimal_path))
-mynetwork.logger_main.info("after average: diff from the real optimal path: %f" %(multi_avg_percentage_of_abs_diff_from_optimal))
+mynetwork.logger_main.info("after average: percentage of the optimal path selected:")
+mynetwork.logger_main.info (multi_avg_percentage_of_select_optimal_path)
+mynetwork.logger_main.info("after average: diff from the real optimal path:")
+mynetwork.logger_main.info(multi_avg_percentage_of_abs_diff_from_optimal)
 
 
 mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training(monitors_deployment_percentage,multi_times_avg_mse_total_link_delay_array)
