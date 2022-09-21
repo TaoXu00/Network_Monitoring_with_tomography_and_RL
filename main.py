@@ -54,8 +54,7 @@ class main:
             optimal_delay= nx.path_weight(G, optimal_path, 'delay_mean')
             optimal_path_dict[monitor_pair]=optimal_path
             optimal_delay_dict[monitor_pair]=optimal_delay
-
-        rewards_mse_list, selected_shortest_path= self.MAB.train_llc(G, self.time,monitor_pair_list)
+        rewards_mse_list, selected_shortest_path, optimal_path_selected_rate, avg_diff_of_delay_from_optimal= self.MAB.train_llc(G, self.time,monitor_pair_list)
 
         path_dict = {}
         for path in selected_shortest_path:
@@ -64,8 +63,8 @@ class main:
                 path_dict[p] += 1
             else:
                 path_dict[p] = 1
-        self.logger_main.info("paths are explored during the training: %s" %(selected_shortest_path))
-        return rewards_mse_list, optimal_delay
+        #self.logger_main.info("paths are explored during the training: %s" %(selected_shortest_path))
+        return rewards_mse_list, optimal_delay, optimal_path_selected_rate, avg_diff_of_delay_from_optimal
 
     def MAB_with_increasing_monitors(self, G, type, node_num, p):
         '''
@@ -79,19 +78,21 @@ class main:
         monitors_list = []
         end_nodes=[]
         total_rewards_mse_list=[]
+        optimal_path_selected_percentage_list = []
+        avg_diff_of_delay_from_optimal_list = []
         degree_list = list(G.degree(list(G.nodes)))
         #it does not make sense to differenciate the end nodes from the internal nodes.
         for edge_degree in degree_list:
             if edge_degree[1] == 2 or edge_degree[1]==1:
                 end_nodes.append(edge_degree[0])
-        self.logger_main.debug("degree_list: %s" %(degree_list))
-        self.logger_main.debug("end nodes list:%s" %(end_nodes))
+        #self.logger_main.debug("degree_list: %s" %(degree_list))
+        #self.logger_main.debug("end nodes list:%s" %(end_nodes))
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
         monitors_deployment_percentage=[]
 
-        for m_p in range(60,70,10):
+        for m_p in [10, 20, 30, 40, 50]:
             monitors_deployment_percentage.append(m_p)
             n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
@@ -109,10 +110,15 @@ class main:
             trimedG=G
             #trimedG=mynetwork.topo.trimNetwrok(G, monitors)
             nx.write_gml(G, "%sGraph_%s_%s.gml" %(self.trimedGraph_Dir,type,str(m_p)))
-            rewards_mse_list, optimal_delay=self.run_MAB(trimedG, monitors)
+            rewards_mse_list, optimal_delay, optimal_path_selected_rate, avg_diff_of_delay_from_optimal=self.run_MAB(trimedG, monitors)
             monitors_list.append(monitors)
             total_rewards_mse_list.append(rewards_mse_list)
+            optimal_path_selected_percentage_list.append(optimal_path_selected_rate)
+            avg_diff_of_delay_from_optimal_list.append(avg_diff_of_delay_from_optimal)
+            self.logger_main.info("percentage of the optimal path selected: %f" % (optimal_path_selected_rate))
+            self.logger_main.info(" abs diff from the real optimal path: %f" % (avg_diff_of_delay_from_optimal))
             self.topo.draw_edge_delay_sample(G,type,node_num,p)
+        return optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, monitors_deployment_percentage
 
 
 
@@ -124,17 +130,44 @@ argv2: number of nodes
 argv3: degree of new added nodes in Barabasi network
 argv4: enable MAB (1 enable, 0 disable)
 '''
-if len(sys.argv)!=4:
+if len(sys.argv)!=5:
     raise ValueError('missing parameters')
 topo_type=sys.argv[1]
 num_node=int(sys.argv[2])
 degree=int(sys.argv[3])
-print(topo_type, num_node, degree)
+num_run=int(sys.argv[4])
+print(topo_type, num_node, degree, num_run)
 
-mynetwork=main(3000)
-G =mynetwork.creat_topology(topo_type, num_node, degree)
-#mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree)
+multi_times_optimal_path_selected_percentage_list=[]
+multi_times_avg_diff_of_delay_from_optimal_list=[]
+n=num_run
+i=0
+while(i<n):
+    mynetwork=main(3000)
+    G =mynetwork.creat_topology(topo_type, num_node, degree)
+    #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
+    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, monitors_deployment_percentage =mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree)
+    #print("n=%d" %(i))
+    #print(optimal_path_selected_percentage_list,avg_diff_of_delay_from_optimal_list)
+    if i==0:
+        multi_times_optimal_path_selected_percentage_array=np.array([optimal_path_selected_percentage_list])
+        multi_times_avg_diff_of_delay_from_optimal_array=np.array([avg_diff_of_delay_from_optimal_list])
+    else:
+        np.append(multi_times_optimal_path_selected_percentage_array,np.array(optimal_path_selected_percentage_list))
+        np.append(multi_times_avg_diff_of_delay_from_optimal_array,np.array(avg_diff_of_delay_from_optimal_list))
+    i += 1
 
+mynetwork.logger_main.info("Statistics:")
+mynetwork.logger_main.info("Before average: percentage of the optimal path selected:")
+mynetwork.logger_main.info(multi_times_optimal_path_selected_percentage_array)
+mynetwork.logger_main.info("Before average: diff from the real optimal path:")
+mynetwork.logger_main.info(multi_times_avg_diff_of_delay_from_optimal_array)
 
-
+multi_avg_percentage_of_select_optimal_path=np.average(multi_times_optimal_path_selected_percentage_array,axis=0)
+multi_avg_percentage_of_abs_diff_from_optimal=np.average(multi_times_avg_diff_of_delay_from_optimal_array,axis=0)
+mynetwork.logger_main.info("after average: percentage of the optimal path selected:")
+mynetwork.logger_main.info(multi_avg_percentage_of_select_optimal_path)
+mynetwork.logger_main.info("after average: diff from the real optimal path:")
+mynetwork.logger_main.info(multi_avg_percentage_of_abs_diff_from_optimal)
+mynetwork.plotter.plot_optimal_path_selected_percentage_list_with_increasing_monitors(monitors_deployment_percentage, multi_avg_percentage_of_select_optimal_path)
+mynetwork.plotter.plot_abs_diff_path_delay_from_the_optimal(monitors_deployment_percentage,multi_avg_percentage_of_abs_diff_from_optimal )

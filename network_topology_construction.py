@@ -56,7 +56,7 @@ class network_topology:
         self.logger.info("Graph Created!")
         for edge in G.edges:
             G[edge[0]][edge[1]]['weight']=1
-        self.logger.info("all the edge weights in the graph are assigned to a random number")
+        #self.logger.info("all the edge weights in the graph are assigned to a random number")
 
         self.construct_link_delay_distribution(G,type,n,p)
         #self.logger.info(f"Edge delay scales: {self.Dict_edge_scales}")
@@ -114,7 +114,7 @@ class network_topology:
         elif type=="Bics" or type=="BTN":
             y = np.loadtxt("delay_exponential_samples/scales_%s.txt" % (type))
         scales = np.array(y)
-        self.logger.debug("Edge delay scales: %s" %(scales))
+        #self.logger.debug("Edge delay scales: %s" %(scales))
         i=0
         for edge in G.edges:
            self.Dict_edge_scales[edge]=scales[i]
@@ -160,9 +160,9 @@ class network_topology:
         elif type=="Bics" or type=="BTN":
             np.savetxt('delay_exponential_samples/samples_%s.txt' % (type), n_samples)
 
-        self.logger.info("Draw %d delay examples from exponential distribution for each edge." %(self.time))
+        #self.logger.info("Draw %d delay examples from exponential distribution for each edge." %(self.time))
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
-        self.logger.info("edge delay sample average %s" %(average))
+        #self.logger.info("edge delay sample average %s" %(average))
 
     def assign_link_delay(self,G):
         '''
@@ -198,7 +198,7 @@ class network_topology:
         :return: the nodes which are selected to deploy the monitor
         '''
         monitors = []
-        self.logger.debug("n=%d monitor_candidate_list=%d" %(n, len(monitor_candidate_list)))
+        #self.logger.debug("n=%d monitor_candidate_list=%d" %(n, len(monitor_candidate_list)))
         if len(monitor_candidate_list) == n:
             monitors = monitor_candidate_list
         elif len(monitor_candidate_list) < n:

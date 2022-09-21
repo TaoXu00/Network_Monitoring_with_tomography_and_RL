@@ -267,13 +267,42 @@ class plotter:
         plt.legend()
         plt.savefig(self.directory + 'delay difference of optimal edges from mean after init and after training')
 
-    def plot_diff_from_optimal_path_of_the_wrong_selected_shortest_path(self, diff_of_delay_from_optimal):
+    def plot_diff_from_optimal_path_of_selected_shortest_paths(self, abs_diff_of_delay_from_optimal):
         plt.figure()
-        x = range(len(diff_of_delay_from_optimal))
-        plt.plot(x, diff_of_delay_from_optimal)
+        x = range(len(abs_diff_of_delay_from_optimal))
+        plt.plot(x, abs_diff_of_delay_from_optimal)
         plt.xlabel("time")
-        plt.ylabel("diff of the selected shortest path delay from optimal shortest path")
-        plt.savefig(self.directory + 'diff of the selected shortest path from optimal shortest path', format="PNG")
+        plt.ylabel("mse of the selected shortest path from optimal shortest path")
+        plt.savefig(self.directory + 'absolute difference of the selected shortest path from optimal shortest path', format="PNG")
+        plt.close()
+
+    def plot_optimal_path_selected_percentage_list_with_increasing_monitors(self, monitors_deployment_percentage,optimal_path_selected_rate):
+        x = monitors_deployment_percentage
+        x_label = [str(pert) for pert in monitors_deployment_percentage]
+        y = optimal_path_selected_rate
+        fig = plt.figure(figsize=(10, 7))
+        barwidth = 0.25
+        plt.xlabel("% of nodes selected as monitors")
+        plt.ylabel(" % of the optimal paths selected")
+        bar = np.arange(len(x_label))
+        plt.bar(bar, y, width=barwidth)
+        plt.xticks(bar, x_label)
+        plt.savefig(self.directory + 'Optimal path selected rate with increasing monitors.png')
+        plt.close()
+
+    def plot_abs_diff_path_delay_from_the_optimal(self, monitors_deployment_percentage,optimal_path_selected_percentage_list):
+        x = monitors_deployment_percentage
+        x_label = [str(pert) for pert in monitors_deployment_percentage]
+        y = optimal_path_selected_percentage_list
+        fig = plt.figure(figsize=(10, 7))
+        barwidth = 0.25
+        plt.xlabel("% of nodes selected as monitors")
+        plt.ylabel(" abs error from the optimal shortest paths")
+        bar = np.arange(len(x_label))
+        plt.bar(bar, y, width=barwidth)
+        plt.xticks(bar, x_label)
+        plt.savefig(self.directory + 'abs error from the optimal shortest paths.png')
+        plt.legend()
         plt.close()
 
 
