@@ -92,7 +92,7 @@ class main:
         monitors=[]
         monitors_deployment_percentage=[]
 
-        for m_p in [10, 20]:
+        for m_p in [10, 20, 30, 40, 50]:
             monitors_deployment_percentage.append(m_p)
             n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
