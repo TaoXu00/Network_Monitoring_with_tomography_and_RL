@@ -234,7 +234,7 @@ class multi_armed_bandit:
                 (len(G.edges) + 1) * math.log(self.t) / self.Dict_edge_m[edge])
             if llc_factor < 0:
                 G[edge[0]][edge[1]]["llc_factor"]=0
-                #print("edge (%s %s) got negtive lcc factor" %(edge[0],edge[1]))
+                print("edge (%s %s) got negtive lcc factor" %(edge[0],edge[1]))
             else:
                 G[edge[0]][edge[1]]["llc_factor"] = llc_factor
 

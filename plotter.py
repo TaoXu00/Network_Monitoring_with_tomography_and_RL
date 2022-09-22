@@ -88,6 +88,7 @@ class plotter:
         ax.bar(langs, delay_diff)
         plt.xlabel("Link ID")
         plt.ylabel("delay difference from mean")
+        plt.close()
 
 
     def plot_total_edge_delay_mse(self,total_mse_array):

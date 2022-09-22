@@ -123,7 +123,7 @@ class main:
         #for n in range(2, 3, 1):
         monitors=[]
         monitors_deployment_percentage=[]
-        for m_p in [10, 20, 30, 40, 50]:
+        for m_p in [20,30]:
         #for m_p in [20, 30]:
             monitors_deployment_percentage.append(m_p)
             n = int((m_p / 100) * len(G.nodes))
@@ -161,8 +161,7 @@ class main:
         np.savetxt('%sidentificable edges rate with increasing monitors' % (self.directory), arr)
         # self.plotter.plot_rewards_mse_along_with_different_monitors(monitors_deployment_percentage,total_rewards_mse_list)
         # self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(monitors_deployment_percentage, explored_edges_rate)
-        self.plotter.plot_edge_computed_rate_during_training(monitors_deployment_percentage,
-                                                                  average_computed_edge_rate_during_training)
+        self.plotter.plot_edge_computed_rate_during_training(monitors_deployment_percentage, average_computed_edge_rate_during_training)
         return optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage
 
     def plot_edge_computed_rate_bar_with_different_topology_size(self):
