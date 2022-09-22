@@ -90,9 +90,9 @@ class network_topology:
             np.savetxt('delay_exponential_samples/scales_%s_%s_%s.txt' % (type, n, p), scales)
         elif type=="Bics" or type=="BTN":
             np.savetxt('delay_exponential_samples/scales_%s.txt' % (type), scales)
-
-
         '''
+
+
         '''
         #scales used in the experiments for ER topology - er_graph_dot_file_20.gml
         #scales=np.array([2, 5, 4, 7, 7, 4, 1, 3, 2, 5, 6, 7, 2, 5, 8, 7, 2, 3, 3, 1, 7, 8, 6, 3, 1, 8, 7, 6, 4, 3, 7, 6, 9, 5, 9, 3])
@@ -131,7 +131,7 @@ class network_topology:
         :param p: if it is ER, p is the possibility that a link in a fully connected graph exists in the current topology, here it is used to name the sample file
         :return: NULL, the samples will be saved in a file
         '''
-        '''
+
 
         #read samples from an existing file
 
@@ -147,6 +147,7 @@ class network_topology:
         for edge in G.edges:
             self.Dict_edge_delay_sample[edge] =samples[i]
             i=i+1
+
         '''
         #generate the delay samples from the exponential distribution with the generated scales
         samples=[]
@@ -163,7 +164,7 @@ class network_topology:
         #self.logger.info("Draw %d delay examples from exponential distribution for each edge." %(self.time))
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
         #self.logger.info("edge delay sample average %s" %(average))
-
+        '''
     def assign_link_delay(self,G):
         '''
         This function assigns the time series delay of each link every second
@@ -181,9 +182,7 @@ class network_topology:
             G[edge[0]][edge[1]]['delay'] = self.Dict_edge_delay_sample[edge][0]
             #print(f"type: {type(self.Dict_edge_delay_sample[edge])}")
             self.Dict_edge_delay_sample[edge]=np.delete(self.Dict_edge_delay_sample[edge],0)
-        #self.logger.debug(f"{len(self.Dict_edge_delay_sample[edge])} samples left")
-            #print(f"after deletion{self.Dict_edge_delay_sample[edge]}")
-        #self.logger.debug(f"Assigned Delay {G.edges.data()}")
+
 
     def deploy_monitor(self,G, n, monitor_candidate_list):
         '''

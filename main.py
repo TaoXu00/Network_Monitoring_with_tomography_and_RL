@@ -155,7 +155,8 @@ while(i<n):
         mynetwork.logger_main.info(multi_times_optimal_path_selected_percentage_array)
         multi_times_optimal_path_selected_percentage_array=np.append(multi_times_optimal_path_selected_percentage_array,np.array([optimal_path_selected_percentage_list]), axis=0)
         multi_times_avg_diff_of_delay_from_optimal_array=np.append(multi_times_avg_diff_of_delay_from_optimal_array,np.array([avg_diff_of_delay_from_optimal_list]), axis=0)
-    i += 1
+    i +=1
+
 
 mynetwork.logger_main.info("Statistics:")
 mynetwork.logger_main.info("Original: percentage of the optimal path selected:")
