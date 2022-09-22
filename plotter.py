@@ -94,8 +94,8 @@ class plotter:
         # plot the mse
         plt.figure()
         x = range(len(total_mse_array))
-        print(f"mse:{x}")
-        print(f"mse:{total_mse_array}")
+        #print(f"mse:{x}")
+        #print(f"mse:{total_mse_array}")
         plt.plot(x, total_mse_array)
         plt.xlabel("time slot")
         plt.ylabel("total_mse of all edges dalay")
@@ -150,7 +150,7 @@ class plotter:
         plt.figure()
         x = [len(monitors) / len(G.nodes) for monitors in monitors_list]
         y = [edges_count / len(G.edges) for edges_count in solved_edges_count]
-        print(x, y)
+        #print(x, y)
         plt.plot(x, y)
         plt.xlabel("% of nodes selected as monitors")
         plt.ylabel("% of solved links")
@@ -179,8 +179,6 @@ class plotter:
             # index.sort()
             selected_edges_list = []
             for i in range(len(total_edge_exploration_during_training_list)):
-                for j in range(len(index)):
-                    print(f"index:{index[j]}")
                 list = total_edge_exploration_during_training_list[i]
                 selected_edges_list.append([list[index[j]] for j in range(len(index))])
 
