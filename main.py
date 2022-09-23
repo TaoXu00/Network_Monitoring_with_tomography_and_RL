@@ -72,7 +72,7 @@ class main:
             solved_edges_count.append(count)
         self.plotter.plot_NT_verification_edge_computed_rate_with_monitors_increasing(G, monitors_list, solved_edges_count)
 
-    def run_MAB(self, G, monitors):
+    def run_MAB(self, G, monitors, llc_factor):
         self.MAB.Initialize(G, monitors)
         monitor_pair_list = list(combinations(monitors, 2))
         optimal_path_dict={}
@@ -82,7 +82,7 @@ class main:
             optimal_delay= nx.path_weight(G, optimal_path, 'delay_mean')
             optimal_path_dict[monitor_pair]=optimal_path
             optimal_delay_dict[monitor_pair]=optimal_delay
-        rewards_mse_list, selected_shortest_path, expo_count,total_mse_array,edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal = self.MAB.train_llc(G, self.time,monitor_pair_list)
+        rewards_mse_list, selected_shortest_path, expo_count,total_mse_array,edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal = self.MAB.train_llc(G, self.time,monitor_pair_list, llc_factor)
 
         path_dict = {}
         for path in selected_shortest_path:
@@ -94,7 +94,7 @@ class main:
         #self.logger_main.info("paths are explored during the training: %s" %(path_dict))
         return expo_count, total_mse_array, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal
 
-    def MAB_with_increasing_monitors(self, G, type, node_num, p):
+    def MAB_with_increasing_monitors(self, G, type, node_num, p, llc_factor):
         '''
         In the system configuration, we random created a topology with 100 nodes.
         :param G: the topology graph
@@ -123,7 +123,7 @@ class main:
         #for n in range(2, 3, 1):
         monitors=[]
         monitors_deployment_percentage=[]
-        for m_p in [20,30]:
+        for m_p in [20,30,40]:
         #for m_p in [20, 30]:
             monitors_deployment_percentage.append(m_p)
             n = int((m_p / 100) * len(G.nodes))
@@ -142,7 +142,7 @@ class main:
             trimedG = G
             nx.write_gml(trimedG, "%sGraph_%s_%s.gml" % (self.trimedGraph_Dir, type, str(m_p)))
             expo_count, total_mse, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal = self.run_MAB(
-                trimedG, monitors)
+                trimedG, monitors, llc_factor)
             monitors_list.append(monitors)
             explored_edges_rate.append(expo_count / len(trimedG.edges))
             total_edge_mse_list_with_increasing_monitors.append(total_mse)
@@ -175,14 +175,14 @@ argv2: number of nodes
 argv3: degree of new added nodes in Barabasi network
 argv4: enable MAB (1 enable, 0 disable)
 '''
-if len(sys.argv)!=5:
+if len(sys.argv)!=6:
     raise ValueError('missing parameters')
 topo_type=sys.argv[1]
 num_node=int(sys.argv[2])
 degree=int(sys.argv[3])
-num_run=int(sys.argv[4])
-print(topo_type, num_node, degree,num_run)
-
+llc_factor=float(sys.argv[4])
+num_run=int(sys.argv[5])
+print(topo_type, num_node, degree, llc_factor, num_run)
 
 multi_times_optimal_path_selected_percentage_list=[]
 multi_times_avg_diff_of_delay_from_optimal_list=[]
@@ -192,7 +192,7 @@ while(i<n):
     mynetwork=main(3000)
     G =mynetwork.creat_topology(topo_type, num_node, degree)
     #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage =mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree)
+    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage =mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor)
     #print("n=%d" %(i))
     #print(optimal_path_selected_percentage_list,avg_diff_of_delay_from_optimal_list)
     if i==0:

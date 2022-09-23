@@ -227,10 +227,11 @@ class multi_armed_bandit:
         return optimal_delay_dict,optimal_path_dict
 
 
-    def LLC_policy(self, G, monitor1, monitor2):
+    def LLC_policy(self, G, monitor1, monitor2, llc):
         # select a path which solves the minimization problem
+        print(llc)
         for edge in G.edges:
-            llc_factor= self.Dict_edge_theta[edge] - math.sqrt(
+            llc_factor= self.Dict_edge_theta[edge] - llc * math.sqrt(
                 (len(G.edges) + 1) * math.log(self.t) / self.Dict_edge_m[edge])
             if llc_factor < 0:
                 G[edge[0]][edge[1]]["llc_factor"]=0
@@ -263,7 +264,7 @@ class multi_armed_bandit:
         b = np.array([path_delays])  # the delay of the selected path
         return b, average_edge_delay_list
 
-    def train_llc(self,G, time, monitor_pair_list):
+    def train_llc(self,G, time, monitor_pair_list, llc_factor):
         optimal_delay_dict, optimal_path_dict = self.optimal_path(G, monitor_pair_list)
         optimal_links=[]
         for key in optimal_path_dict:
@@ -291,7 +292,7 @@ class multi_armed_bandit:
         rate_optimal_path_selected = []
         T_total=time-self.t
         for monitor_pair in monitor_pair_list:
-            Dict_time_of_optimal_path_selected[monitor_pair] = 0
+            Dict_time_of_optimal_path_selected[monitor_pair] = []
         for i in range(T_total):
             #self.logger.info("t= %s" %(self.t))
             total_mse = 0
@@ -304,11 +305,13 @@ class multi_armed_bandit:
             for monitor_pair in monitor_pair_list:
                 m1=monitor_pair[0]
                 m2=monitor_pair[1]
-                shortest_path=self.LLC_policy(G, m1, m2)
+                shortest_path=self.LLC_policy(G, m1, m2, llc_factor)
                 #shortest_path = self.LLC_policy_without_MAB(G, m1, m2)
                 if shortest_path == optimal_path_dict[monitor_pair] and self.t>=T_total-1001:
                     #num_correct_shortest_path += 1
-                    Dict_time_of_optimal_path_selected[monitor_pair] += 1
+                    Dict_time_of_optimal_path_selected[monitor_pair].append(1)
+                else:
+                    Dict_time_of_optimal_path_selected[monitor_pair].append(0)
                 #else:  #check how far it is different from the real optimal path
                     #total_diff+= abs(nx.path_weight(G,shortest_path,"delay_mean")- optimal_delay_dict[monitor_pair])
                 total_diff += abs(nx.path_weight(G,optimal_path_dict[monitor_pair], "delay")-nx.path_weight(G, shortest_path, "delay"))
@@ -363,7 +366,8 @@ class multi_armed_bandit:
             self.topo.assign_link_delay(G)
             self.plot_edge_delay_difference_at_different_time_point(G)
         for monitor_pair in monitor_pair_list:
-            rate = Dict_time_of_optimal_path_selected[monitor_pair] / 1000
+            count_list = Dict_time_of_optimal_path_selected[monitor_pair]
+            rate = sum(count_list[-1000:])/1000
             rate_optimal_path_selected.append(rate)
         average_optimal_path_selected_rate = np.average(np.array(rate_optimal_path_selected))
         avg_diff_of_delay_from_optimal = (sum(diff_of_delay_from_optimal_real_time) / len(diff_of_delay_from_optimal_real_time))
