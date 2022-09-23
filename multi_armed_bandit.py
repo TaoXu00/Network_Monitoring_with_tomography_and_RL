@@ -169,7 +169,7 @@ class multi_armed_bandit:
         rate_optimal_path_selected=[]
         T_total=time-self.t
         for monitor_pair in monitor_pair_list:
-            Dict_time_of_optimal_path_selected[monitor_pair] = 0
+            Dict_time_of_optimal_path_selected[monitor_pair] = []
         for i in range(T_total):
             #self.logger.info("t= %s" %(self.t))
             explored_path_list = []
@@ -178,9 +178,11 @@ class multi_armed_bandit:
             for monitor_pair in monitor_pair_list:
                 shortest_path=self.LLC_policy(G, monitor_pair)
                 #self.logger.debug("shortest_path: %s, optimal path: %s" % (shortest_path, optimal_path_dict[monitor_pair]))
-                if shortest_path == optimal_path_dict[monitor_pair] and self.t>=T_total-1001:
+                if shortest_path == optimal_path_dict[monitor_pair]:
                     #num_correct_shortest_path+=1
-                    Dict_time_of_optimal_path_selected[monitor_pair]+=1
+                    Dict_time_of_optimal_path_selected[monitor_pair].append(1)
+                else:
+                    Dict_time_of_optimal_path_selected[monitor_pair].append(0)
                 #else:#check how far it is different from the real optimal path
                     #total_diff+= abs(nx.path_weight(G,shortest_path,"delay_mean")- optimal_delay_dict[monitor_pair])
                 total_diff += abs(nx.path_weight(G, optimal_path_dict[monitor_pair], "delay") - nx.path_weight(G, shortest_path, "delay"))
@@ -195,7 +197,8 @@ class multi_armed_bandit:
             self.topo.assign_link_delay(G)
         #print("len:%d" %len(diff_of_delay_from_optimal_real_time))
         for monitor_pair in monitor_pair_list:
-            rate=Dict_time_of_optimal_path_selected[monitor_pair]/1000
+            count_list=Dict_time_of_optimal_path_selected[monitor_pair]
+            rate=sum(count_list[-1000:])/1000
             rate_optimal_path_selected.append(rate)
         average_optimal_path_selected_rate = np.average(np.array(rate_optimal_path_selected))
         avg_diff_of_delay_from_optimal = (sum(diff_of_delay_from_optimal_real_time) / len(diff_of_delay_from_optimal_real_time))
