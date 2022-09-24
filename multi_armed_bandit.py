@@ -308,7 +308,6 @@ class multi_armed_bandit:
                 shortest_path=self.LLC_policy(G, m1, m2, llc_factor)
                 #shortest_path = self.LLC_policy_without_MAB(G, m1, m2)
                 if shortest_path == optimal_path_dict[monitor_pair] and self.t>=T_total-1001:
-                    #num_correct_shortest_path += 1
                     Dict_time_of_optimal_path_selected[monitor_pair].append(1)
                 else:
                     Dict_time_of_optimal_path_selected[monitor_pair].append(0)
@@ -370,6 +369,8 @@ class multi_armed_bandit:
             rate = sum(count_list[-1000:])/1000
             rate_optimal_path_selected.append(rate)
         average_optimal_path_selected_rate = np.average(np.array(rate_optimal_path_selected))
+        correct_shortest_path_selected_rate_array=np.array(correct_shortest_path_selected_rate)
+        average_optimal_path_selected_rate_among_monitor_pairs= np.average(np.array(correct_shortest_path_selected_rate_array[-1000:]))
         avg_diff_of_delay_from_optimal = (sum(diff_of_delay_from_optimal_real_time) / len(diff_of_delay_from_optimal_real_time))
         rewards_mse_list=self.compute_rewards_mse(total_rewards_dict, optimal_delay_dict)
         average_regret_list = self.compute_regret(total_rewards_dict, optimal_delay_dict)
@@ -411,7 +412,7 @@ class multi_armed_bandit:
         #compute the last 1000 correct select
         #optimal_path_selected_rate=sum(correct_shortest_path_selected_rate[-1000:])/1000
         #return rewards_mse_list,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num,optimal_path_selected_rate, avg_diff_of_delay_from_optimal
-        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal
+        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal,average_optimal_path_selected_rate_among_monitor_pairs
     def compute_rewards_mse(self,total_rewards_dict, optimal_delay_dict):
         key_list = list(total_rewards_dict.keys())
         rewards_mse_list = []
