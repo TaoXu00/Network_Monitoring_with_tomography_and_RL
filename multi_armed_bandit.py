@@ -308,6 +308,7 @@ class multi_armed_bandit:
                 shortest_path=self.LLC_policy(G, m1, m2, llc_factor)
                 #shortest_path = self.LLC_policy_without_MAB(G, m1, m2)
                 if shortest_path == optimal_path_dict[monitor_pair] and self.t>=T_total-1001:
+                    num_correct_shortest_path +=1
                     Dict_time_of_optimal_path_selected[monitor_pair].append(1)
                 else:
                     Dict_time_of_optimal_path_selected[monitor_pair].append(0)
