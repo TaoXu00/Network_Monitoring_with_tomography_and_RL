@@ -208,7 +208,7 @@ while(i<n):
         multi_times_mse_total_link_delay_array=np.add(multi_times_mse_total_link_delay_array,current_mse_arrary)
         multi_times_optimal_path_selected_percentage_array=np.append(multi_times_optimal_path_selected_percentage_array,np.array([optimal_path_selected_percentage_list]),axis=0)
         multi_times_avg_diff_of_delay_from_optimal_array=np.append(multi_times_avg_diff_of_delay_from_optimal_array,np.array([avg_diff_of_delay_from_optimal_list]), axis=0)
-        multi_times_optimal_path_selected_percentage_among_monitors_array.append(average_optimal_path_selected_rate_among_monitor_pairs)
+        multi_times_optimal_path_selected_percentage_among_monitors_array.append(multi_times_optimal_path_selected_percentage_among_monitors_array,np.array([average_optimal_path_selected_rate_among_monitor_pairs]))
     i += 1
 multi_times_avg_mse_total_link_delay_array=multi_times_mse_total_link_delay_array/n
 mynetwork.logger_main.info("Statistics:")
