@@ -115,6 +115,7 @@ class multi_armed_bandit:
         #self.logger.debug("%s" %(self.edge_exploration_times))
         plt.savefig(self.directory + '# of edge exploration after initialization ', format="PNG", dpi=300,
                     bbox_inches='tight')
+        plt.close()
 
 
     def find_path(self, G, edge_G, left_node, right_node, source, destination):
@@ -300,7 +301,6 @@ class multi_armed_bandit:
                 total_mse += (self.Dict_edge_theta[edge] - G[edge[0]][edge[1]]['delay_mean']) ** 2
             total_mse_array.append(total_mse / len(G.edges))
             explored_path_list = []
-            num_correct_shortest_path = 0
             total_diff=0
             for monitor_pair in monitor_pair_list:
                 m1=monitor_pair[0]
@@ -308,7 +308,6 @@ class multi_armed_bandit:
                 shortest_path=self.LLC_policy(G, m1, m2, llc_factor)
                 #shortest_path = self.LLC_policy_without_MAB(G, m1, m2)
                 if shortest_path == optimal_path_dict[monitor_pair] and self.t>=T_total-1001:
-                    num_correct_shortest_path +=1
                     Dict_time_of_optimal_path_selected[monitor_pair].append(1)
                 else:
                     Dict_time_of_optimal_path_selected[monitor_pair].append(0)
@@ -345,18 +344,9 @@ class multi_armed_bandit:
                         explored_edge_set.append(edge)
             #call NT as a submoudle
             x, count = self.nt.nt_engine(G, path_list, b)
-            #self.logger.debug("%d edges has been explored, they are: %s" %(len(explored_edge_set),explored_edge_set))
-            #print("x=%s %d edges are computed" %(x, count))
             computed_edge_num.append(count)
-            correct_shortest_path_selected_rate.append(num_correct_shortest_path / len(monitor_pair_list))
             # the MBA variables should be updated according to the results computed by the NT.
             self.update_MBA_variabels_with_NT(G, x, explored_edge_set, edge_average_delay_dict)
-            #self.update_MBA_variabels(G, explored_edge_set)
-
-
-            #shortest_path=nx.shortest_path(G, source=source, target=destination, weight='llc_factor', method='dijkstra')
-            #selected_shortest_path.append(shortest_path)
-            #self.logger.debug(f"t={self.t}, selected shortest path:{selected_shortest_path}")
             '''
             total_rewards.append(rewards)
             regret = sum(total_rewards) - self.t * optimal_delay
@@ -387,6 +377,7 @@ class multi_armed_bandit:
         self.plotter.plot_edge_exploitation_times_bar('t=3000',self.Dict_edge_m)
         plt.savefig(self.directory + '# of edge exploration after training', format="PNG", dpi=300,
                     bbox_inches='tight')
+        plt.close()
         self.edge_exploration_times.append([v for k, v in self.Dict_edge_m.items()])
         self.plotter.plot_edge_exploitation_times_bar_combined(self.edge_exploration_times)
         self.plotter.plot_rate_of_correct_shortest_path(correct_shortest_path_selected_rate)  # implement this function
@@ -413,7 +404,7 @@ class multi_armed_bandit:
         #compute the last 1000 correct select
         #optimal_path_selected_rate=sum(correct_shortest_path_selected_rate[-1000:])/1000
         #return rewards_mse_list,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num,optimal_path_selected_rate, avg_diff_of_delay_from_optimal
-        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal,average_optimal_path_selected_rate_among_monitor_pairs
+        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal
     def compute_rewards_mse(self,total_rewards_dict, optimal_delay_dict):
         key_list = list(total_rewards_dict.keys())
         rewards_mse_list = []

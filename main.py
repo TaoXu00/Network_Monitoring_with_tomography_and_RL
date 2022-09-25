@@ -82,7 +82,7 @@ class main:
             optimal_delay= nx.path_weight(G, optimal_path, 'delay_mean')
             optimal_path_dict[monitor_pair]=optimal_path
             optimal_delay_dict[monitor_pair]=optimal_delay
-        rewards_mse_list, selected_shortest_path, expo_count,total_mse_array,edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_optimal_path_selected_rate_among_monitor_pairs = self.MAB.train_llc(G, self.time,monitor_pair_list, llc_factor)
+        rewards_mse_list, selected_shortest_path, expo_count,total_mse_array,edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal = self.MAB.train_llc(G, self.time,monitor_pair_list, llc_factor)
 
         path_dict = {}
         for path in selected_shortest_path:
@@ -92,7 +92,7 @@ class main:
             else:
                 path_dict[p] = 1
         #self.logger_main.info("paths are explored during the training: %s" %(path_dict))
-        return expo_count, total_mse_array, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_optimal_path_selected_rate_among_monitor_pairs
+        return expo_count, total_mse_array, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal
 
     def MAB_with_increasing_monitors(self, G, type, node_num, p, llc_factor):
         '''
@@ -142,7 +142,7 @@ class main:
             # trimedG=mynetwork.topo.trimNetwrok(G, monitors)
             trimedG = G
             nx.write_gml(trimedG, "%sGraph_%s_%s.gml" % (self.trimedGraph_Dir, type, str(m_p)))
-            expo_count, total_mse, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal,average_optimal_path_selected_rate_among_monitor_pairs = self.run_MAB(
+            expo_count, total_mse, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal = self.run_MAB(
                 trimedG, monitors, llc_factor)
             monitors_list.append(monitors)
             explored_edges_rate.append(expo_count / len(trimedG.edges))
@@ -152,12 +152,11 @@ class main:
             average_computed_edge_rate_during_training.append(average_computed_edge_num / len(trimedG.edges))
             optimal_path_selected_percentage_list.append(optimal_path_selected_rate)
             avg_diff_of_delay_from_optimal_list.append(avg_diff_of_delay_from_optimal)
-            optimal_path_select_rate_amoong_monitors_list.append(average_optimal_path_selected_rate_among_monitor_pairs)
+
             self.logger_main.info("edges explored: %f" % (expo_count / len(trimedG.edges)))
             self.logger_main.info("edges computed: %f" % (average_computed_edge_num / len(trimedG.edges)))
             # np.savetxt("mse_with_NT_in_training_node%s.txt" %(len(G.nodes)), np_array_total_mse, delimiter=",")
             self.logger_main.info("percentage of the optimal path selected: %f" % (optimal_path_selected_rate))
-            self.logger_main.info("percentage of the optimal path selected among monitors: %f" % (average_optimal_path_selected_rate_among_monitor_pairs))
             self.logger_main.info(" abs diff from the real optimal path: %f" %(avg_diff_of_delay_from_optimal))
             self.topo.draw_edge_delay_sample(G, type, node_num, p)
         arr = np.array(average_computed_edge_rate_during_training)
@@ -165,8 +164,7 @@ class main:
         # self.plotter.plot_rewards_mse_along_with_different_monitors(monitors_deployment_percentage,total_rewards_mse_list)
         # self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(monitors_deployment_percentage, explored_edges_rate)
         self.plotter.plot_edge_computed_rate_during_training(monitors_deployment_percentage, average_computed_edge_rate_during_training)
-        return optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage,optimal_path_select_rate_amoong_monitors_list
-
+        return optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage
     def plot_edge_computed_rate_bar_with_different_topology_size(self):
         self.plotter.plot_edge_computed_rate_with_different_topology_size()
 
@@ -195,38 +193,31 @@ while(i<n):
     mynetwork=main(3000)
     G =mynetwork.creat_topology(topo_type, num_node, degree)
     #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage,average_optimal_path_selected_rate_among_monitor_pairs =mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor)
+    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage = mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor)
     #print("n=%d" %(i))
     #print(optimal_path_selected_percentage_list,avg_diff_of_delay_from_optimal_list)
     if i==0:
         multi_times_mse_total_link_delay_array=np.array(total_edge_mse_list_with_increasing_monitors, dtype=float)
         multi_times_optimal_path_selected_percentage_array=np.array([optimal_path_selected_percentage_list])
         multi_times_avg_diff_of_delay_from_optimal_array=np.array([avg_diff_of_delay_from_optimal_list])
-        multi_times_optimal_path_selected_percentage_among_monitors_array=np.array([average_optimal_path_selected_rate_among_monitor_pairs])
     else:
         current_mse_arrary=np.array(total_edge_mse_list_with_increasing_monitors)
         multi_times_mse_total_link_delay_array=np.add(multi_times_mse_total_link_delay_array,current_mse_arrary)
         multi_times_optimal_path_selected_percentage_array=np.append(multi_times_optimal_path_selected_percentage_array,np.array([optimal_path_selected_percentage_list]),axis=0)
         multi_times_avg_diff_of_delay_from_optimal_array=np.append(multi_times_avg_diff_of_delay_from_optimal_array,np.array([avg_diff_of_delay_from_optimal_list]), axis=0)
-        multi_times_optimal_path_selected_percentage_among_monitors_array.append(multi_times_optimal_path_selected_percentage_among_monitors_array,np.array([average_optimal_path_selected_rate_among_monitor_pairs]))
     i += 1
 multi_times_avg_mse_total_link_delay_array=multi_times_mse_total_link_delay_array/n
 mynetwork.logger_main.info("Statistics:")
 mynetwork.logger_main.info("Before average: percentage of the optimal path selected:")
 mynetwork.logger_main.info(multi_times_optimal_path_selected_percentage_array)
-mynetwork.logger_main.info("Before average: percentage of the optimal path path selected among monitors: ")
-mynetwork.logger_main.info(multi_times_optimal_path_selected_percentage_among_monitors_array)
 mynetwork.logger_main.info("Before average: diff from the real optimal path: ")
 mynetwork.logger_main.info(multi_times_avg_diff_of_delay_from_optimal_array)
 
 
 multi_avg_percentage_of_select_optimal_path=np.average(multi_times_optimal_path_selected_percentage_array,axis=0)
 multi_avg_percentage_of_abs_diff_from_optimal=np.average(multi_times_avg_diff_of_delay_from_optimal_array,axis=0)
-multi_avg_percentage_of_select_optimal_path_among_monitors=np.average(multi_times_optimal_path_selected_percentage_among_monitors_array,axis=0)
 mynetwork.logger_main.info("after average: percentage of the optimal path selected:")
 mynetwork.logger_main.info (multi_avg_percentage_of_select_optimal_path)
-mynetwork.logger_main.info("after average: percentage of the optimal path selected among monitors:")
-mynetwork.logger_main.info(multi_avg_percentage_of_select_optimal_path_among_monitors)
 mynetwork.logger_main.info("after average: diff from the real optimal path:")
 mynetwork.logger_main.info(multi_avg_percentage_of_abs_diff_from_optimal)
 
