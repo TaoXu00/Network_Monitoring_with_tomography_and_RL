@@ -139,7 +139,7 @@ class multi_armed_bandit:
                     else:
                         G_r.remove_edge(edge[1], edge[0])
             except Exception as e:
-                self.logger.error(str(e)+"occurred, try the inversed direction.")
+                #self.logger.error(str(e)+"occurred, try the inversed direction.")
                 return 3
             G_r.remove_node(left_node)
             if(source in G_r.nodes):
