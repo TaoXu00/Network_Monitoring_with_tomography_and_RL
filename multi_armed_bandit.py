@@ -291,10 +291,9 @@ class multi_armed_bandit:
         diff_of_delay_from_optimal_real_time=[]
         Dict_time_of_optimal_path_selected = {}
         rate_optimal_path_selected = []
-        T_total=time-self.t
         for monitor_pair in monitor_pair_list:
             Dict_time_of_optimal_path_selected[monitor_pair] = []
-        for i in range(T_total):
+        for i in range(time):
             #self.logger.info("t= %s" %(self.t))
             total_mse = 0
             for edge in G.edges:
@@ -307,7 +306,7 @@ class multi_armed_bandit:
                 m2=monitor_pair[1]
                 shortest_path=self.LLC_policy(G, m1, m2, llc_factor)
                 #shortest_path = self.LLC_policy_without_MAB(G, m1, m2)
-                if shortest_path == optimal_path_dict[monitor_pair] and self.t>=T_total-1001:
+                if shortest_path == optimal_path_dict[monitor_pair] and self.t>=time-1000:
                     Dict_time_of_optimal_path_selected[monitor_pair].append(1)
                 else:
                     Dict_time_of_optimal_path_selected[monitor_pair].append(0)
