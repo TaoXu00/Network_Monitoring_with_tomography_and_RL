@@ -191,11 +191,11 @@ multi_times_avg_diff_of_delay_from_optimal_list=[]
 n=num_run
 i=0
 
+
 while(i<n):
     mynetwork=main(3000)
     G =mynetwork.creat_topology(topo_type, num_node, degree)
     #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-
     optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage = mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor)
     #print("n=%d" %(i))
     #print(optimal_path_selected_percentage_list,avg_diff_of_delay_from_optimal_list)
@@ -208,11 +208,12 @@ while(i<n):
         multi_times_mse_total_link_delay_array=np.add(multi_times_mse_total_link_delay_array,current_mse_arrary)
         multi_times_optimal_path_selected_percentage_array=np.append(multi_times_optimal_path_selected_percentage_array,np.array([optimal_path_selected_percentage_list]),axis=0)
         multi_times_avg_diff_of_delay_from_optimal_array=np.append(multi_times_avg_diff_of_delay_from_optimal_array,np.array([avg_diff_of_delay_from_optimal_list]), axis=0)
+
     i += 1
 
 
 multi_times_avg_mse_total_link_delay_array=multi_times_mse_total_link_delay_array/n
-np.savetxt('links_delay_during_training_with_different_monitor_size.txt', multi_times_avg_mse_total_link_delay_array)
+np.savetxt(mynetwork.directory + 'links_delay_during_training_with_different_monitor_size.txt', multi_times_avg_mse_total_link_delay_array)
 mynetwork.logger_main.info("Statistics:")
 mynetwork.logger_main.info("Before average: percentage of the optimal path selected:")
 mynetwork.logger_main.info(multi_times_optimal_path_selected_percentage_array)
