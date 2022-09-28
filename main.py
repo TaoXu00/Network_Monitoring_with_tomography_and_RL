@@ -212,11 +212,13 @@ while(i<n):
 
 
 multi_times_avg_mse_total_link_delay_array=multi_times_mse_total_link_delay_array/n
+np.savetxt('links_delay_during_training_with_different_monitor_size.txt', multi_times_avg_mse_total_link_delay_array)
 mynetwork.logger_main.info("Statistics:")
 mynetwork.logger_main.info("Before average: percentage of the optimal path selected:")
 mynetwork.logger_main.info(multi_times_optimal_path_selected_percentage_array)
 mynetwork.logger_main.info("Before average: diff from the real optimal path: ")
 mynetwork.logger_main.info(multi_times_avg_diff_of_delay_from_optimal_array)
+
 
 
 multi_avg_percentage_of_select_optimal_path=np.average(multi_times_optimal_path_selected_percentage_array,axis=0)
