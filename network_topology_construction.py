@@ -152,7 +152,7 @@ class network_topology:
         #generate the delay samples from the exponential distribution with the generated scales
         samples=[]
         for edge in G.edges:
-            sample = np.random.exponential(scale=self.Dict_edge_scales[edge], size=(1, self.time))[0]
+            sample = np.random.exponential(scale=self.Dict_edge_scales[edge], size=(1, self.time+len(G.edges)))[0]
             self.Dict_edge_delay_sample[edge]=sample
             samples.append(sample)
         n_samples=np.array(samples)
@@ -160,11 +160,11 @@ class network_topology:
             np.savetxt('delay_exponential_samples/samples_%s_%s_%s.txt' %(type, n, p),n_samples)
         elif type=="Bics" or type=="BTN":
             np.savetxt('delay_exponential_samples/samples_%s.txt' % (type), n_samples)
-
+        '''
         #self.logger.info("Draw %d delay examples from exponential distribution for each edge." %(self.time))
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
         #self.logger.info("edge delay sample average %s" %(average))
-        '''
+
     def assign_link_delay(self,G):
         '''
         This function assigns the time series delay of each link every second

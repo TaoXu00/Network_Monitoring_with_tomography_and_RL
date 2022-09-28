@@ -92,7 +92,7 @@ class main:
         monitors=[]
         monitors_deployment_percentage=[]
 
-        for m_p in [20, 30]:
+        for m_p in [10, 20, 30, 40, 50]:
             monitors_deployment_percentage.append(m_p)
             n=int((m_p/100)*len(G.nodes))
             #self.logger_main.debug(f"m_p {m_p}")
@@ -135,7 +135,8 @@ if len(sys.argv)!=5:
 topo_type=sys.argv[1]
 num_node=int(sys.argv[2])
 degree=int(sys.argv[3])
-num_run=int(sys.argv[4])
+num_run=float(sys.argv[4])
+
 print(topo_type, num_node, degree, num_run)
 
 multi_times_optimal_path_selected_percentage_list=[]

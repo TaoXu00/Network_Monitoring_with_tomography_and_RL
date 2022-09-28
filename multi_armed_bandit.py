@@ -167,7 +167,7 @@ class multi_armed_bandit:
         diff_of_delay_from_optimal_real_time = []
         Dict_time_of_optimal_path_selected={}
         rate_optimal_path_selected=[]
-        T_total=time-self.t
+        T_total=time
         for monitor_pair in monitor_pair_list:
             Dict_time_of_optimal_path_selected[monitor_pair] = []
         for i in range(T_total):
@@ -194,7 +194,8 @@ class multi_armed_bandit:
             #correct_shortest_path_selected_rate.append(num_correct_shortest_path/len(monitor_pair_list))
             self.update_MBA_variabels(G, explored_path_list)
             self.t = self.t + 1  # the time slot increase 1
-            self.topo.assign_link_delay(G)
+            if self.t < time+len(G.edges):
+                self.topo.assign_link_delay(G)
         #print("len:%d" %len(diff_of_delay_from_optimal_real_time))
         for monitor_pair in monitor_pair_list:
             count_list=Dict_time_of_optimal_path_selected[monitor_pair]
