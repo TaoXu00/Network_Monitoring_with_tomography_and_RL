@@ -41,7 +41,9 @@ class multi_armed_bandit:
         monitor_pair_list = list(combinations(monitors, 2))
         #print(monitor_pair_list)
         optimal_delay_dict,optimal_path_dict=self.optimal_path(G, monitor_pair_list)
+        path_number_among_every_pair_of_monitor=[]
         for monitor_pair in monitor_pair_list:
+            path_number_among_every_pair_of_monitor.append(len(list(nx.all_simple_paths(G,monitor_pair[0], monitor_pair[1]))))
             self.Dict_monitor_path[monitor_pair]=[]
             self.Dict_path_theta[monitor_pair]=[monitor_pair].append(optimal_path_dict[monitor_pair])
             self.Dict_path_m[monitor_pair]=1
@@ -73,6 +75,10 @@ class multi_armed_bandit:
         #self.logger.debug("Dict_monitor_path: %s" %(self.Dict_monitor_path))
         #self.logger.debug("Dict_path_m: %s" %(self.Dict_path_m))
         #self.logger.debug("Dict_path_theta: %s" %(self.Dict_path_theta))
+        average_path_num=np.average(np.array(path_number_among_every_pair_of_monitor))
+        self.logger.info("average path among every pair of monitors: %f" %average_path_num)
+        return average_path_num
+
 
 
     def compute_path_delay_with_path_pair(self, G, pathpair):
