@@ -245,16 +245,20 @@ class network_topology:
         all_paths_set=set()
         nodepairs = [(monitors[i], monitors[j]) for i in range(len(monitors)) for j in range(i + 1, len(monitors))]
         # print(f"end to end nodepairs: {nodepairs}")
+        path_count_among_every_monitor_pair=[]
         for n1, n2 in nodepairs:
             #compute all the possible paths and selected the first one
             paths=nx.all_simple_paths(G,n1,n2)
-            #print(f"totoal path number: {len( list(paths))}")
+            print(f"total path number: {len( list(paths))}")
+            path_count_among_every_monitor_pair.append(len(list(paths)))
             for path in map(nx.utils.pairwise, paths):
                for edge in list(path):
                     all_paths_set.add(edge)
             #self.logger.info(f"there are {len(all_paths_set)} between monitor pair node {n1} {n2}: they are:")
             #self.logger.info(paths)
         #print(f"end to end paths set: {all_paths_set}")
+        average_path_count=np.average(np.array(path_count_among_every_monitor_pair))
+        self.logger.info("average_path_count among monitors: %f" %(average_path_count))
         edges=list(G.edges)
         uncovered_edges=[]
         for edge_e in edges:

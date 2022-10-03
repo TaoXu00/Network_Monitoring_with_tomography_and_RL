@@ -124,7 +124,7 @@ class main:
         #for n in range(2, 3, 1):
         monitors=[]
         monitors_deployment_percentage=[]
-        for m_p in [20,30]:
+        for m_p in [30]:
         #for m_p in [20, 30]:
             monitors_deployment_percentage.append(m_p)
             n = int((m_p / 100) * len(G.nodes))
@@ -139,9 +139,10 @@ class main:
             monitors = self.topo.deploy_monitor(G, n, monitors)
             # monitors=['45', '32', '28', '46', '29', '24', '36', '44', '42', '37']
             self.logger_main.info("deloy %d pert monitors: %s" % (m_p, monitors))
-            #trimedG=mynetwork.topo.trimNetwrok(G, monitors)
-            trimedG = G
+            trimedG=mynetwork.topo.trimNetwrok(G, monitors)
+            #trimedG = G
             nx.write_gml(trimedG, "%sGraph_%s_%s.gml" % (self.trimedGraph_Dir, type, str(m_p)))
+            '''
             expo_count, total_mse, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal = self.run_MAB(
                 trimedG, monitors, llc_factor)
             monitors_list.append(monitors)
@@ -159,32 +160,28 @@ class main:
             self.logger_main.info("percentage of the optimal path selected: %f" % (optimal_path_selected_rate))
             self.logger_main.info(" abs diff from the real optimal path: %f" %(avg_diff_of_delay_from_optimal))
             self.topo.draw_edge_delay_sample(G, type, node_num, p)
+            '''
         arr = np.array(average_computed_edge_rate_during_training)
         np.savetxt('%sidentificable edges rate with increasing monitors' % (self.directory), arr)
         # self.plotter.plot_rewards_mse_along_with_different_monitors(monitors_deployment_percentage,total_rewards_mse_list)
         # self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(monitors_deployment_percentage, explored_edges_rate)
         self.plotter.plot_edge_computed_rate_during_training(monitors_deployment_percentage, average_computed_edge_rate_during_training)
         return optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage
+
     def plot_edge_computed_rate_bar_with_different_topology_size(self):
         self.plotter.plot_edge_computed_rate_with_different_topology_size()
 
     def plot_final_result(self, mynetwork):
         #plot the percentage of optimal path selected in BR
+        '''
         monitors_deployment_percentage = [10, 20, 30, 40, 50]
         myapproach_optimal_path_selected_rate = [0.7303425, 0.784525, 0.820643333, 0.838918553, 0.902852585]
         baseline_optimal_path_selected_rate = [0.5381625, 0.588136115, 0.556531905, 0.57743605, 0.621137165]
-        baseline_abs_of_optimal_path_selected_from_real = [4.607487055, 4.237622065, 4.815920555, 5.09833035,
-                                                           5.258270955]
-        myapproach_abs_of_optimal_path_selected_from_real = [3.62672339, 2.700724235, 2.368452608, 2.251432833,
-                                                             1.676121458]
-        mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BR_50nodes(monitors_deployment_percentage,
-                                                                                   myapproach_optimal_path_selected_rate,
-                                                                                   baseline_optimal_path_selected_rate)
-        mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(monitors_deployment_percentage,
-                                                                                       myapproach_abs_of_optimal_path_selected_from_real,
-                                                                                       baseline_abs_of_optimal_path_selected_from_real)
-
-
+        baseline_abs_of_optimal_path_selected_from_real = [4.607487055, 4.237622065, 4.815920555, 5.09833035, 5.258270955]
+        myapproach_abs_of_optimal_path_selected_from_real = [3.62672339, 2.700724235, 2.368452608, 2.251432833, 1.676121458]
+        mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BR_50nodes(monitors_deployment_percentage, myapproach_optimal_path_selected_rate, baseline_optimal_path_selected_rate)
+        mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(monitors_deployment_percentage, myapproach_abs_of_optimal_path_selected_from_real, baseline_abs_of_optimal_path_selected_from_real)
+        '''
         topology_size=[20, 40, 60, 80]
         myapproach_optimal_path_selected_rate=[0.86105667,0.7691784,0.723593333,0.58820978]
         baseline_optimal_path_selected_rate=[0.64950667,0.56473333,	0.56776732,	0.57303025]
@@ -192,7 +189,14 @@ class main:
         myapproach_abs_of_optimal_path_selected_from_real=[1.66976496, 2.97261583,	2.514051111, 3.88283325]
         mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_for_various_monitor_size(topology_size, myapproach_optimal_path_selected_rate, baseline_optimal_path_selected_rate)
         mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_for_various_monitor_size(topology_size, myapproach_abs_of_optimal_path_selected_from_real, baseline_abs_of_optimal_path_selected_from_real)
-
+       #plot the experiments for real infrastructure
+        monitors_deployment_percentage = [10, 20, 30, 40, 50]
+        myapproach_optimal_path_selected_rate = [0.8730325,	0.865852223, 0.84571643, 0.835979885,0.843303463]
+        baseline_optimal_path_selected_rate = [0.67076,	0.68020833,	0.67219667,	0.66329536,	0.67381338]
+        baseline_abs_of_optimal_path_selected_from_real = [3.92730099,	3.55005621,	3.76985005,	4.01648821,	4.05722965]
+        myapproach_abs_of_optimal_path_selected_from_real = [1.548090993,1.607211863,1.779516288,1.887000793,1.844019875]
+        mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BTN(monitors_deployment_percentage, myapproach_optimal_path_selected_rate, baseline_optimal_path_selected_rate)
+        mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BTN(monitors_deployment_percentage, myapproach_abs_of_optimal_path_selected_from_real, baseline_abs_of_optimal_path_selected_from_real)
 
 '''
 argv1: network topology type
@@ -215,7 +219,10 @@ multi_times_optimal_path_selected_percentage_list=[]
 multi_times_avg_diff_of_delay_from_optimal_list=[]
 n=num_run
 i=0
-
+'''
+mynetwork=main(3000)
+mynetwork.plot_final_result(mynetwork)
+'''
 
 while(i<n):
     mynetwork=main(3000)
@@ -259,18 +266,7 @@ mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training(mon
 # self.plotter.plot_edge_exporation_times_with_differrent_monitor_size(G,total_edge_exploration_during_training_list)
 mynetwork.plotter.plot_optimal_path_selected_percentage_list_with_increasing_monitors(monitors_deployment_percentage, multi_avg_percentage_of_select_optimal_path)
 mynetwork.plotter.plot_abs_diff_path_delay_from_the_optimal(monitors_deployment_percentage,multi_avg_percentage_of_abs_diff_from_optimal )
-
-
-
-
-
-
-
-
-
-
-
-''' test
+'''test
 array1=np.array([[0.1, 0.2, 0.3],
                 [0.2, 0.3, 0.4],
                 [0.4, 0.5, 0.6]])
