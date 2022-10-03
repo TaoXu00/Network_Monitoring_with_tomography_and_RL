@@ -294,7 +294,7 @@ class multi_armed_bandit:
         for monitor_pair in monitor_pair_list:
             Dict_time_of_optimal_path_selected[monitor_pair] = []
         for i in range(time):
-            self.logger.info("t= %s" %(self.t))
+            #self.logger.info("t= %s" %(self.t))
             total_mse = 0
             for edge in G.edges:
                 total_mse += (self.Dict_edge_theta[edge] - G[edge[0]][edge[1]]['delay_mean']) ** 2

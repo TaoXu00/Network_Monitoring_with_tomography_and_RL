@@ -370,3 +370,48 @@ class plotter:
         plt.legend()
         plt.savefig(self.directory + 'average absolute difference of the selected shortest paths from real optimal paths with 10%-50% monitors deployed')
         plt.close()
+
+    def plot_percentage_of_optimal_path_selected_rate_for_various_monitor_size(self, topology_size,myapproach,baseline):
+        barWidth = 0.25
+        fig = plt.subplots()
+        # set height of bar
+        x_label = [str(size) for size in topology_size]
+        br1 = np.arange(len(baseline))
+        br2 = [x + barWidth for x in br1]
+        for i in range(len(baseline)):
+            baseline[i]=baseline[i]*100
+            myapproach[i]=myapproach[i]*100
+        # Make the plot
+        plt.bar(br1, baseline, color='r', width=barWidth,
+                edgecolor='grey', label='baseline')
+        plt.bar(br2, myapproach, color='g', width=barWidth,
+                edgecolor='grey', label='our approach')
+
+        # Adding Xticks
+        plt.xlabel('% of nodes selected as monitors')
+        plt.ylabel('% of optimal path selected with various monitors')
+        plt.xticks(br1, x_label)
+        plt.legend()
+        plt.savefig(self.directory + 'average percentage of the optimal shortest path selected rate BR50 nodes with 10% - 50% monitors deployed')
+        plt.close()
+
+    def plot_abs_delay_of_optimal_path_selected_for_various_monitor_size(self, topology_size, myapproach, baseline):
+        barWidth = 0.25
+        fig = plt.subplots()
+        # set height of bar
+        x_label = [str(size) for size in topology_size]
+        br1 = np.arange(len(baseline))
+        br2 = [x + barWidth for x in br1]
+        # Make the plot
+        plt.bar(br1, baseline, color='r', width=barWidth,
+                edgecolor='grey', label='baseline')
+        plt.bar(br2, myapproach, color='g', width=barWidth,
+                edgecolor='grey', label='our approach')
+
+        # Adding Xticks
+        plt.xlabel('% of nodes selected as monitors')
+        plt.ylabel('avg abs difference of selected shortest paths from real with various monitors ')
+        plt.xticks(br1, x_label)
+        plt.legend()
+        plt.savefig(self.directory + 'average absolute difference of the selected shortest paths from real optimal paths with 10%-50% monitors deployed')
+        plt.close()
