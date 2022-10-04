@@ -43,8 +43,8 @@ class main:
         return G
 
 
-    def run_MAB(self, G, monitors):
-        self.MAB.Initialize(G, monitors)
+    def run_MAB(self, G, monitors, path_sapce):
+        self.MAB.Initialize(G, monitors, path_sapce)
         #self.MAB.Initialize_simple(G, monitors)
         monitor_pair_list = list(combinations(monitors, 2))
         optimal_path_dict={}
@@ -67,7 +67,7 @@ class main:
 
         return rewards_mse_list, optimal_delay, optimal_path_selected_rate, avg_diff_of_delay_from_optimal
 
-    def MAB_with_increasing_monitors(self, G, type, node_num, p):
+    def MAB_with_increasing_monitors(self, G, type, node_num, p, path_space):
         '''
         In the system configuration, we random created a topology with 100 nodes.
         :param G: the topology graph
@@ -114,7 +114,7 @@ class main:
             nx.write_gml(G, "%sGraph_%s_%s.gml" %(self.trimedGraph_Dir,type,str(m_p)))
             #self.MAB.Initialize(trimedG, monitors)
 
-            rewards_mse_list, optimal_delay, optimal_path_selected_rate, avg_diff_of_delay_from_optimal=self.run_MAB(trimedG, monitors)
+            rewards_mse_list, optimal_delay, optimal_path_selected_rate, avg_diff_of_delay_from_optimal=self.run_MAB(trimedG, monitors, path_space)
             monitors_list.append(monitors)
             total_rewards_mse_list.append(rewards_mse_list)
             optimal_path_selected_percentage_list.append(optimal_path_selected_rate)
@@ -135,13 +135,13 @@ argv2: number of nodes
 argv3: degree of new added nodes in Barabasi network
 argv4: enable MAB (1 enable, 0 disable)
 '''
-if len(sys.argv)!=5:
+if len(sys.argv)!=6:
     raise ValueError('missing parameters')
 topo_type=sys.argv[1]
 num_node=int(sys.argv[2])
 degree=int(sys.argv[3])
 num_run=float(sys.argv[4])
-
+path_space=int(sys.argv[5])
 print(topo_type, num_node, degree, num_run)
 
 multi_times_optimal_path_selected_percentage_list=[]
@@ -152,7 +152,7 @@ while(i<n):
     mynetwork=main(3000)
     G =mynetwork.creat_topology(topo_type, num_node, degree)
     #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, monitors_deployment_percentage =mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree)
+    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, monitors_deployment_percentage =mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree,path_space)
 
     if i==0:
         multi_times_optimal_path_selected_percentage_array=np.array([optimal_path_selected_percentage_list])

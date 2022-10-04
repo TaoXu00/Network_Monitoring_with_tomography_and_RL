@@ -27,7 +27,7 @@ class multi_armed_bandit:
         self.edge_delay_difference_list=[]
         self.edge_exploration_times=[]
 
-    def Initialize(self, G, monitors):
+    def Initialize(self, G, monitors, path_space):
         '''
         :param G: The network topology
         :param source: the source node
@@ -50,7 +50,7 @@ class multi_armed_bandit:
             for edge in G.edges:
                 G[edge[0]][edge[1]]['weight']=1
             cycle=0
-            while(len(self.Dict_monitor_path[monitor_pair])<200):
+            while(len(self.Dict_monitor_path[monitor_pair])<path_space):
                 path=nx.shortest_path(G,monitor_pair[0], monitor_pair[1],"weight")
                 path_pair = self.construct_pathPair_from_path(G, path)
                 for edge in path_pair:
