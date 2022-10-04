@@ -112,8 +112,8 @@ class main:
             trimedG=G
             #trimedG=mynetwork.topo.trimNetwrok(G, monitors)
             nx.write_gml(G, "%sGraph_%s_%s.gml" %(self.trimedGraph_Dir,type,str(m_p)))
-            self.MAB.Initialize(trimedG, monitors)
-            '''
+            #self.MAB.Initialize(trimedG, monitors)
+
             rewards_mse_list, optimal_delay, optimal_path_selected_rate, avg_diff_of_delay_from_optimal=self.run_MAB(trimedG, monitors)
             monitors_list.append(monitors)
             total_rewards_mse_list.append(rewards_mse_list)
@@ -121,7 +121,6 @@ class main:
             avg_diff_of_delay_from_optimal_list.append(avg_diff_of_delay_from_optimal)
             self.logger_main.info("percentage of the optimal path selected: %f" % (optimal_path_selected_rate))
             self.logger_main.info(" abs diff from the real optimal path: %f" % (avg_diff_of_delay_from_optimal))
-            '''
             self.topo.draw_edge_delay_sample(G,type,node_num,p)
 
         return optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, monitors_deployment_percentage

@@ -43,12 +43,14 @@ class multi_armed_bandit:
         optimal_delay_dict,optimal_path_dict=self.optimal_path(G, monitor_pair_list)
         path_number_among_every_pair_of_monitor=[]
         for monitor_pair in monitor_pair_list:
-            path_number_among_every_pair_of_monitor.append(len(list(nx.all_simple_paths(G,monitor_pair[0], monitor_pair[1]))))
+            #path_number_among_every_pair_of_monitor.append(len(list(nx.all_simple_paths(G,monitor_pair[0], monitor_pair[1]))))
             self.Dict_monitor_path[monitor_pair]=[]
-            self.Dict_path_theta[monitor_pair]=[monitor_pair].append(optimal_path_dict[monitor_pair])
-            self.Dict_path_m[monitor_pair]=1
+            #self.Dict_path_theta[monitor_pair]=[monitor_pair].append(optimal_path_dict[monitor_pair])
+            #self.Dict_path_m[monitor_pair]=1
+            for edge in G.edges:
+                G[edge[0]][edge[1]]['weight']=1
             cycle=0
-            while(len(self.Dict_monitor_path[monitor_pair])<20):
+            while(len(self.Dict_monitor_path[monitor_pair])<200):
                 path=nx.shortest_path(G,monitor_pair[0], monitor_pair[1],"weight")
                 path_pair = self.construct_pathPair_from_path(G, path)
                 for edge in path_pair:
@@ -65,19 +67,19 @@ class multi_armed_bandit:
                     self.Dict_path_m[id] = 1
                 else:
                     cycle+=1
-                    if cycle==200:
+                    if cycle==46000:
                         break
-            #self.logger.debug("collected %d paths for %s and %s "  %(len(self.Dict_monitor_path[monitor_pair]), monitor_pair[0], monitor_pair[1]))
-            self.topo.assign_link_delay(G)
-            self.t = self.t + 1
+            self.logger.debug("collected %d paths for %s and %s " %(len(self.Dict_monitor_path[monitor_pair]), monitor_pair[0], monitor_pair[1]))
+        self.topo.assign_link_delay(G)
+        self.t = self.t + 1
         self.logger.info(
             "===============================Initialization is finished======================================================== ")
-        #self.logger.debug("Dict_monitor_path: %s" %(self.Dict_monitor_path))
+        #self.logger.debug("Dict_monitor_path: %" %(self.Dict_monitor_path))
         #self.logger.debug("Dict_path_m: %s" %(self.Dict_path_m))
         #self.logger.debug("Dict_path_theta: %s" %(self.Dict_path_theta))
-        average_path_num=np.average(np.array(path_number_among_every_pair_of_monitor))
-        self.logger.info("average path among every pair of monitors: %f" %average_path_num)
-        return average_path_num
+        #average_path_num=np.average(np.array(path_number_among_every_pair_of_monitor))
+        #self.logger.info("average path among every pair of monitors: %f" %average_path_num)
+        #return average_path_num
 
 
 
@@ -176,7 +178,7 @@ class multi_armed_bandit:
         T_total=time
         for monitor_pair in monitor_pair_list:
             Dict_time_of_optimal_path_selected[monitor_pair] = []
-        for i in range(T_total):
+        for i in range(T_total-2):
             #self.logger.info("t= %s" %(self.t))
             explored_path_list = []
             num_correct_shortest_path=0
@@ -200,8 +202,9 @@ class multi_armed_bandit:
             #correct_shortest_path_selected_rate.append(num_correct_shortest_path/len(monitor_pair_list))
             self.update_MBA_variabels(G, explored_path_list)
             self.t = self.t + 1  # the time slot increase 1
-            if self.t < time+len(G.edges):
-                self.topo.assign_link_delay(G)
+            #if self.t < time+len(G.edges):
+            #self.logger.info("t= %d" %(self.t))
+            self.topo.assign_link_delay(G)
         #print("len:%d" %len(diff_of_delay_from_optimal_real_time))
         for monitor_pair in monitor_pair_list:
             count_list=Dict_time_of_optimal_path_selected[monitor_pair]
