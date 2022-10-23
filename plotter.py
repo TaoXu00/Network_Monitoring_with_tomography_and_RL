@@ -136,16 +136,41 @@ class plotter:
         for per in monitors_deployment_percentage:
             labels.append(str(per) + '%')
         #line_num=len(total_edge_mse_list_with_increasing_monitors)
-        x=range(len(total_edge_mse_list_with_increasing_monitors[0]))
-        fig = plt.figure(figsize=(10, 7))
-        for i in range (len(total_edge_mse_list_with_increasing_monitors)):
-            plt.plot(x, total_edge_mse_list_with_increasing_monitors[i], label=labels[i])
-        plt.xlabel("time")
-        plt.ylabel("MSE of total links delay during training")
-        plt.legend()
+        x = range(len(total_edge_mse_list_with_increasing_monitors[0]))
+        fig = plt.figure()
+        plt.rcParams.update({'font.size': 13})
+
+        colors = ['firebrick', 'cornflowerblue', 'goldenrod', 'forestgreen', 'darkmagenta']
+        linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
+        for i in range(len(total_edge_mse_list_with_increasing_monitors)):
+            plt.plot(x, total_edge_mse_list_with_increasing_monitors[i], label=labels[i], color=colors[i],
+                     linestyle=linestyles[i])
+        plt.xlabel("learning time")
+        plt.ylabel("MSE of link delay during learning")
+        plt.legend(fontsize=13)
+        # plt.grid(True)
         plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training")
         plt.close()
+    def plot_total_edge_delay_mse_with_increasing_monitor_training_from_file(self, monitors_deployment_percentage, filename):
+        labels = []
+        for per in monitors_deployment_percentage:
+            labels.append(str(per) + '%')
+        #line_num=len(total_edge_mse_list_with_increasing_monitors)
+        total_edge_mse_list_with_increasing_monitors=np.loadtxt(filename, dtype=float)
+        x=range(len(total_edge_mse_list_with_increasing_monitors[0]))
+        fig = plt.figure()
+        plt.rcParams.update({'font.size': 13})
 
+        colors=['firebrick', 'cornflowerblue', 'goldenrod', 'forestgreen', 'darkmagenta']
+        linestyles = ['dotted','dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)),'solid']
+        for i in range (len(total_edge_mse_list_with_increasing_monitors)):
+            plt.plot(x, total_edge_mse_list_with_increasing_monitors[i], label=labels[i], color=colors[i], linestyle= linestyles[i])
+        plt.xlabel("learning time")
+        plt.ylabel("MSE of link delay during learning")
+        plt.legend(fontsize=13)
+        #plt.grid(True)
+        plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training")
+        plt.close()
 
     def plot_NT_verification_edge_computed_rate_with_monitors_increasing(self, G, monitors_list, solved_edges_count ):
         plt.figure()
@@ -324,7 +349,7 @@ class plotter:
         plt.legend()
         plt.close()
 
-    def plot_percentage_of_optimal_path_selected_rate_BR_50nodes(self, monitors_deployment_percentage,myapproach,baseline):
+    def plot_percentage_of_optimal_path_selected_rate_BR_50nodes(self, monitors_deployment_percentage,myapproach,baseline, myapproach_without_NT):
         barWidth = 0.25
         fig = plt.subplots()
         # set height of bar
@@ -332,14 +357,18 @@ class plotter:
         x_label = [str(pert) for pert in monitors_deployment_percentage]
         br1 = np.arange(len(baseline))
         br2 = [x + barWidth for x in br1]
+        br3= [x + barWidth for x in br2]
         for i in range(len(baseline)):
             baseline[i]=baseline[i]*100
             myapproach[i]=myapproach[i]*100
+            myapproach_without_NT[i]=myapproach_without_NT[i]*100
         # Make the plot
         plt.bar(br1, baseline, color='r', width=barWidth,
                 edgecolor='grey', label='baseline')
         plt.bar(br2, myapproach, color='g', width=barWidth,
                 edgecolor='grey', label='our approach')
+        plt.bar(br3, myapproach_without_NT, color='b', width=barWidth,
+                edgecolor='grey', label='without NT')
 
         # Adding Xticks
         plt.xlabel('% of nodes selected as monitors')
@@ -349,7 +378,7 @@ class plotter:
         plt.savefig(self.directory + 'average percentage of the optimal shortest path selected rate BR50 nodes with 10% - 50% monitors deployed')
         plt.close()
 
-    def plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(self, monitors_deployment_percentage, myapproach, baseline):
+    def plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(self, monitors_deployment_percentage, myapproach, baseline, myapproach_without_NT):
         barWidth = 0.25
         fig = plt.subplots()
         # set height of bar
@@ -357,11 +386,14 @@ class plotter:
         x_label = [str(pert) for pert in monitors_deployment_percentage]
         br1 = np.arange(len(baseline))
         br2 = [x + barWidth for x in br1]
+        br3 = [x + barWidth for x in br2]
         # Make the plot
         plt.bar(br1, baseline, color='r', width=barWidth,
                 edgecolor='grey', label='baseline')
         plt.bar(br2, myapproach, color='g', width=barWidth,
                 edgecolor='grey', label='our approach')
+        plt.bar(br3, myapproach_without_NT, color='b', width=barWidth,
+                edgecolor='grey', label='withoutNT')
 
         # Adding Xticks
         plt.xlabel('% of nodes selected as monitors')
@@ -392,7 +424,7 @@ class plotter:
         plt.ylabel('% of optimal path selected with various monitors')
         plt.xticks(br1, x_label)
         plt.legend()
-        plt.savefig(self.directory + 'average percentage of the optimal shortest path selected rate BR50 nodes with 10% - 50% monitors deployed')
+        plt.savefig(self.directory + 'average percentage of the optimal shortest path selected rate BR50 nodes with 30% monitors deployed varies topology size')
         plt.close()
 
     def plot_abs_delay_of_optimal_path_selected_for_various_monitor_size(self, topology_size, myapproach, baseline):
@@ -413,7 +445,7 @@ class plotter:
         plt.ylabel('avg abs difference of selected shortest paths from real with various monitors ')
         plt.xticks(br1, x_label)
         plt.legend()
-        plt.savefig(self.directory + 'average absolute difference of the selected shortest paths from real optimal paths with 10%-50% monitors deployed')
+        plt.savefig(self.directory + 'average absolute difference of the selected shortest paths from real optimal paths with  30% monitors deployed varies topology size')
         plt.close()
 
 

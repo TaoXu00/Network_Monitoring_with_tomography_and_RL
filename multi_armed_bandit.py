@@ -45,7 +45,6 @@ class multi_armed_bandit:
         #total_rewards = []   #in the current implementation, it is for only one pair of monitors
         #total_regrets = []
         sample_delays = []
-
         monitor_pair_list=list(combinations(monitors, 2))
         #optimal_delay, optimal_path = self.optimal_path(G, source, destination)
         self.logger.info("Multi Armed Bandits Initializing..........")
@@ -346,6 +345,7 @@ class multi_armed_bandit:
             computed_edge_num.append(count)
             # the MBA variables should be updated according to the results computed by the NT.
             self.update_MBA_variabels_with_NT(G, x, explored_edge_set, edge_average_delay_dict)
+            #self.update_MBA_variabels(G,explored_edge_set)
             '''
             total_rewards.append(rewards)
             regret = sum(total_rewards) - self.t * optimal_delay
@@ -401,6 +401,7 @@ class multi_armed_bandit:
             optimal_edges_delay_difference_after_training.append(abs(self.Dict_edge_theta[link] - G[link[0]][link[1]]["delay_mean"]))
         self.plotter.plot_edge_delay_difference_for_some_edges(optimal_edges_delay_difference_after_inti,optimal_edges_delay_difference_after_training)
         average_computed_edge_num = sum(computed_edge_num) / len(computed_edge_num)
+        #average_computed_edge_num=0
         #compute the last 1000 correct select
         #optimal_path_selected_rate=sum(correct_shortest_path_selected_rate[-1000:])/1000
         #return rewards_mse_list,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num,optimal_path_selected_rate, avg_diff_of_delay_from_optimal
