@@ -341,12 +341,12 @@ class multi_armed_bandit:
                     if (edge[0], edge[1]) not in explored_edge_set and (edge[1], edge[0]) not in explored_edge_set:
                         explored_edge_set.append(edge)
             #call NT as a submoudle
-            #x, count = self.nt.nt_engine(G, path_list, b)
-            count=0;
+            x, count = self.nt.nt_engine(G, path_list, b)
+            #count=0;
             computed_edge_num.append(count)
             # the MBA variables should be updated according to the results computed by the NT.
-            #self.update_MBA_variabels_with_NT(G, x, explored_edge_set, edge_average_delay_dict)
-            self.update_MBA_variabels(G,explored_edge_set)
+            self.update_MBA_variabels_with_NT(G, x, explored_edge_set, edge_average_delay_dict)
+            #self.update_MBA_variabels(G,explored_edge_set)
             '''
             total_rewards.append(rewards)
             regret = sum(total_rewards) - self.t * optimal_delay
