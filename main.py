@@ -124,7 +124,7 @@ class main:
         #for n in range(2, 3, 1):
         monitors=[]
         monitors_deployment_percentage=[]
-        for m_p in [10,20,30,40,50]:
+        for m_p in [30]:
         #for m_p in [20, 30]:
             monitors_deployment_percentage.append(m_p)
             n = int((m_p / 100) * len(G.nodes))
@@ -175,15 +175,19 @@ class main:
     def plot_final_result(self, mynetwork):
         #plot the scalability performance in Barabasi 50 with 30% monitors deployed but varies the network size
         monitors_deployment_percentage = [10,20,30, 40, 50]
-        myapproach_optimal_path_selected_rate = [0.7303425, 0.784525, 0.820643333, 0.838918553, 0.902852585]
+        #myapproach_optimal_path_selected_rate = [0.7303425, 0.784525, 0.820643333, 0.838918553, 0.902852585]
+        #myapproach_optimal_path_selected_rate=[0.6682375, 0.708409445 ,0.721732615, 0.751597365, 0.80618583]
+        myapproach_optimal_path_selected_rate=[0.709256667, 0.75291074, 0.787211903, 0.80995684, 0.869051943]
         baseline_optimal_path_selected_rate = [0.56466,	0.557230555, 0.56462738,	0.56482263,	0.57180575]
         myapproch_without_NT_path_selected_rate=[0.8338175,	0.864745,	0.86949619,	0.87432776,	0.8759815]
         baseline_abs_of_optimal_path_selected_from_real = [4.55981845, 4.32474493,	4.284358305, 4.25667079, 4.15141293]
-        myapproach_abs_of_optimal_path_selected_from_real = [3.62672339, 2.700724235, 2.368452608, 2.251432833, 1.676121458]
+        #myapproach_abs_of_optimal_path_selected_from_real = [3.62672339, 2.700724235, 2.368452608, 2.251432833, 1.676121458]
+        #myapproach_abs_of_optimal_path_selected_from_real=[3.522749135,	2.735354675,2.592612745,2.393058215,1.837543605]
+        myapproach_abs_of_optimal_path_selected_from_real = [3.572746567, 2.762555307, 2.438297613, 2.284643933, 1.743578883]
         myapproach_without_NT_abs_of_optimal_from_real= [2.236884885,	1.71805823,	1.60399359,	1.53417783,	1.49493546]
         mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BR_50nodes(monitors_deployment_percentage, myapproach_optimal_path_selected_rate, baseline_optimal_path_selected_rate, myapproch_without_NT_path_selected_rate)
         mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(monitors_deployment_percentage, myapproach_abs_of_optimal_path_selected_from_real, baseline_abs_of_optimal_path_selected_from_real, myapproach_without_NT_abs_of_optimal_from_real)
-        ''''
+
         #plot the scalability performance of network size 20, 40, 60, 80 nodes with fixed 30% monitors deployed
         topology_size=[20, 40, 60, 80]
         myapproach_optimal_path_selected_rate=[0.86105667,0.7691784,0.723593333,0.58820978]
@@ -202,7 +206,7 @@ class main:
         myapproach_abs_of_optimal_path_selected_from_real = [1.548090993,1.607211863,1.779516288,1.887000793,1.844019875]
         mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BTN(monitors_deployment_percentage, myapproach_optimal_path_selected_rate, baseline_optimal_path_selected_rate)
         mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BTN(monitors_deployment_percentage, myapproach_abs_of_optimal_path_selected_from_real, baseline_abs_of_optimal_path_selected_from_real)
-'''
+
 '''
 argv1: network topology type
 argv2: number of nodes
@@ -227,7 +231,7 @@ i=0
 '''
 mynetwork=main(3000)
 mynetwork.plot_final_result(mynetwork)
-mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"links_delay_during_training_with_different_monitor_size.txt")
+mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"links_delay_during_training_with_different_monitor_size_total.txt")
 '''
 
 while(i<n):
