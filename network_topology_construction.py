@@ -62,6 +62,7 @@ class network_topology:
                     degree_one_nodes.append(edge_degree[0])
             G.remove_nodes_from(degree_one_nodes);
         self.logger.info("Graph Created!")
+
         for edge in G.edges:
             G[edge[0]][edge[1]]['weight']=1
         self.logger.info("all the edge weights in the graph are assigned to 1")
