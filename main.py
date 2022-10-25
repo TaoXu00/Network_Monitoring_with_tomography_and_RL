@@ -112,6 +112,7 @@ class main:
         total_rewards_mse_list=[]
         optimal_path_selected_percentage_list=[]
         optimal_path_select_rate_amoong_monitors_list=[]
+
         avg_diff_of_delay_from_optimal_list=[]
         degree_list = list(G.degree(list(G.nodes)))
         #it does not make sense to differenciate the end nodes from the internal nodes.
