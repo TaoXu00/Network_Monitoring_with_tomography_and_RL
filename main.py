@@ -115,16 +115,21 @@ class main:
         avg_diff_of_delay_from_optimal_list=[]
         degree_list = list(G.degree(list(G.nodes)))
         #it does not make sense to differenciate the end nodes from the internal nodes.
+        #trim the node with degree 1
+        self.logger_main.info("After trim the degree one nodes: %d nodes %d edges", len(G.nodes), len(G.edges))
+
         for edge_degree in degree_list:
-            if edge_degree[1] == 2 or edge_degree[1]==1:
-                end_nodes.append(edge_degree[0])
+            #if edge_degree[1] == 2 or edge_degree[1]==1:
+                if edge_degree[1] == 2 or edge_degree[1]==1:
+                    end_nodes.append(edge_degree[0])
+
         #self.logger_main.debug("degree_list: %s" %(degree_list))
         #self.logger_main.debug("end nodes list:%s" %(end_nodes))
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
         monitors_deployment_percentage=[]
-        for m_p in [30]:
+        for m_p in [10, 20, 30, 40, 50]:
         #for m_p in [20, 30]:
             monitors_deployment_percentage.append(m_p)
             n = int((m_p / 100) * len(G.nodes))
@@ -231,9 +236,9 @@ i=0
 '''
 mynetwork=main(3000)
 mynetwork.plot_final_result(mynetwork)
-mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"links_delay_during_training_with_different_monitor_size_total.txt")
-'''
+mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"mse_results/links_delay_during_training_with_different_monitor_size_total.txt")
 
+'''
 while(i<n):
     mynetwork=main(3000)
     G =mynetwork.creat_topology(topo_type, num_node, degree)
