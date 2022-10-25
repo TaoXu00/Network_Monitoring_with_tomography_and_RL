@@ -79,7 +79,7 @@ class network_topology:
         #graphy=plt.subplot(122)
         #nx.draw(G,pos=nx.circular_layout(G),node_color='r', edge_color='b')
         self.logger.info(G.name)
-        self.logger.info("Graph Nodes: %s" %(G.nodes))
+        self.logger.info("Graph Nodes: %d nodes  %s" %(len(G.nodes,G.nodes)))
         self.logger.info("Graph Edges length: %d \n Graph Edges data: %s" %(len(G.edges),G.edges.data()))
 
         return G
