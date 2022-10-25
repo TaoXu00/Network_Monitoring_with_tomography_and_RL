@@ -53,6 +53,17 @@ class network_topology:
             #G = nx.read_gml('topology/Topology_Zoo/Graph_Bics_10.gml')
         elif type=="BTN":
             G=nx.read_graphml('topology/Topology_Zoo/BeyondTheNetwork.graphml')
+            degree_list = list(G.degree(list(G.nodes)))
+            degree_one_nodes = []
+            # it does not make sense to differenciate the end nodes from the internal nodes.
+            # trim the node with degree 1
+            for edge_degree in degree_list:
+                if edge_degree[1] == 1:
+                    degree_one_nodes.append(edge_degree[0])
+            G.remove_nodes_from(degree_one_nodes);
+        for edge in G.edges:
+            G[edge[0]][edge[1]]['weight'] = 1
+        self.logger.info("all the edge weights in the graph are assigned to 1")
         self.logger.info("Graph Created!")
         for edge in G.edges:
             G[edge[0]][edge[1]]['weight']=1
