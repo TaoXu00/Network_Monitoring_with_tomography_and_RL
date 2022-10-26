@@ -264,7 +264,8 @@ class multi_armed_bandit:
         b = np.array([path_delays])  # the delay of the selected path
         return b, average_edge_delay_list
 
-    def train_llc(self,G, time, monitor_pair_list, llc_factor):
+    def \
+            train_llc(self,G, time, monitor_pair_list, llc_factor):
         optimal_delay_dict, optimal_path_dict = self.optimal_path(G, monitor_pair_list)
         optimal_links=[]
         for key in optimal_path_dict:
