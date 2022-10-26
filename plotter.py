@@ -350,107 +350,117 @@ class plotter:
         plt.legend()
         plt.close()
 
-    def plot_percentage_of_optimal_path_selected_rate_BR_50nodes(self, monitors_deployment_percentage,myapproach,baseline, myapproach_without_NT):
+    def plot_percentage_of_optimal_path_selected_rate_BR_50nodes(self,monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate):
         barWidth = 0.25
-        fig = plt.figure(figsize=(10, 9))
+        fig = plt.figure(figsize=(10, 10))
 
         # set height of bar
         x=monitors_deployment_percentage
         x_label = [str(pert) for pert in monitors_deployment_percentage]
-        br1 = np.arange(len(baseline))
+        br1 = np.arange(len(UCB1_op_rate))
         br2 = [x + barWidth for x in br1]
         br3= [x + barWidth for x in br2]
-        for i in range(len(baseline)):
-            baseline[i]=baseline[i]*100
-            myapproach[i]=myapproach[i]*100
-            myapproach_without_NT[i]=myapproach_without_NT[i]*100
+        for i in range(len(UCB1_op_rate)):
+            UCB1_op_rate[i]=UCB1_op_rate[i]*100
+            subito_op_rate[i]=subito_op_rate[i]*100
+            subito_perfect_op_rate[i]=subito_perfect_op_rate[i]*100
         # Make the plot
         plt.rcParams.update({'font.size': 30})
-        plt.bar(br1, baseline,  width=barWidth,
-                edgecolor='grey', label='UBC1', hatch='/')
-        plt.bar(br2, myapproach,  width=barWidth,
-                edgecolor='grey', label='Subito', hatch='o')
-        plt.bar(br3, myapproach_without_NT, width=barWidth,
-                edgecolor='grey', label='Subito*', hatch='*')
+        plt.bar(br1, UCB1_op_rate,  width=barWidth,
+                edgecolor='grey', label='UCB1', hatch='/', color='white')
+        plt.bar(br2,subito_op_rate,  width=barWidth,
+                edgecolor='grey', label='Subito', hatch='o', color='white')
+        plt.bar(br3, subito_perfect_op_rate, width=barWidth,
+                edgecolor='grey', label='Subito*', hatch='*', color='white')
 
         # Adding Xticks
         plt.xlabel('% of nodes selected as monitors')
         plt.ylabel('Rate(%) of expected paths selected')
         plt.xticks(br1, x_label)
-        plt.legend(fontsize=16, loc='best')
-        plt.savefig(self.directory + 'Scability of Minitor_op_rate')
+        plt.legend(fontsize=25, loc='lower left')
+        plt.savefig(self.directory + 'Scability_of Minitor_op_rate')
         plt.close()
 
-    def plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(self, monitors_deployment_percentage, myapproach, baseline, myapproach_without_NT):
+    def plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(self,monitors_deployment_percentage,subito_diff, UCB1_diff, subito_perfect_diff):
         barWidth = 0.25
-        fig = plt.figure(figsize=(10, 9))
+        fig = plt.figure(figsize=(10, 10))
         # set height of bar
         x = monitors_deployment_percentage
         x_label = [str(pert) for pert in monitors_deployment_percentage]
-        br1 = np.arange(len(baseline))
+        br1 = np.arange(len(UCB1_diff))
         br2 = [x + barWidth for x in br1]
         br3 = [x + barWidth for x in br2]
         # Make the plot
         plt.rcParams.update({'font.size': 30})
-        plt.bar(br1, baseline,  width=barWidth,
-                edgecolor='grey', label='UBC1', hatch='/')
-        plt.bar(br2, myapproach,  width=barWidth,
-                edgecolor='grey', label='Subito', hatch='o')
-        plt.bar(br3, myapproach_without_NT,  width=barWidth,
-                edgecolor='grey', label='Subito*', hatch='*')
+        plt.bar(br1, UCB1_diff,  width=barWidth,
+                edgecolor='grey', label='UCB1', hatch='/', color='white')
+        plt.bar(br2, subito_diff,  width=barWidth,
+                edgecolor='grey', label='Subito', hatch='o', color='white')
+        plt.bar(br3, subito_perfect_diff,  width=barWidth,
+                edgecolor='grey', label='Subito*', hatch='*', color='white')
 
         # Adding Xticks
         plt.xlabel('% of nodes selected as monitors')
         plt.ylabel('Delay difference from expectation ')
         plt.xticks(br1, x_label)
-        plt.legend(fontsize=16, loc='best')
-        plt.savefig(self.directory + "Scability of Minitor_delay_diff")
+        plt.legend(fontsize=25, loc='lower left')
+        plt.savefig(self.directory + "Scability_of Minitor_delay_diff")
         plt.close()
 
-    def plot_percentage_of_optimal_path_selected_rate_for_various_monitor_size(self, topology_size,myapproach,baseline):
+    def plot_percentage_of_optimal_path_selected_rate_for_various_monitor_size(self, topology_size, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate):
         barWidth = 0.25
-        fig = plt.subplots_adjust()
+        fig = plt.figure(figsize=(10, 10))
         # set height of bar
         x_label = [str(size) for size in topology_size]
-        br1 = np.arange(len(baseline))
+        br1 = np.arange(len(UCB1_op_rate))
         br2 = [x + barWidth for x in br1]
-        for i in range(len(baseline)):
-            baseline[i]=baseline[i]*100
-            myapproach[i]=myapproach[i]*100
+        br3 = [x + barWidth for x in br2]
+        for i in range(len(UCB1_op_rate)):
+            UCB1_op_rate[i] = UCB1_op_rate[i] * 100
+            subito_op_rate[i] = subito_op_rate[i] * 100
+            subito_perfect_op_rate[i] = subito_perfect_op_rate[i] * 100
         # Make the plot
-        plt.bar(br1, baseline, color='r', width=barWidth,
-                edgecolor='grey', label='baseline')
-        plt.bar(br2, myapproach, color='g', width=barWidth,
-                edgecolor='grey', label='our approach')
+        plt.rcParams.update({'font.size': 30})
+        plt.bar(br1, UCB1_op_rate, width=barWidth,
+                edgecolor='grey', label='UCB1', hatch='/')
+        plt.bar(br2, subito_op_rate, width=barWidth,
+                edgecolor='grey', label='Subito', hatch='o')
+        plt.bar(br3, subito_perfect_op_rate, width=barWidth,
+                edgecolor='grey', label='Subito*', hatch='*')
 
         # Adding Xticks
-        plt.xlabel('topology size')
-        plt.ylabel('% of optimal path selected with various monitors')
+        plt.xlabel('network size')
+        plt.ylabel('Rate(%) of expected paths selected')
         plt.xticks(br1, x_label)
-        plt.legend(fontsize=20)
-        plt.savefig(self.directory + 'average percentage of the optimal shortest path selected rate BR50 nodes with 30% monitors deployed varies topology size')
+        plt.legend(fontsize=25, loc='lower left')
+        plt.savefig(self.directory + 'scalability_of_network_size_op_rate')
         plt.close()
 
-    def plot_abs_delay_of_optimal_path_selected_for_various_monitor_size(self, topology_size, myapproach, baseline):
+    def plot_abs_delay_of_optimal_path_selected_for_various_monitor_size(self,topology_size, subito_diff, UCB1_diff, subito_perfect_diff):
         barWidth = 0.25
-        fig = plt.subplots()
+        fig = plt.figure(figsize=(10, 10))
         # set height of bar
         x_label = [str(size) for size in topology_size]
-        br1 = np.arange(len(baseline))
+        br1 = np.arange(len(UCB1_diff))
         br2 = [x + barWidth for x in br1]
+        br3 = [x + barWidth for x in br2]
         # Make the plot
-        plt.bar(br1, baseline, color='r', width=barWidth,
-                edgecolor='grey', label='baseline')
-        plt.bar(br2, myapproach, color='g', width=barWidth,
-                edgecolor='grey', label='our approach')
+        plt.rcParams.update({'font.size': 30})
+        plt.bar(br1, UCB1_diff, width=barWidth,
+                edgecolor='grey', label='UCB1', hatch='/')
+        plt.bar(br2, subito_diff, width=barWidth,
+                edgecolor='grey', label='Subito', hatch='o')
+        plt.bar(br3, subito_perfect_diff, width=barWidth,
+                edgecolor='grey', label='Subito*', hatch='*')
 
         # Adding Xticks
-        plt.xlabel('topology size')
-        plt.ylabel('avg abs difference of selected shortest paths from real with various monitors ')
+        plt.xlabel('network size')
+        plt.ylabel('Delay difference from expectation')
         plt.xticks(br1, x_label)
-        plt.legend()
-        plt.savefig(self.directory + 'average absolute difference of the selected shortest paths from real optimal paths with  30% monitors deployed varies topology size')
+        plt.legend(fontsize=25, loc='upper left')
+        plt.savefig(self.directory + 'Scability_of_network_size_delay_diff')
         plt.close()
+
 
 
     def plot_percentage_of_optimal_path_selected_rate_BTN(self, monitors_deployment_percentage,myapproach,baseline):
