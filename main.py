@@ -124,7 +124,7 @@ class main:
         #for n in range(2, 3, 1):
         monitors=[]
         monitors_deployment_percentage=[]
-        for m_p in [30]:
+        for m_p in [10, 20, 30, 40, 50]:
         #for m_p in [20, 30]:
             monitors_deployment_percentage.append(m_p)
             n = int((m_p / 100) * len(G.nodes))
@@ -177,25 +177,27 @@ class main:
         monitors_deployment_percentage = [10,20,30, 40, 50]
         #myapproach_optimal_path_selected_rate = [0.7303425, 0.784525, 0.820643333, 0.838918553, 0.902852585]
         #myapproach_optimal_path_selected_rate=[0.6682375, 0.708409445 ,0.721732615, 0.751597365, 0.80618583]
-        myapproach_optimal_path_selected_rate=[0.709256667, 0.75291074, 0.787211903, 0.80995684, 0.869051943]
-        baseline_optimal_path_selected_rate = [0.56466,	0.557230555, 0.56462738,	0.56482263,	0.57180575]
-        myapproch_without_NT_path_selected_rate=[0.8338175,	0.864745,	0.86949619,	0.87432776,	0.8759815]
-        baseline_abs_of_optimal_path_selected_from_real = [4.55981845, 4.32474493,	4.284358305, 4.25667079, 4.15141293]
+        subito_op_rate=[0.709256667, 0.75291074, 0.787211903, 0.80995684, 0.869051943]
+        UCB1_op_rate = [0.56466,	0.557230555, 0.56462738,	0.56482263,	0.57180575]
+        subito_perfect_op_rate=[0.8338175,	0.864745,	0.86949619,	0.87432776,	0.8759815]
+        UCB1_diff = [4.55981845, 4.32474493,	4.284358305, 4.25667079, 4.15141293]
         #myapproach_abs_of_optimal_path_selected_from_real = [3.62672339, 2.700724235, 2.368452608, 2.251432833, 1.676121458]
         #myapproach_abs_of_optimal_path_selected_from_real=[3.522749135,	2.735354675,2.592612745,2.393058215,1.837543605]
-        myapproach_abs_of_optimal_path_selected_from_real = [3.572746567, 2.762555307, 2.438297613, 2.284643933, 1.743578883]
-        myapproach_without_NT_abs_of_optimal_from_real= [2.236884885,	1.71805823,	1.60399359,	1.53417783,	1.49493546]
-        mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BR_50nodes(monitors_deployment_percentage, myapproach_optimal_path_selected_rate, baseline_optimal_path_selected_rate, myapproch_without_NT_path_selected_rate)
-        mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(monitors_deployment_percentage, myapproach_abs_of_optimal_path_selected_from_real, baseline_abs_of_optimal_path_selected_from_real, myapproach_without_NT_abs_of_optimal_from_real)
+        subito_diff = [3.572746567, 2.762555307, 2.438297613, 2.284643933, 1.743578883]
+        subito_perfect_diff= [2.236884885,	1.71805823,	1.60399359,	1.53417783,	1.49493546]
+        mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BR_50nodes(monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate)
+        mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(monitors_deployment_percentage,subito_diff, UCB1_diff, subito_perfect_diff)
 
         #plot the scalability performance of network size 20, 40, 60, 80 nodes with fixed 30% monitors deployed
         topology_size=[20, 40, 60, 80]
-        myapproach_optimal_path_selected_rate=[0.86105667,0.7691784,0.723593333,0.58820978]
-        baseline_optimal_path_selected_rate=[0.50193667, 0.44657879, 0.34701209, 0.3847663]
-        baseline_abs_of_optimal_path_selected_from_real=[4.30608774, 6.11897566, 6.15564568, 8.3113577]
-        myapproach_abs_of_optimal_path_selected_from_real=[1.66976496, 2.97261583,	2.514051111, 3.88283325]
-        mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_for_various_monitor_size(topology_size, myapproach_optimal_path_selected_rate, baseline_optimal_path_selected_rate)
-        mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_for_various_monitor_size(topology_size, myapproach_abs_of_optimal_path_selected_from_real, baseline_abs_of_optimal_path_selected_from_real)
+        subito_op_rate=[0.86708, 0.78523, 0.729153167, 0.666417933]
+        UCB1_op_rate=[0.50193667, 0.44657879, 0.34701209, 0.3847663]
+        subito_perfect_op_rate=[0.88412667,	0.85507955,	0.77260229,	0.74318261]
+        UCB1_diff=[4.30608774, 6.11897566, 6.15564568, 8.3113577]
+        subito_diff=[1.45996846,	2.430924276,	2.498190838,	3.326673313]
+        subito_perfect_diff=[1.29733573,	1.9665792,	2.29629007,	2.98189548]
+        mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_for_various_monitor_size(topology_size, subito_op_rate, UCB1_op_rate,subito_perfect_op_rate)
+        mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_for_various_monitor_size(topology_size, subito_diff, UCB1_diff, subito_perfect_diff)
         '''
         '''
         #plot the experiments for real infrastructure

@@ -92,13 +92,13 @@ class network_topology:
         :param G: the generated graph
         :return: the scales vector for all the edge
         '''
-        '''
+
         scales=np.random.randint(1, 10, len(G.edges))
         if type== "Barabasi" or type== "ER":
             np.savetxt('delay_exponential_samples/scales_%s_%s_%s.txt' % (type, n, p), scales)
         elif type=="Bics" or type=="BTN":
             np.savetxt('delay_exponential_samples/scales_%s.txt' % (type), scales)
-        '''
+
 
 
         '''
@@ -156,7 +156,7 @@ class network_topology:
             i=i+1
 
         #generate the delay samples from the exponential distribution with the generated scales
-        '''
+
         samples=[]
         for edge in G.edges:
             sample = np.random.exponential(scale=self.Dict_edge_scales[edge], size=(1, self.time+len(G.edges)))[0]
@@ -168,7 +168,7 @@ class network_topology:
             np.savetxt('delay_exponential_samples/samples_%s_%s_%s.txt' %(type, n, p),n_samples)
         elif type=="Bics" or type=="BTN":
             np.savetxt('delay_exponential_samples/samples_%s.txt' % (type), n_samples)
-        '''
+
         self.logger.info("Draw %d delay examples from exponential distribution for each edge." %(self.time+len(G.edges)))
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
         self.logger.info("edge delay sample average %s" %(average))
