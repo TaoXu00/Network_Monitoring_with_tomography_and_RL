@@ -128,6 +128,10 @@ class main:
         #for m_p in [20, 30]:
             monitors_deployment_percentage.append(m_p)
             n = int((m_p / 100) * len(G.nodes))
+            if m_p ==10:
+                n=3
+            if m_p==20:
+                n=6
             if n <= len(end_nodes):
                 rest_end_nodes = [elem for elem in end_nodes if elem not in monitors]
                 # self.logger_main.debug(f"rest node {rest_end_nodes}")
@@ -202,10 +206,14 @@ class main:
         '''
         #plot the experiments for real infrastructure
         monitors_deployment_percentage = [10, 20, 30, 40, 50]
-        myapproach_optimal_path_selected_rate = [0.8730325,	0.865852223, 0.84571643, 0.835979885,0.843303463]
-        baseline_optimal_path_selected_rate = [0.67076,	0.68020833,	0.67219667,	0.66329536,	0.67381338]
-        baseline_abs_of_optimal_path_selected_from_real = [3.92730099,	3.55005621,	3.76985005,	4.01648821,	4.05722965]
-        myapproach_abs_of_optimal_path_selected_from_real = [1.548090993,1.607211863,1.779516288,1.887000793,1.844019875]
+        subito_perfect_op_rate=[0.876075, 0.9192025, 0.911354763,	0.908002727,	0.91525641]
+        subito_perfect_abs=[1.704276463,	1.125456645,	1.099625047,	1.085538627, 1.023573517]
+        subito_op_rate=[0.84235,	0.874365,	0.859673215,	0.88029,	0.887951095]
+        subito_diff=[2.266471527,	1.8255659,	1.984103853,	1.734049937, 1.540486353]
+        #myapproach_optimal_path_selected_rate = [0.8730325,	0.865852223, 0.84571643, 0.835979885,0.843303463]
+        UBC1_op_rate = [0.67076,	0.68020833,	0.67219667,	0.66329536,	0.67381338]
+        UBC_diff = [3.92730099,	3.55005621,	3.76985005,	4.01648821,	4.05722965]
+        #myapproach_abs_of_optimal_path_selected_from_real = [1.548090993,1.607211863,1.779516288,1.887000793,1.844019875]
         mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BTN(monitors_deployment_percentage, myapproach_optimal_path_selected_rate, baseline_optimal_path_selected_rate)
         mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BTN(monitors_deployment_percentage, myapproach_abs_of_optimal_path_selected_from_real, baseline_abs_of_optimal_path_selected_from_real)
 
