@@ -175,6 +175,7 @@ class multi_armed_bandit:
         diff_of_delay_from_optimal_real_time = []
         Dict_time_of_optimal_path_selected={}
         rate_optimal_path_selected=[]
+        n_total_probing_links_list=[]
         T_total=time
         for monitor_pair in monitor_pair_list:
             Dict_time_of_optimal_path_selected[monitor_pair] = []
@@ -183,8 +184,10 @@ class multi_armed_bandit:
             explored_path_list = []
             num_correct_shortest_path=0
             total_diff = 0
+            n_total_links=0
             for monitor_pair in monitor_pair_list:
                 shortest_path=self.LLC_policy(G, monitor_pair)
+                n_total_links+=len(shortest_path)-1
                 #self.logger.debug("shortest_path: %s, optimal path: %s" % (shortest_path, optimal_path_dict[monitor_pair]))
                 if shortest_path == optimal_path_dict[monitor_pair]:
                     #num_correct_shortest_path+=1
@@ -205,6 +208,7 @@ class multi_armed_bandit:
             #if self.t < time+len(G.edges):
             #self.logger.info("t= %d" %(self.t))
             self.topo.assign_link_delay(G)
+            n_total_probing_links_list.append(n_total_links)
         #print("len:%d" %len(diff_of_delay_from_optimal_real_time))
         for monitor_pair in monitor_pair_list:
             count_list=Dict_time_of_optimal_path_selected[monitor_pair]
@@ -214,6 +218,7 @@ class multi_armed_bandit:
         avg_diff_of_delay_from_optimal = (sum(diff_of_delay_from_optimal_real_time) / len(diff_of_delay_from_optimal_real_time))
         rewards_mse_list=self.compute_rewards_mse(total_rewards_dict, optimal_delay_dict)
         average_regret_list=self.compute_regret(total_rewards_dict, optimal_delay_dict)
+        average_n_probing_links=np.average(n_total_probing_links_list)
 
         self.plotter.plot_time_average_rewards(rewards_mse_list)
         self.plotter.plot_average_regrets(average_regret_list)
@@ -224,7 +229,7 @@ class multi_armed_bandit:
         #self.logger.debug("Dict_edge_m values are added to the edge_exploration_times array")
         #optimal_path_selected_rate = sum(correct_shortest_path_selected_rate[-1000:]) / 1000
         #return rewards_mse_list,selected_shortest_path, optimal_path_selected_rate, avg_diff_of_delay_from_optimal
-        return rewards_mse_list, selected_shortest_path,average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal
+        return rewards_mse_list, selected_shortest_path,average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_n_probing_links
 
     def compute_rewards_mse(self,total_rewards_dict, optimal_delay_dict):
         key_list = list(total_rewards_dict.keys())
