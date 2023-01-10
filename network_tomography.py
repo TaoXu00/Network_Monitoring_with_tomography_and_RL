@@ -19,8 +19,14 @@ class network_tomography:
 
     def nt_engine(self, G, path_list, b):
         path_matrix = self.construct_matrix(G, path_list)
+        self.logger.debug("Original Probing Path list: %s" %(path_list))
+        n_links=0
+        for path in path_list:
+            n_links+=len(path)
+        self.logger.debug("%d links in the original probing path list" %(n_links))
         #upper_triangular, inds, uninds = self.find_basis(G, path_matrix, b)
         upper_triangular = self.find_basis(G, path_matrix, b)
+        self.logger.debug("upper_triangular: %s" %(upper_triangular))
         x, count=self.back_substitution(upper_triangular)
         #x, count = self.edge_delay_infercement(G, M, inds, uninds)
         return x, count
