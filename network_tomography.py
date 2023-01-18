@@ -18,23 +18,70 @@ class network_tomography:
         self.logger=logger
 
     def nt_engine(self, G, path_list, b):
+        #disabled the find optimal prob_path
         path_matrix = self.construct_matrix(G, path_list)
         #self.logger.debug("Original Probing Path list: %s" %(path_list))
         n_links_origin=0
         for path in path_list:
             n_links_origin+=len(path)
-        self.logger.debug("%d links in the original probing path list" %(n_links_origin))
+        #self.logger.debug("%d links in the original probing path list" %(n_links_origin))
         #upper_triangular, inds, uninds = self.find_basis(G, path_matrix, b)
         upper_triangular = self.find_basis(G, path_matrix, b)
         #self.logger.debug("upper_triangular: %s" %(upper_triangular))
         reduced_path_matrix=upper_triangular[:, :-1]
-        n_links_reduced=np.count_nonzero(reduced_path_matrix)
-        self.logger.debug("%d links in reduced path list" %(n_links_reduced))
+        #n_links_reduced=np.count_nonzero(reduced_path_matrix)
+        #self.logger.debug("%d links in reduced path list" %(n_links_reduced))
         x, count=self.back_substitution(upper_triangular)
+        #self.logger.debug("%d paths in path_matrix" %(len(path_matrix)))
+        #optimal_probing_paths=self.find_optimal_prob_paths(path_matrix)
+        #self.logger.debug("%d paths in optimal_probing_paths" %(len(optimal_probing_paths)))
+        #self.logger.debug("optimal_probing_paths %s" % (optimal_probing_paths))
+        #n_links_optimal_path=np.count_nonzero(optimal_probing_paths)
+        #self.logger.debug("%d links in optimal basis paths" %(n_links_optimal_path))
         #x, count = self.edge_delay_infercement(G, M, inds, uninds)
-        return x, count, n_links_origin,n_links_reduced
+        n_links_optimal_path=0
+        return x, count, n_links_origin,n_links_optimal_path
 
+    def find_optimal_prob_paths(self, path_matrix):
+        sorted_paths=sorted(path_matrix, key=lambda row: sum(row))
+        num_links_before_sort=[sum(path) for path in path_matrix]
+        num_links_after_sort=[sum(path) for path in sorted_paths]
+        optimal_probing_paths=[]
+        #self.logger.debug("before sort: %s" % (num_links_before_sort))
+        #self.logger.debug("after sort: %s" % (num_links_after_sort))
+        for path in sorted_paths:
+            #m_optimal_probing_path=[]
+            #self.logger.debug("#optimal_probing_paths1: %d" % (len(optimal_probing_paths)))
+            #m_optimal_probing_path =optimal_probing_paths
+            #self.logger.debug("copy_probing_paths1: %s" % (m_optimal_probing_path))
+            rank1=np.linalg.matrix_rank(optimal_probing_paths)
+            optimal_probing_paths.append(path)
+            rank2=np.linalg.matrix_rank(optimal_probing_paths)
+            #self.logger.debug("compare_probing_paths1: %d" % (len(optimal_probing_paths)))
+            #self.logger.debug("rank1 %d, rank2: %d" % (rank1, rank2))
+            if rank2 <= rank1:
+                optimal_probing_paths=optimal_probing_paths[:-1]
+                #self.logger.debug("deleting the added row")
+                #self.logger.debug("%d paths in the optimal_probing path" %(len(optimal_probing_paths)))
+        return optimal_probing_paths
 
+        '''
+        for i in range(len(sorted_paths)):
+            #m_optimal_paths = optimal_probing_paths
+            if i ==0:
+                optimal_probing_paths = np.array([sorted_paths[i]], dtype=int)
+            self.logger.debug("optimal_probing_paths1: %s" % (optimal_probing_paths))
+            rank1=np.linalg.matrix_rank(optimal_probing_paths)
+            if i< len(sorted_paths)-1:
+                optimal_probing_paths=np.append(optimal_probing_paths,np.array([sorted_paths[i+1]]))
+            self.logger.debug("optimal_probing_paths2: %s" % (optimal_probing_paths))
+            rank2=np.linalg.matrix_rank(optimal_probing_paths)
+            self.logger.debug("rank1 %d, rank2: %d" %(rank1, rank2))
+            if rank1 >= rank2:
+               optimal_probing_paths=np.delete(optimal_probing_paths,len(optimal_probing_paths)-1,axis=0)
+               self.logger.debug("deleted the added row")
+        return optimal_probing_paths
+        '''
     def end_to_end_measurement(self, G, path_list,weight):
         path_delays=[]
         for path in path_list:

@@ -211,6 +211,36 @@ class plotter:
         plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training")
         plt.close()
 
+    def plot_avg_optimal_actions_every_100_times(self,monitors_deployment_percentage,multi_avg_optimal_actions_with_increasing_monitors):
+        labels = []
+        for per in monitors_deployment_percentage:
+            labels.append(str(per) + '%')
+        new_avg_with_increasing_monitors=[]
+        for rate_array in multi_avg_optimal_actions_with_increasing_monitors:
+            avg_100=np.average(np.array(rate_array).reshape(-1,200),axis=1)
+            new_avg_with_increasing_monitors.append(avg_100)
+        print("new_avg_with_increasing_monitors row num: %d:" %(len(new_avg_with_increasing_monitors)))
+        print("new_avg_with_increasing_monitors column num %d:" %(len(new_avg_with_increasing_monitors[0])))
+
+        x=np.arange(100,3100,100)
+        fig = plt.figure()
+        plt.rcParams.update({'font.size': 13})
+
+        colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
+        # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
+        markers = ["s", "^", "+", "p", "x"]
+        for i in range(len(new_avg_with_increasing_monitors)):
+            plt.plot(x, new_avg_with_increasing_monitors[i], label=labels[i], color=colors[i],
+                     marker=markers[i])
+        plt.xlabel("learning time")
+        plt.ylabel("Rate of optimal actions (%)")
+        plt.legend(fontsize=13)
+        # plt.grid(True)
+        plt.savefig(self.directory + "Rate_of_optimal_actions_with_increasing_monitor_training.png")
+        plt.close()
+
+
+
     def plot_NT_verification_edge_computed_rate_with_monitors_increasing(self, G, monitors_list, solved_edges_count ):
         plt.figure()
         x = [len(monitors) / len(G.nodes) for monitors in monitors_list]
@@ -499,7 +529,56 @@ class plotter:
         plt.savefig(self.directory + 'Scability_of_network_size_delay_diff')
         plt.close()
 
+    def plot_traffic_overhead_BR_50nodes(self,monitors_deployment_percentage, subito_NT_traffic_overhead, subito_MAB_trffic_overhead, UCB1_traffic_overhead):
+        barWidth = 0.25
+        fig = plt.figure(figsize=(10, 10))
+        # set height of bar
+        x = monitors_deployment_percentage
+        x_label = [str(pert) for pert in monitors_deployment_percentage]
+        br1 = np.arange(len(UCB1_traffic_overhead))
+        br2 = [x + barWidth for x in br1]
+        br3 = [x + barWidth for x in br2]
+        # Make the plot
+        plt.rcParams.update({'font.size': 30})
+        plt.bar(br1, UCB1_traffic_overhead,  width=barWidth,
+                edgecolor='grey', label='UCB1', hatch='/')
+        plt.bar(br2, subito_MAB_trffic_overhead,  width=barWidth,
+                edgecolor='grey', label='Subito_MAB', hatch='o')
+        plt.bar(br3, subito_NT_traffic_overhead, width=barWidth,
+                edgecolor='grey', label='Subito_NT', hatch='*')
 
+        # Adding Xticks
+        plt.xlabel('% of nodes selected as monitors')
+        plt.ylabel('Traffic overhead')
+        plt.xticks(br1, x_label)
+        plt.legend(fontsize=25, loc='lower left')
+        plt.savefig(self.directory + "Traffic overhead for BR50 with increasing monitor size")
+        plt.close()
+
+    def plot_traffic_overhead_for_various_network_size(self, topology_size, subito_MAB_trffic_overhead, subito_NT_traffic_overhead, UCB1_traffic_overhead):
+        barWidth = 0.25
+        fig = plt.figure(figsize=(10, 10))
+        # set height of bar
+        x_label = [str(size) for size in topology_size]
+        br1 = np.arange(len(subito_MAB_trffic_overhead))
+        br2 = [x + barWidth for x in br1]
+        br3 = [x + barWidth for x in br2]
+        # Make the plot
+        plt.rcParams.update({'font.size': 30})
+        plt.bar(br1, UCB1_traffic_overhead, width=barWidth,
+                edgecolor='grey', label='UCB1', hatch='/')
+        plt.bar(br2, subito_MAB_trffic_overhead, width=barWidth,
+                edgecolor='grey', label='Subito_MAB', hatch='o')
+        plt.bar(br3, subito_NT_traffic_overhead, width=barWidth,
+                edgecolor='grey', label='Subito_NT', hatch='*')
+
+        # Adding Xticks
+        plt.xlabel('network size')
+        plt.ylabel('Traffic overhead')
+        plt.xticks(br1, x_label)
+        plt.legend(fontsize=25, loc='upper left')
+        plt.savefig(self.directory + 'Scability_of_network_size_traffic_overhead')
+        plt.close()
 
     def plot_percentage_of_optimal_path_selected_rate_BTN(self, monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate ):
         barWidth = 0.25

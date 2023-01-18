@@ -295,6 +295,7 @@ class multi_armed_bandit:
             Dict_time_of_optimal_path_selected[monitor_pair] = []
         sum_n_links_origin =0
         sum_n_links_reduced=0
+        rate_of_optimal_actions_list=[]
         for i in range(time):
             ##compute the mse of all the links in the graph during training
             #self.logger.info("t= %s" %(self.t))
@@ -308,10 +309,13 @@ class multi_armed_bandit:
             total_mse_optimal_edges_array.append(total_mse_opt_edges/len(optimal_links))
             explored_path_list = []
             total_diff=0
+            optimal_actions=0
             for monitor_pair in monitor_pair_list:
                 m1=monitor_pair[0]
                 m2=monitor_pair[1]
                 shortest_path=self.LLC_policy(G, m1, m2, llc_factor)
+                if shortest_path==optimal_path_dict[monitor_pair]:
+                    optimal_actions+=1
                 #shortest_path = self.LLC_policy_without_MAB(G, m1, m2)
                 if shortest_path == optimal_path_dict[monitor_pair] and self.t>=time-1000:
                     Dict_time_of_optimal_path_selected[monitor_pair].append(1)
@@ -323,6 +327,8 @@ class multi_armed_bandit:
                 explored_path_list.append(shortest_path)
                 rewards = nx.path_weight(G, shortest_path, 'delay')
                 total_rewards_dict[monitor_pair].append(rewards)
+            rate_of_optimal_actions_list.append(optimal_actions/len(monitor_pair_list))
+            #self.logger.debug("rate_of_optimal_actions_list: %s" %(rate_of_optimal_actions_list))
             diff_of_delay_from_optimal_real_time.append(total_diff/len(optimal_delay_dict))
             path_list = []
             for path in explored_path_list:
@@ -419,7 +425,7 @@ class multi_armed_bandit:
         #compute the last 1000 correct select
         #optimal_path_selected_rate=sum(correct_shortest_path_selected_rate[-1000:])/1000
         #return rewards_mse_list,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num,optimal_path_selected_rate, avg_diff_of_delay_from_optimal
-        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, total_mse_optimal_edges_array,edge_exploration_during_training, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced
+        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, total_mse_optimal_edges_array,edge_exploration_during_training, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list
     def compute_rewards_mse(self,total_rewards_dict, optimal_delay_dict):
         key_list = list(total_rewards_dict.keys())
         rewards_mse_list = []
