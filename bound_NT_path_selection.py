@@ -214,7 +214,7 @@ class bound_NT_path_selection:
                     if (edge[0], edge[1]) not in explored_edge_set and (edge[1], edge[0]) not in explored_edge_set:
                         explored_edge_set.append(edge)
             #call NT as a submoudle
-            self.logger.debug("path_list %s" %(path_list))
+            #self.logger.debug("path_list %s" %(path_list))
             x, count,n_links_origin,n_links_reduced = self.nt.nt_engine(G, path_list)
             sum_n_links_origin+=n_links_origin
             sum_n_links_reduced+=n_links_reduced
