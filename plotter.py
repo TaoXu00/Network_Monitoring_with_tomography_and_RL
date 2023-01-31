@@ -28,7 +28,7 @@ class plotter:
         plt.ylabel('# of exploration ', fontweight='bold', fontsize=15)
         plt.xticks([r for r in range(len(edge_exploration_times[0]))], range(len(edge_exploration_times[0])))
         plt.legend()
-        plt.savefig(self.directory + '# of edge exploration', format="PNG", dpi=300,
+        plt.savefig(self.directory + '# of edge exploration.png', format="PNG", dpi=300,
                     bbox_inches='tight')
         plt.close()
     def plot_edge_exploitation_times_bar(self,label,Dict_edge_m):
@@ -73,7 +73,7 @@ class plotter:
         plt.ylabel('delay difference from the mean', fontweight='bold', fontsize=15)
         plt.xticks([r for r in range(e-s)], range(s,e,1))
         plt.legend()
-        plt.savefig(self.directory + 'delay difference from the mean link %s' %link_range, format="PNG")
+        plt.savefig(self.directory + 'delay difference from the mean link %s.png' %link_range, format="PNG")
         plt.close()
 
     def plot_edge_delay_difference(self,G,Dict_edge_theta):
@@ -101,7 +101,7 @@ class plotter:
         plt.xlabel("time slot")
         plt.ylabel("total_mse of all edges dalay")
         # plt.show()
-        plt.savefig(self.directory + 'MAB_total_delay_mse', format="PNG")
+        plt.savefig(self.directory + 'MAB_total_delay_mse.png', format="PNG")
         plt.close()
 
     def plot_total_optimal_edge_delay_mse(self, total_mse_optimal_edges_array):
@@ -125,7 +125,7 @@ class plotter:
         plt.xlabel("time")
         plt.ylabel("mse of rewards of selected optimal path among monitors")
         # plt.show()
-        plt.savefig(self.directory + 'mse rewards', format="PNG")
+        plt.savefig(self.directory + 'mse rewards.png', format="PNG")
         plt.close()
 
     def plot_bar_edge_exploration_training_with_increasing_monitor(self, monitors_deployment_percentage, explored_edges_rate):
@@ -161,7 +161,7 @@ class plotter:
         plt.ylabel("MSE of link delay during learning")
         plt.legend(fontsize=13)
         # plt.grid(True)
-        plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training")
+        plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training.png")
         plt.close()
 
     def plot_total_optimal_edge_delay_mse_with_increasing_monitor_training(self, monitors_deployment_percentage, multi_times_avg_mse_total_optimal_links_delay_array):
@@ -208,7 +208,7 @@ class plotter:
         plt.ylabel("MSE of link delay during learning")
         plt.legend(fontsize=13)
         #plt.grid(True)
-        plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training")
+        plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training.png")
         plt.close()
 
     def plot_avg_optimal_actions_every_100_times(self,monitors_deployment_percentage,multi_avg_optimal_actions_with_increasing_monitors):
@@ -265,7 +265,7 @@ class plotter:
         plt.xlabel("time")
         plt.ylabel("mse of time averaged rewards of the selected optimal paths during training")
         plt.legend()
-        plt.savefig(self.directory + "rewards mse with different #minitors")
+        plt.savefig(self.directory + "rewards mse with different #minitors.png")
         plt.close()
 
     def plot_edge_exporation_times_with_differrent_monitor_size(self, G, total_edge_exploration_during_training_list):
@@ -292,7 +292,7 @@ class plotter:
             plt.ylabel("total explored time during MAB training ")
             plt.tight_layout()
             plt.legend()
-            plt.savefig(self.directory + " the exploration times of 20 random edges with different monitor numbers")
+            plt.savefig(self.directory + " the exploration times of 20 random edges with different monitor numbers.png")
             plt.close()
 
     def plot_edge_computed_rate_during_training(self,monitors_deployment_percentage,average_computed_edge_rate_during_training):
@@ -335,7 +335,7 @@ class plotter:
         plt.ylabel('%of the identified links',  fontsize=15)
         plt.xticks(np.arange(len(percentage)),percentage)
         plt.legend()
-        plt.savefig(self.directory + '%of identified edges with different topology size and different number of monitors' , format="PNG")
+        plt.savefig(self.directory + '%of identified edges with different topology size and different number of monitors.png' , format="PNG")
         plt.close()
 
     def plot_average_regrets(self, averaged_regret_list):
@@ -344,7 +344,7 @@ class plotter:
         plt.plot(x, averaged_regret_list)
         plt.xlabel("time")
         plt.ylabel("averaged regret of selected shortest path among monitors")
-        plt.savefig(self.directory + 'averaged regret', format="PNG")
+        plt.savefig(self.directory + 'averaged regret.png', format="PNG")
         plt.close()
 
     def plot_rate_of_correct_shortest_path(self, correct_shortest_path_selected_rate):
@@ -353,7 +353,7 @@ class plotter:
         plt.plot(x, correct_shortest_path_selected_rate)
         plt.xlabel("time")
         plt.ylabel("rate of correctly selected shortest path among monitors")
-        plt.savefig(self.directory + 'rate of correctly selected shortest path among monitors', format="PNG")
+        plt.savefig(self.directory + 'rate of correctly selected shortest path among monitors.png', format="PNG")
         plt.close()
 
     def plot_edge_delay_difference_for_some_edges(self, optimal_edges_delay_difference_after_inti,
@@ -377,7 +377,7 @@ class plotter:
         plt.ylabel('delay difference from the mean', fontweight='bold', fontsize=15)
         plt.xticks(xlable)
         plt.legend()
-        plt.savefig(self.directory + 'delay difference of optimal edges from mean after init and after training')
+        plt.savefig(self.directory + 'delay difference of optimal edges from mean after init and after training.png')
         plt.close()
 
     def plot_diff_from_optimal_path_of_selected_shortest_paths(self, abs_diff_of_delay_from_optimal):
@@ -386,7 +386,7 @@ class plotter:
         plt.plot(x, abs_diff_of_delay_from_optimal)
         plt.xlabel("time")
         plt.ylabel("mse of the selected shortest path from optimal shortest path")
-        plt.savefig(self.directory + 'absolute difference of the selected shortest path from optimal shortest path', format="PNG")
+        plt.savefig(self.directory + 'absolute difference of the selected shortest path from optimal shortest path.png', format="PNG")
         plt.close()
 
     def plot_optimal_path_selected_percentage_list_with_increasing_monitors(self, monitors_deployment_percentage, optimal_path_selected_rate):
@@ -446,7 +446,7 @@ class plotter:
         plt.ylabel('Freq. of optimal action (%)')
         plt.xticks(br1, x_label)
         plt.legend(fontsize=25, loc='lower left')
-        plt.savefig(self.directory + 'Scability_of Minitor_op_rate')
+        plt.savefig(self.directory + 'Scability_of Minitor_op_rate.png')
         plt.close()
 
     def plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(self,monitors_deployment_percentage,subito_diff, UCB1_diff, subito_perfect_diff):
@@ -472,7 +472,7 @@ class plotter:
         plt.ylabel('Avg. regret (msec)')
         plt.xticks(br1, x_label)
         plt.legend(fontsize=25, loc='lower left')
-        plt.savefig(self.directory + "Scability_of Minitor_delay_diff")
+        plt.savefig(self.directory + "Scability_of Minitor_delay_diff.png")
         plt.close()
 
     def plot_percentage_of_optimal_path_selected_rate_for_various_network_size(self, topology_size, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate):
@@ -501,7 +501,7 @@ class plotter:
         plt.ylabel('Freq. of optimal action (%)')
         plt.xticks(br1, x_label)
         plt.legend(fontsize=25, loc='lower left')
-        plt.savefig(self.directory + 'scalability_of_network_size_op_rate')
+        plt.savefig(self.directory + 'scalability_of_network_size_op_rate.png')
         plt.close()
 
     def plot_abs_delay_of_optimal_path_selected_for_various_network_size(self,topology_size, subito_diff, UCB1_diff, subito_perfect_diff):
@@ -526,12 +526,12 @@ class plotter:
         plt.ylabel('Avg. regret (msec)')
         plt.xticks(br1, x_label)
         plt.legend(fontsize=25, loc='upper left')
-        plt.savefig(self.directory + 'Scability_of_network_size_delay_diff')
+        plt.savefig(self.directory + 'Scability_of_network_size_delay_diff.png')
         plt.close()
 
     def plot_traffic_overhead_BR_50nodes(self,monitors_deployment_percentage, subito_NT_traffic_overhead, subito_MAB_trffic_overhead, UCB1_traffic_overhead):
         barWidth = 0.25
-        fig = plt.figure(figsize=(10, 10))
+        fig = plt.figure(figsize=(14, 10))
         # set height of bar
         x = monitors_deployment_percentage
         x_label = [str(pert) for pert in monitors_deployment_percentage]
@@ -551,13 +551,13 @@ class plotter:
         plt.xlabel('% of nodes selected as monitors')
         plt.ylabel('Traffic overhead')
         plt.xticks(br1, x_label)
-        plt.legend(fontsize=25, loc='lower left')
-        plt.savefig(self.directory + "Traffic overhead for BR50 with increasing monitor size")
+        plt.legend(fontsize=25, loc='upper left')
+        plt.savefig(self.directory + "Traffic overhead for BR50 with increasing monitor size.png")
         plt.close()
 
     def plot_traffic_overhead_for_various_network_size(self, topology_size, subito_MAB_trffic_overhead, subito_NT_traffic_overhead, UCB1_traffic_overhead):
         barWidth = 0.25
-        fig = plt.figure(figsize=(10, 10))
+        fig = plt.figure(figsize=(14, 10))
         # set height of bar
         x_label = [str(size) for size in topology_size]
         br1 = np.arange(len(subito_MAB_trffic_overhead))
@@ -577,7 +577,7 @@ class plotter:
         plt.ylabel('Traffic overhead')
         plt.xticks(br1, x_label)
         plt.legend(fontsize=25, loc='upper left')
-        plt.savefig(self.directory + 'Scability_of_network_size_traffic_overhead')
+        plt.savefig(self.directory + 'traffic_overhead_network_size.png')
         plt.close()
 
     def plot_percentage_of_optimal_path_selected_rate_BTN(self, monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate ):
@@ -607,7 +607,7 @@ class plotter:
         plt.ylabel('Freq. of optimal action (%)')
         plt.xticks(br1, x_label)
         plt.legend(fontsize=25, loc='lower left')
-        plt.savefig(self.directory + 'Scability_of Minitor_op_rate_BTN')
+        plt.savefig(self.directory + 'Scability_of Minitor_op_rate_BTN.png')
         plt.close()
 
     def plot_abs_delay_of_optimal_path_selected_from_mean_BTN(self,monitors_deployment_percentage,subito_diff,UCB1_diff, subito_perfect_diff):
@@ -633,5 +633,31 @@ class plotter:
         plt.ylabel('Avg. regret (msec)')
         plt.xticks(br1, x_label)
         plt.legend(fontsize=25, loc='lower left')
-        plt.savefig(self.directory + "Scability_of Minitor_delay_diff_BTN")
+        plt.savefig(self.directory + "Scability_of Minitor_delay_diff_BTN.png")
+        plt.close()
+
+    def plot_traffic_overhead_BTN(self, monitors_deployment_percentage, subito_MAB_trffic_overhead, subito_NT_traffic_overhead,UCB1_traffic_overhead):
+        barWidth = 0.25
+        fig = plt.figure(figsize=(12, 10))
+        # set height of bar
+        x = monitors_deployment_percentage
+        x_label = [str(pert) for pert in monitors_deployment_percentage]
+        br1 = np.arange(len(subito_MAB_trffic_overhead))
+        br2 = [x + barWidth for x in br1]
+        br3 = [x + barWidth for x in br2]
+        # Make the plot
+        plt.rcParams.update({'font.size': 30})
+        plt.bar(br1, UCB1_traffic_overhead, width=barWidth,
+                edgecolor='grey', label='UCB1', hatch='/')
+        plt.bar(br2, subito_MAB_trffic_overhead, width=barWidth,
+                edgecolor='grey', label='Subito_MAB', hatch='o')
+        plt.bar(br3, subito_NT_traffic_overhead, width=barWidth,
+                edgecolor='grey', label='Subito_NT', hatch='*')
+
+        # Adding Xticks
+        plt.xlabel('% of nodes selected as monitors')
+        plt.ylabel('Traffic overhead')
+        plt.xticks(br1, x_label)
+        plt.legend(fontsize=25, loc='upper left')
+        plt.savefig(self.directory + "traffic_overhead_BTN.png")
         plt.close()
