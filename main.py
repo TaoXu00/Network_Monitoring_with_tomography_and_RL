@@ -200,18 +200,23 @@ class main:
         subito_op_rate = [0.709256667, 0.75291074, 0.787211903, 0.80995684, 0.869051943]
         UCB1_op_rate = [0.56466, 0.557230555, 0.56462738, 0.56482263, 0.57180575]
         subito_perfect_op_rate = [0.8338175, 0.864745, 0.86949619, 0.87432776, 0.8759815]
+        BoundNT_op_rate=[0.48122,  0.42990222, 0.41871429, 0.39760421, 0.375116]
 
         UCB1_diff = [4.55981845, 4.32474493, 4.284358305, 4.25667079, 4.15141293]
         subito_diff = [3.572746567, 2.762555307, 2.438297613, 2.284643933, 1.743578883]
         subito_perfect_diff = [2.236884885, 1.71805823, 1.60399359, 1.53417783, 1.49493546]
+        BoundNT_diff=[5.38756999, 5.86999576, 6.06494927, 6.2990515, 6.444486]
 
         UCB1_traffic_overhead=[38.70647098, 191.73615744,  455.29119413,  867.96364243, 1290.53569046]
         subito_MAB_trffic_overhead=[ 36.44358334,166.6565, 384.0626667,	700.6428667, 1107.435267]
         subito_NT_traffic_overhead=[31.25533334, 103.3804,	146.1748,	175.6659333, 190.4278667]
         bound_NT_traffic_overhead=[]
 
-        mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BR_50nodes(monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate)
-        mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(monitors_deployment_percentage, subito_diff, UCB1_diff, subito_perfect_diff)
+        #mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BR_50nodes(monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate)
+        #mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(monitors_deployment_percentage, subito_diff, UCB1_diff, subito_perfect_diff)
+        mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BR_50nodes_line(monitors_deployment_percentage, subito_op_rate, UCB1_op_rate,subito_perfect_op_rate,BoundNT_op_rate)
+        mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes_line(monitors_deployment_percentage, subito_diff, UCB1_diff, subito_perfect_diff, BoundNT_diff)
+
         mynetwork.plotter.plot_traffic_overhead_BR_50nodes(monitors_deployment_percentage, subito_NT_traffic_overhead, subito_MAB_trffic_overhead, UCB1_traffic_overhead)
         #plot the scalability performance of network size 20, 40, 60, 80 nodes with fixed 30% monitors deployed
         topology_size=[20, 40, 60, 80]
@@ -270,10 +275,11 @@ multi_times_optimal_path_selected_percentage_list=[]
 multi_times_avg_diff_of_delay_from_optimal_list=[]
 n=num_run
 i=0
+
 '''
 mynetwork=main(3000)
 mynetwork.plot_final_result(mynetwork)
-mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"mse_results/links_delay_during_training_with_different_monitor_size_total.txt")
+#mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"mse_results/links_delay_during_training_with_different_monitor_size_total.txt")
 '''
 
 while(i<n):

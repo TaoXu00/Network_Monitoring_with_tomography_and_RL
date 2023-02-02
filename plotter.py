@@ -440,6 +440,52 @@ class plotter:
         plt.savefig(self.directory + 'abs error from the optimal shortest paths.png')
         plt.legend()
         plt.close()
+    def plot_percentage_of_optimal_path_selected_rate_BR_50nodes_line(self, monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate,BoundNT_op_rate):
+        x = np.arange(10, 60, 10)
+        fig = plt.figure()
+        plt.rcParams.update({'font.size': 13})
+        plt.grid(True)
+        colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
+        # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
+        markers = ["s", "^", "+", "p", "x"]
+        plt.plot(x, subito_perfect_op_rate, label='Subito*', color=colors[0],
+                     marker=markers[0])
+        plt.plot(x, subito_op_rate, label='Subito', color=colors[1],
+                 marker=markers[1])
+        plt.plot(x, UCB1_op_rate, label='UCB1', color=colors[2],
+                 marker=markers[2])
+        plt.plot(x, BoundNT_op_rate, label='BoundNT', color=colors[3],
+                 marker=markers[3])
+        plt.xticks(x)
+        plt.xlabel("% of nodes selected as monitors")
+        plt.ylabel("Rate of optimal actions (%)")
+        plt.legend(fontsize=13)
+        # plt.grid(True)
+        plt.savefig(self.directory + "Rate_of_optimal_actions_with_increasing_monitor_training_new.png")
+        plt.close()
+
+    def plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes_line(self, monitors_deployment_percentage, subito_diff, UCB1_diff, subito_perfect_diff, BoundNT_diff):
+        x = np.arange(10, 60, 10)
+        fig = plt.figure()
+        plt.grid(True)
+        plt.rcParams.update({'font.size': 13})
+        colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
+        # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
+        markers = ["s", "^", "+", "p", "x"]
+        plt.plot(x, subito_perfect_diff, label='Subito*', color=colors[0],
+                 marker=markers[0])
+        plt.plot(x, subito_diff, label='Subito', color=colors[1],
+                 marker=markers[1])
+        plt.plot(x, UCB1_diff, label='UCB1', color=colors[2],
+                 marker=markers[2])
+        plt.plot(x, BoundNT_diff, label='BoundNT', color=colors[3],
+                 marker=markers[3])
+        plt.xticks(x)
+        plt.xlabel("% of nodes selected as monitors")
+        plt.ylabel("Avg. regret (msec)")
+        plt.legend(fontsize=13)
+        plt.savefig(self.directory + "Regret_of_optimal_actions_with_increasing_monitor_training_new.png")
+        plt.close()
 
     def plot_percentage_of_optimal_path_selected_rate_BR_50nodes(self,monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate):
         barWidth = 0.25
