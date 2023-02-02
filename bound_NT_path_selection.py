@@ -164,6 +164,9 @@ class bound_NT_path_selection:
         sum_n_links_origin =0
         sum_n_links_reduced=0
         rate_of_optimal_actions_list=[]
+        path_oscilation_list=[]
+        counter=0
+        dict_n_paths = {}
         for i in range(time):
             ##compute the mse of all the links in the graph during training
             #self.logger.info("t= %s" %(self.t))
@@ -178,12 +181,29 @@ class bound_NT_path_selection:
             explored_path_list = []
             total_diff=0
             optimal_actions=0
+            # inilization of the paths dict
+            if counter == 0:
+                for monitor_pair in monitor_pair_list:
+                    dict_n_paths[monitor_pair] = set()
+            if counter == 200:  # 200 iterations, add the path number to a list
+                # iterate the dictionary
+                sum_paths = 0
+                for key in dict_n_paths:
+                    sum_paths += len(dict_n_paths[key])
+                avg = sum_paths / len(monitor_pair_list)
+                path_oscilation_list.append(avg)
+                counter = 0
+                for monitor_pair in monitor_pair_list:
+                    dict_n_paths[monitor_pair] = set()
             for monitor_pair in monitor_pair_list:
                 m1=monitor_pair[0]
                 m2=monitor_pair[1]
                 shortest_path=self.shortest_path(G, m1, m2)
                 if shortest_path==optimal_path_dict[monitor_pair]:
                     optimal_actions+=1
+                # self.logger.debug("shortest path %s" %(shortest_path))
+                #collect paths it used within 200 iterations
+                dict_n_paths[monitor_pair].add(tuple(shortest_path))
                 #shortest_path = self.LLC_policy_without_MAB(G, m1, m2)
                 if shortest_path == optimal_path_dict[monitor_pair] and self.t>=time-1000:
                     Dict_time_of_optimal_path_selected[monitor_pair].append(1)
@@ -218,7 +238,7 @@ class bound_NT_path_selection:
             x, count,n_links_origin,n_links_reduced = self.nt.nt_engine(G, path_list)
             sum_n_links_origin+=n_links_origin
             sum_n_links_reduced+=n_links_reduced
-            #count=0;
+            counter+=1
             computed_edge_num.append(count)
             # the MBA variables should be updated according to the results computed by the NT.
             self.update_MBA_variabels_with_NT(G, x, explored_edge_set, edge_average_delay_dict)
@@ -232,6 +252,12 @@ class bound_NT_path_selection:
             if self.t < time+len(G.edges):
                 self.topo.assign_link_delay(G)
             self.plot_edge_delay_difference_at_different_time_point(G)
+        sum_paths = 0
+        for key in dict_n_paths:
+            sum_paths += len(dict_n_paths[key])
+        avg = sum_paths / len(monitor_pair_list)
+        path_oscilation_list.append(avg)
+        self.logger.debug("current path oscilation_list:%s" % (path_oscilation_list))
         for monitor_pair in monitor_pair_list:
             count_list = Dict_time_of_optimal_path_selected[monitor_pair]
             rate = sum(count_list[-1000:])/1000
@@ -257,7 +283,7 @@ class bound_NT_path_selection:
         average_probing_links_origin=sum_n_links_origin/time
         average_probing_links_reduced=sum_n_links_reduced/time
         expo_count=0
-        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, total_mse_optimal_edges_array, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list
+        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, total_mse_optimal_edges_array, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list
     def compute_rewards_mse(self,total_rewards_dict, optimal_delay_dict):
         key_list = list(total_rewards_dict.keys())
         rewards_mse_list = []
