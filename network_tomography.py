@@ -33,14 +33,37 @@ class network_tomography:
         #self.logger.debug("%d links in reduced path list" %(n_links_reduced))
         x, count=self.back_substitution(upper_triangular)
         #self.logger.debug("%d paths in path_matrix" %(len(path_matrix)))
-        #optimal_probing_paths=self.find_optimal_prob_paths(path_matrix)
+        optimal_probing_paths=self.find_optimal_prob_paths(path_matrix)
+        #any_probing_paths=self.find_any_prob_paths(path_matrix)
         #self.logger.debug("%d paths in optimal_probing_paths" %(len(optimal_probing_paths)))
         #self.logger.debug("optimal_probing_paths %s" % (optimal_probing_paths))
-        #n_links_optimal_path=np.count_nonzero(optimal_probing_paths)
+        n_links_optimal_path=np.count_nonzero(optimal_probing_paths)
+        #n_links_any_probe_path=np.count_nonzero(any_probing_paths)
         #self.logger.debug("%d links in optimal basis paths" %(n_links_optimal_path))
         #x, count = self.edge_delay_infercement(G, M, inds, uninds)
-        n_links_optimal_path=0
-        return x, count, n_links_origin,n_links_optimal_path
+        n_links_any_probe_path=0
+        return x, count, n_links_origin,n_links_optimal_path, n_links_any_probe_path
+    def find_any_prob_paths(self, path_matrix):
+        path_matrix = np.array(path_matrix)
+        np.random.shuffle(path_matrix)
+        probing_paths = []
+        # self.logger.debug("shuffled_paths: %s" % (path_matrix))
+        # self.logger.debug("after sort: %s" % (num_links_after_sort))
+        for path in path_matrix:
+            # m_optimal_probing_path=[]
+            # self.logger.debug("#optimal_probing_paths1: %d" % (len(optimal_probing_paths)))
+            # m_optimal_probing_path =optimal_probing_paths
+            # self.logger.debug("copy_probing_paths1: %s" % (m_optimal_probing_path))
+            rank1 = np.linalg.matrix_rank(probing_paths)
+            probing_paths.append(path)
+            rank2 = np.linalg.matrix_rank(probing_paths)
+            # self.logger.debug("compare_probing_paths1: %d" % (len(optimal_probing_paths)))
+            # self.logger.debug("rank1 %d, rank2: %d" % (rank1, rank2))
+            if rank2 <= rank1:
+                probing_paths = probing_paths[:-1]
+                # self.logger.debug("deleting the added row")
+                # self.logger.debug("%d paths in the optimal_probing path" %(len(optimal_probing_paths)))
+        return probing_paths
 
     def find_optimal_prob_paths(self, path_matrix):
         sorted_paths=sorted(path_matrix, key=lambda row: sum(row))

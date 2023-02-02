@@ -281,7 +281,6 @@ class multi_armed_bandit:
         correct_shortest_path_selected_rate = []
         optimal_edges_delay_difference_after_inti=[]
         optimal_edges_delay_difference_after_training=[]
-
         for link in optimal_links:
             optimal_edges_delay_difference_after_inti.append(abs(self.Dict_edge_theta[link] - G[link[0]][link[1]]["delay_mean"]))
         self.logger.debug("%d optimal links: %s" %(len(optimal_links), optimal_links))
@@ -295,7 +294,11 @@ class multi_armed_bandit:
             Dict_time_of_optimal_path_selected[monitor_pair] = []
         sum_n_links_origin =0
         sum_n_links_reduced=0
+        sum_n_links_reduced_random=0
         rate_of_optimal_actions_list=[]
+        path_oscilation_list=[]
+        counter=0
+        dict_n_paths = {}
         for i in range(time):
             ##compute the mse of all the links in the graph during training
             #self.logger.info("t= %s" %(self.t))
@@ -310,13 +313,34 @@ class multi_armed_bandit:
             explored_path_list = []
             total_diff=0
             optimal_actions=0
+            #inilization of the paths dict
+            if counter==0:
+                for monitor_pair in monitor_pair_list:
+                    dict_n_paths[monitor_pair] =set()
+            if counter==200:  #200 iterations, add the path number to a list
+                #iterate the dictionary
+                sum_paths=0
+                for key in dict_n_paths:
+                    sum_paths+=len(dict_n_paths[key])
+                avg=sum_paths/len(monitor_pair_list)
+                path_oscilation_list.append(avg)
+                counter=0
+                for monitor_pair in monitor_pair_list:
+                    dict_n_paths[monitor_pair] =set()
+                #self.logger.debug("current path oscilation_list:%s" %(path_oscilation_list))
+                #self.logger.debug("reset the dict: %s" %(dict_n_paths))
+            #self.logger.debug(dict_n_paths)
             for monitor_pair in monitor_pair_list:
                 m1=monitor_pair[0]
                 m2=monitor_pair[1]
                 shortest_path=self.LLC_policy(G, m1, m2, llc_factor)
                 if shortest_path==optimal_path_dict[monitor_pair]:
                     optimal_actions+=1
+                #self.logger.debug("shortest path %s" %(shortest_path))
+                dict_n_paths[monitor_pair].add(tuple(shortest_path))
                 #shortest_path = self.LLC_policy_without_MAB(G, m1, m2)
+                #collect the paths it used in 200 iterations
+
                 if shortest_path == optimal_path_dict[monitor_pair] and self.t>=time-1000:
                     Dict_time_of_optimal_path_selected[monitor_pair].append(1)
                 else:
@@ -327,6 +351,7 @@ class multi_armed_bandit:
                 explored_path_list.append(shortest_path)
                 rewards = nx.path_weight(G, shortest_path, 'delay')
                 total_rewards_dict[monitor_pair].append(rewards)
+
             rate_of_optimal_actions_list.append(optimal_actions/len(monitor_pair_list))
             #self.logger.debug("rate_of_optimal_actions_list: %s" %(rate_of_optimal_actions_list))
             diff_of_delay_from_optimal_real_time.append(total_diff/len(optimal_delay_dict))
@@ -355,10 +380,11 @@ class multi_armed_bandit:
                     if (edge[0], edge[1]) not in explored_edge_set and (edge[1], edge[0]) not in explored_edge_set:
                         explored_edge_set.append(edge)
             #call NT as a submoudle
-            x, count,n_links_origin,n_links_reduced = self.nt.nt_engine(G, path_list, b)
+            x, count,n_links_origin,n_links_reduced, n_links_any_probe_path = self.nt.nt_engine(G, path_list, b)
             sum_n_links_origin+=n_links_origin
             sum_n_links_reduced+=n_links_reduced
-            #count=0;
+            sum_n_links_reduced_random+=n_links_any_probe_path
+            counter+=1
             computed_edge_num.append(count)
             # the MBA variables should be updated according to the results computed by the NT.
             self.update_MBA_variabels_with_NT(G, x, explored_edge_set, edge_average_delay_dict)
@@ -372,6 +398,13 @@ class multi_armed_bandit:
             if self.t < time+len(G.edges):
                 self.topo.assign_link_delay(G)
             self.plot_edge_delay_difference_at_different_time_point(G)
+
+        sum_paths = 0
+        for key in dict_n_paths:
+            sum_paths += len(dict_n_paths[key])
+        avg = sum_paths / len(monitor_pair_list)
+        path_oscilation_list.append(avg)
+        self.logger.debug("current path oscilation_list:%s" %(path_oscilation_list))
         for monitor_pair in monitor_pair_list:
             count_list = Dict_time_of_optimal_path_selected[monitor_pair]
             rate = sum(count_list[-1000:])/1000
@@ -421,11 +454,14 @@ class multi_armed_bandit:
         average_computed_edge_num = sum(computed_edge_num) / len(computed_edge_num)
         average_probing_links_origin=sum_n_links_origin/time
         average_probing_links_reduced=sum_n_links_reduced/time
+        average_probing_links_reduced_random=sum_n_links_reduced_random/time
+        self.logger.debug("optimal_reduced_links %d" %(average_probing_links_reduced))
+        self.logger.debug("random_reduced_links %d" %(average_probing_links_reduced_random))
         #average_computed_edge_num=0
         #compute the last 1000 correct select
         #optimal_path_selected_rate=sum(correct_shortest_path_selected_rate[-1000:])/1000
         #return rewards_mse_list,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num,optimal_path_selected_rate, avg_diff_of_delay_from_optimal
-        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, total_mse_optimal_edges_array,edge_exploration_during_training, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list
+        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, total_mse_optimal_edges_array,edge_exploration_during_training, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list
     def compute_rewards_mse(self,total_rewards_dict, optimal_delay_dict):
         key_list = list(total_rewards_dict.keys())
         rewards_mse_list = []
