@@ -206,8 +206,9 @@ class main:
         subito_perfect_diff = [2.236884885, 1.71805823, 1.60399359, 1.53417783, 1.49493546]
 
         UCB1_traffic_overhead=[38.70647098, 191.73615744,  455.29119413,  867.96364243, 1290.53569046]
-        subito_MAB_trffic_overhead=[ 14.551, 163.06533333, 397.94366667,   721.282,  1158.03066667]
-        subito_NT_traffic_overhead=[14.551,  88.10966667, 128.10766667, 180.38333333, 195.063]
+        subito_MAB_trffic_overhead=[ 36.44358334,166.6565, 384.0626667,	700.6428667, 1107.435267]
+        subito_NT_traffic_overhead=[31.25533334, 103.3804,	146.1748,	175.6659333, 190.4278667]
+        bound_NT_traffic_overhead=[]
 
         mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BR_50nodes(monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate)
         mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(monitors_deployment_percentage, subito_diff, UCB1_diff, subito_perfect_diff)
