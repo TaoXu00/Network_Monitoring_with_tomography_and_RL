@@ -232,7 +232,6 @@ class plotter:
             plt.plot(x, multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors[i],
                      label=labels[i], color=colors[i],
                      marker=markers[i])
-        plt.xticks(x)
         plt.xlabel("time")
         plt.ylabel(" Traffic Overhead")
         plt.legend(fontsize=13)
