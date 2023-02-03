@@ -167,6 +167,7 @@ class bound_NT_path_selection:
         path_oscilation_list=[]
         counter=0
         dict_n_paths = {}
+        traffic_overhead_every_200_iterations=[]
         for i in range(time):
             ##compute the mse of all the links in the graph during training
             #self.logger.info("t= %s" %(self.t))
@@ -185,6 +186,7 @@ class bound_NT_path_selection:
             if counter == 0:
                 for monitor_pair in monitor_pair_list:
                     dict_n_paths[monitor_pair] = set()
+                    traffic_overhead_in_200_iterations=0
             if counter == 200:  # 200 iterations, add the path number to a list
                 # iterate the dictionary
                 sum_paths = 0
@@ -192,9 +194,12 @@ class bound_NT_path_selection:
                     sum_paths += len(dict_n_paths[key])
                 avg = sum_paths / len(monitor_pair_list)
                 path_oscilation_list.append(avg)
+                avg_200_iteration=traffic_overhead_in_200_iterations/200
+                traffic_overhead_every_200_iterations.append(avg_200_iteration)
                 counter = 0
                 for monitor_pair in monitor_pair_list:
                     dict_n_paths[monitor_pair] = set()
+            sum_traffic_overhead_one_iteration=0
             for monitor_pair in monitor_pair_list:
                 m1=monitor_pair[0]
                 m2=monitor_pair[1]
@@ -238,6 +243,7 @@ class bound_NT_path_selection:
             x, count,n_links_origin,n_links_reduced = self.nt.nt_engine(G, path_list)
             sum_n_links_origin+=n_links_origin
             sum_n_links_reduced+=n_links_reduced
+            traffic_overhead_in_200_iterations+=n_links_reduced
             counter+=1
             computed_edge_num.append(count)
             # the MBA variables should be updated according to the results computed by the NT.
@@ -258,6 +264,10 @@ class bound_NT_path_selection:
         avg = sum_paths / len(monitor_pair_list)
         path_oscilation_list.append(avg)
         self.logger.debug("current path oscilation_list:%s" % (path_oscilation_list))
+
+        avg_overhead=np.average(traffic_overhead_in_200_iterations)
+        traffic_overhead_every_200_iterations.append(avg_overhead)
+        self.logger.debug("current traffic overhead list: %s" % (traffic_overhead_every_200_iterations))
         for monitor_pair in monitor_pair_list:
             count_list = Dict_time_of_optimal_path_selected[monitor_pair]
             rate = sum(count_list[-1000:])/1000
@@ -283,7 +293,7 @@ class bound_NT_path_selection:
         average_probing_links_origin=sum_n_links_origin/time
         average_probing_links_reduced=sum_n_links_reduced/time
         expo_count=0
-        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, total_mse_optimal_edges_array, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list
+        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, total_mse_optimal_edges_array, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list,  traffic_overhead_every_200_iterations
     def compute_rewards_mse(self,total_rewards_dict, optimal_delay_dict):
         key_list = list(total_rewards_dict.keys())
         rewards_mse_list = []

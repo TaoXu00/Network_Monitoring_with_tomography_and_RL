@@ -239,6 +239,33 @@ class plotter:
         plt.savefig(self.directory + "Rate_of_optimal_actions_with_increasing_monitor_training.png")
         plt.close()
 
+    def plot_avg_traffic_overhead_every_200_iterations(self, monitors_deployment_percentage, multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors):
+        labels = []
+        for per in monitors_deployment_percentage:
+            labels.append(str(per) + '%')
+        print("new_avg_with_increasing_monitors row num: %d:" % (len(multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors)))
+        print("new_avg_with_increasing_monitors column num %d:" % (len(multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors)))
+
+        x = np.arange(200, 3200, 200)
+        fig = plt.figure()
+        plt.rcParams.update({'font.size': 13})
+
+        colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
+        # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
+        markers = ["s", "^", "+", "p", "x"]
+        for i in range(len(multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors)):
+            plt.plot(x, multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors[i], label=labels[i], color=colors[i],
+                     marker=markers[i])
+        plt.xticks(x)
+        plt.xlabel("time")
+        plt.ylabel(" Traffic Overhead")
+        plt.legend(fontsize=13)
+        plt.grid(True)
+        plt.savefig(self.directory + "Traffic Overhead.png")
+        plt.close()
+
+
+
     def plot_avg_path_oscilation_every_200_times(self, monitors_deployment_percentage, multi_times_avg_path_oscilation_array):
         labels = []
         for per in monitors_deployment_percentage:

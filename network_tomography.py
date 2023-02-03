@@ -44,6 +44,8 @@ class network_tomography:
         #step6: assgin the average of the probed links to the uncovered links
         n_probed_links=np.count_nonzero(x)
         avg=sum(x)/n_probed_links
+        if avg<0:
+            avg=0
         for i in range(len(x)):
             if x[i] ==0 or x[i]<0:
                 x[i]=avg
