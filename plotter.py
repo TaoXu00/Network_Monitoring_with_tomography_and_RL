@@ -210,6 +210,35 @@ class plotter:
         #plt.grid(True)
         plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training")
         plt.close()
+
+    def plot_avg_traffic_overhead_every_200_iterations(self, monitors_deployment_percentage,
+                                                       multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors):
+        labels = []
+        for per in monitors_deployment_percentage:
+            labels.append(str(per) + '%')
+        print("new_avg_with_increasing_monitors row num: %d:" % (
+            len(multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors)))
+        print("new_avg_with_increasing_monitors column num %d:" % (
+            len(multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors)))
+
+        x = np.arange(200, 3200, 200)
+        fig = plt.figure()
+        plt.rcParams.update({'font.size': 13})
+
+        colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
+        # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
+        markers = ["s", "^", "+", "p", "x"]
+        for i in range(len(multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors)):
+            plt.plot(x, multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors[i],
+                     label=labels[i], color=colors[i],
+                     marker=markers[i])
+        plt.xticks(x)
+        plt.xlabel("time")
+        plt.ylabel(" Traffic Overhead")
+        plt.legend(fontsize=13)
+        plt.grid(True)
+        plt.savefig(self.directory + "Traffic Overhead.png")
+        plt.close()
     def plot_avg_path_oscilation_every_200_times(self, monitors_deployment_percentage,multi_times_avg_path_oscilation_array):
         labels = []
         for per in monitors_deployment_percentage:
@@ -544,7 +573,53 @@ class plotter:
         plt.savefig(self.directory + "Scability_of Minitor_delay_diff")
         plt.close()
 
-    def plot_percentage_of_optimal_path_selected_rate_for_various_network_size(self, topology_size, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate):
+    def plot_percentage_of_optimal_path_selected_rate_for_various_network_size_line(self, topology_size, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate, boundNT_op_rate):
+        x= topology_size
+        fig = plt.figure()
+        plt.rcParams.update({'font.size': 13})
+        plt.grid(True)
+        colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
+        # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
+        markers = ["s", "^", "+", "p", "x"]
+        plt.plot(x, subito_perfect_op_rate, label='Subito*', color=colors[0],
+                 marker=markers[0])
+        plt.plot(x, subito_op_rate, label='Subito', color=colors[1],
+                 marker=markers[1])
+        plt.plot(x, UCB1_op_rate, label='UCB1', color=colors[2],
+                 marker=markers[2])
+        plt.plot(x, boundNT_op_rate, label='BoundNT', color=colors[3],
+                 marker=markers[3])
+        plt.xticks(x)
+        plt.xlabel("network size")
+        plt.ylabel("Freq. of optimal actions (%)")
+        plt.legend(fontsize=13)
+        plt.grid(True)
+        plt.savefig(self.directory + "Rate_of_optimal_actions_with_various_network_size_new.png")
+        plt.close()
+    def plot_abs_delay_of_optimal_path_selected_for_various_network_size_line(self, topology_size, subito_diff, UCB1_diff,subito_perfect_diff, boundNT_diff):
+        x = topology_size
+        fig = plt.figure()
+        plt.rcParams.update({'font.size': 13})
+        plt.grid(True)
+        colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
+        # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
+        markers = ["s", "^", "+", "p", "x"]
+        plt.plot(x, subito_perfect_diff, label='Subito*', color=colors[0],
+                 marker=markers[0])
+        plt.plot(x, subito_diff, label='Subito', color=colors[1],
+                 marker=markers[1])
+        plt.plot(x, UCB1_diff, label='UCB1', color=colors[2],
+                 marker=markers[2])
+        plt.plot(x, boundNT_diff, label='BoundNT', color=colors[3],
+                 marker=markers[3])
+        plt.xticks(x)
+        plt.xlabel("network size")
+        plt.ylabel("Avg. regret (msec)")
+        plt.legend(fontsize=13)
+        plt.grid(True)
+        plt.savefig(self.directory + "Abs_diff_from_optimal_actions_with_various_network_size_new.png")
+        plt.close()
+    def plot_percentage_of_optimal_path_selected_rate_for_varius_network_size(self, topology_size, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate):
         barWidth = 0.25
         fig = plt.figure(figsize=(10, 10))
         # set height of bar
