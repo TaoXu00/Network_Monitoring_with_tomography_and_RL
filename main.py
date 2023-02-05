@@ -259,7 +259,14 @@ class main:
 
         mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BTN(monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate )
         mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BTN(monitors_deployment_percentage,subito_diff,UCB1_diff, subito_perfect_diff)
-
+    def plot_traffic_overhead_of_subito(self):
+        multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors=[]
+        multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors.append([23.88, 23.7225, 23.725, 23.6975, 23.799, 23.781666666666666, 23.826428571428572, 23.844375, 23.850555555555555, 23.8665, 23.89727272727273, 23.855, 23.860384615384614, 23.84464285714286, 23.845666666666666])
+        multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors.append([85.345, 86.1, 86.45666666666666, 86.28125, 85.929, 85.51833333333333, 85.405, 85.40875, 85.46888888888888, 85.375, 85.31090909090909, 85.35958333333333, 85.425, 85.49035714285715, 85.40033333333334])
+        multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors.append([143.095, 141.91, 141.45833333333334, 141.43375, 141.331, 141.455, 141.49642857142857, 141.3525, 141.38222222222223, 141.269, 141.20272727272726, 141.28625, 141.28192307692308, 141.185, 141.30733333333333])
+        multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors.append([199.185, 196.55, 196.16333333333333, 195.39875, 195.389, 195.3325, 195.67785714285714, 195.510625, 195.2588888888889, 195.1845, 195.3318181818182, 195.22666666666666, 195.1380769230769, 194.9882142857143, 194.85866666666666])
+        multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors.append([222.245, 223.7175, 223.51, 223.69875, 223.841, 223.6375, 223.72, 223.84875, 223.62722222222223, 223.5515, 223.49318181818182, 223.49041666666668, 223.44307692307692, 223.33714285714285, 223.45566666666667])
+        self.plotter.plot_avg_traffic_overhead_every_200_iterations([10,20,30,40,50], multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors)
 '''
 argv1: network topology type
 argv2: number of nodes
@@ -282,17 +289,17 @@ multi_times_avg_diff_of_delay_from_optimal_list=[]
 n=num_run
 i=0
 
-'''
-mynetwork=main(3000)
-mynetwork.plot_final_result(mynetwork)
-mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"mse_results/links_delay_during_training_with_different_monitor_size_total.txt")
-'''
 
+mynetwork=main(3000)
+#mynetwork.plot_final_result(mynetwork)
+#mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"mse_results/links_delay_during_training_with_different_monitor_size_total.txt")
+mynetwork.plot_traffic_overhead_of_subito()
+'''
 while(i<n):
     mynetwork=main(3000)
     G =mynetwork.creat_topology(topo_type, num_node, degree)
     #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors, total_optimal_edges_mse_list_with_increasing_monitors,monitors_deployment_percentage, average_probing_links_origin_list, average_probing_links_reduced_list, rate_of_optimal_actions_list_with_increasing_monitors, path_oscilation_list_with_increasing_monitors, multi_times_traffic_overhead_every_200_iterations_with_increasing_monitors, traffic_overhead_every_200_iterations_with_increasing_monitors = mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor)
+    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors, total_optimal_edges_mse_list_with_increasing_monitors,monitors_deployment_percentage, average_probing_links_origin_list, average_probing_links_reduced_list, rate_of_optimal_actions_list_with_increasing_monitors, path_oscilation_list_with_increasing_monitors, traffic_overhead_every_200_iterations_with_increasing_monitors = mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor)
     #print("n=%d" %(i))
     #print(optimal_path_selected_percentage_list,avg_diff_of_delay_from_optimal_list)
     if i==0:
@@ -367,7 +374,7 @@ mynetwork.plotter.plot_avg_path_oscilation_every_200_times(monitors_deployment_p
 np.savetxt("Subito_ocsillition_every_200_times_BR50_10%-50%.txt",multi_times_avg_path_oscilation_array)
 mynetwork.plotter.plot_avg_optimal_actions_every_200_times(monitors_deployment_percentage,multi_avg_optimal_actions_with_increasing_monitors)
 mynetwork.plotter.plot_avg_traffic_overhead_every_200_iterations(monitors_deployment_percentage, multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors)
-
+'''
 '''test
 array1=np.array([[0.1, 0.2, 0.3],
                 [0.2, 0.3, 0.4],
@@ -379,3 +386,5 @@ sum=np.add(array1,array2)
 three_avg=sum/3
 print(three_avg)
 '''
+
+

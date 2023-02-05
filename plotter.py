@@ -211,8 +211,7 @@ class plotter:
         plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training")
         plt.close()
 
-    def plot_avg_traffic_overhead_every_200_iterations(self, monitors_deployment_percentage,
-                                                       multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors):
+    def plot_avg_traffic_overhead_every_200_iterations(self, monitors_deployment_percentage, multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors):
         labels = []
         for per in monitors_deployment_percentage:
             labels.append(str(per) + '%')
@@ -238,6 +237,7 @@ class plotter:
         plt.grid(True)
         plt.savefig(self.directory + "Traffic Overhead.png")
         plt.close()
+
     def plot_avg_path_oscilation_every_200_times(self, monitors_deployment_percentage,multi_times_avg_path_oscilation_array):
         labels = []
         for per in monitors_deployment_percentage:
