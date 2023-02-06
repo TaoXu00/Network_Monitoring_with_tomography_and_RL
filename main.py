@@ -249,12 +249,15 @@ class main:
         UCB1_op_rate = [0.67076,	0.68020833,	0.67219667,	0.66329536,	0.67381338]
         subito_perfect_op_rate=[0.876075,	0.9192025,	0.911354763,	0.908002727,	0.91525641]
         subito_op_rate=[0.84235, 0.874365,	0.859673215, 0.88029, 0.887951095]
+        BoundNT_op_rate=[0.72553333, 0.68322, 0.60758571, 0.56908, 0.54016923]
         UCB1_diff = [3.92730099,	3.55005621,	3.76985005,	4.01648821,	4.05722965]
         subito_perfect_diff= [1.704276463, 1.125456645, 1.099625047, 1.085538627, 1.023573517]
         subito_diff=[2.266471527, 1.8255659,	1.984103853, 1.734049937, 1.540486353]
+        BoundNT_diff=[2.69067996, 3.66938621, 4.9628864,5.71129116, 6.07322507]
 
         subito_MAB_trffic_overhead = [14.578,  41.62033333, 118.732,  247.68466667, 408.48166667]
         subito_NT_traffic_overhead = [14.578,  28.36566667, 50.804, 64.11766667, 69.70233333]
+        bound_NT_traffic_overhead= [8.822599998, 24.58526667,49.768, 75.25953334,98.9822]
         UCB1_traffic_overhead=[] #to run
 
         mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BTN(monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate )
