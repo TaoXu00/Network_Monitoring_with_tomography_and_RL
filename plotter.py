@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 class plotter:
     def __init__(self, directory):
@@ -237,7 +238,35 @@ class plotter:
         plt.grid(True)
         plt.savefig(self.directory + "Traffic Overhead.png")
         plt.close()
-
+    def plot_avg_path_oscilation_every_200_times_withname(self, monitors_deployment_percentage,multi_times_avg_path_oscilation_array, filename):
+        labels = []
+        for per in monitors_deployment_percentage:
+            labels.append(str(per) + '%')
+        print("new_avg_with_increasing_monitors row num: %d:" % (len(multi_times_avg_path_oscilation_array)))
+        print("new_avg_with_increasing_monitors column num %d:" % (len(multi_times_avg_path_oscilation_array[0])))
+            #multi_times_avg_path_oscilation_array=np.array(multi_times_avg_path_oscilation_array).astype(int)
+            #print(multi_times_avg_path_oscilation_array)
+        x = np.arange(200, 3200, 200)
+        fig = plt.figure()
+        plt.rcParams.update({'font.size': 13})
+        colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
+        # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
+        markers = ["s", "^", "+", "p", "x"]
+        for i in range(len(multi_times_avg_path_oscilation_array)):
+            plt.plot(x, multi_times_avg_path_oscilation_array[i], label=labels[i], color=colors[i],
+                     marker=markers[i])
+        if filename=="BoundNT_path_oscillation_BR50_10%-50%":
+            plt.xlabel("time")
+        else:
+            plt.xlabel("learning time")
+        if filename=="UBC1_ocsillition_every_200_times_BR50_10%-50%_baseline":
+            new_list = range(0,25,5)
+            plt.yticks(new_list)
+        plt.ylabel(" # of Path Oscillation")
+        plt.legend(fontsize=13)
+        plt.grid(True)
+        plt.savefig(self.directory + filename+".png")
+        plt.close()
     def plot_avg_path_oscilation_every_200_times(self, monitors_deployment_percentage,multi_times_avg_path_oscilation_array):
         labels = []
         for per in monitors_deployment_percentage:
@@ -258,7 +287,7 @@ class plotter:
         plt.xlabel("learning time")
         plt.ylabel(" # of Path Oscillation")
         plt.legend(fontsize=13)
-        # plt.grid(True)
+        plt.grid(True)
         plt.savefig(self.directory + "# of Path Oscilation.png")
         plt.close()
 
@@ -672,9 +701,9 @@ class plotter:
         plt.savefig(self.directory + 'Scability_of_network_size_delay_diff')
         plt.close()
 
-    def plot_traffic_overhead_BR_50nodes(self,monitors_deployment_percentage, subito_NT_traffic_overhead, subito_MAB_trffic_overhead, UCB1_traffic_overhead):
+    def plot_traffic_overhead_BR_50nodes(self,monitors_deployment_percentage, boundNT_trffic_overhead,subito_NT_traffic_overhead, UCB1_traffic_overhead):
         barWidth = 0.25
-        fig = plt.figure(figsize=(10, 10))
+        fig = plt.figure(figsize=(15, 10))
         # set height of bar
         x = monitors_deployment_percentage
         x_label = [str(pert) for pert in monitors_deployment_percentage]
@@ -683,18 +712,18 @@ class plotter:
         br3 = [x + barWidth for x in br2]
         # Make the plot
         plt.rcParams.update({'font.size': 30})
-        plt.bar(br1, UCB1_traffic_overhead,  width=barWidth,
-                edgecolor='grey', label='UCB1', hatch='/')
-        plt.bar(br2, subito_MAB_trffic_overhead,  width=barWidth,
-                edgecolor='grey', label='Subito_MAB', hatch='o')
-        plt.bar(br3, subito_NT_traffic_overhead, width=barWidth,
-                edgecolor='grey', label='Subito_NT', hatch='*')
+        plt.bar(br1, boundNT_trffic_overhead,  width=barWidth,
+                edgecolor='grey', label='BoundNT', hatch='/')
+        plt.bar(br2, subito_NT_traffic_overhead,  width=barWidth,
+                edgecolor='grey', label='Subito', hatch='o')
+        plt.bar(br3, UCB1_traffic_overhead, width=barWidth,
+                edgecolor='grey', label='UCB1', hatch='*')
 
         # Adding Xticks
         plt.xlabel('% of nodes selected as monitors')
         plt.ylabel('Traffic overhead')
         plt.xticks(br1, x_label)
-        plt.legend(fontsize=25, loc='lower left')
+        plt.legend(fontsize=25, loc='upper left')
         plt.savefig(self.directory + "Traffic overhead for BR50 with increasing monitor size")
         plt.close()
 

@@ -209,17 +209,17 @@ class main:
         subito_perfect_diff = [2.236884885, 1.71805823, 1.60399359, 1.53417783, 1.49493546]
         BoundNT_diff=[5.38756999, 5.86999576, 6.06494927, 6.2990515, 6.444486]
 
-        UCB1_traffic_overhead=[38.70647098, 191.73615744,  455.29119413,  867.96364243, 1290.53569046]
-        subito_MAB_trffic_overhead=[ 36.44358334,166.6565, 384.0626667,	700.6428667, 1107.435267]
+        UCB1_traffic_overhead=[45.6643095,197.969513,459.798732,834.551768,1305.78879]
+        #subito_MAB_trffic_overhead=[ 36.44358334,166.6565, 384.0626667,	700.6428667, 1107.435267]
         subito_NT_traffic_overhead=[31.25533334, 103.3804,	146.1748,	175.6659333, 190.4278667]
-        bound_NT_traffic_overhead=[]
+        bound_NT_traffic_overhead=[30.3286667,79.7326667,129.9286,178.825867,220.262267]
 
         #mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BR_50nodes(monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate)
         #mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(monitors_deployment_percentage, subito_diff, UCB1_diff, subito_perfect_diff)
         mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BR_50nodes_line(monitors_deployment_percentage, subito_op_rate, UCB1_op_rate,subito_perfect_op_rate,BoundNT_op_rate)
         mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes_line(monitors_deployment_percentage, subito_diff, UCB1_diff, subito_perfect_diff, BoundNT_diff)
 
-        mynetwork.plotter.plot_traffic_overhead_BR_50nodes(monitors_deployment_percentage, subito_NT_traffic_overhead, subito_MAB_trffic_overhead, UCB1_traffic_overhead)
+        mynetwork.plotter.plot_traffic_overhead_BR_50nodes(monitors_deployment_percentage, bound_NT_traffic_overhead,subito_NT_traffic_overhead, UCB1_traffic_overhead)
         #plot the scalability performance of network size 20, 40, 60, 80 nodes with fixed 30% monitors deployed
         topology_size=[20, 40, 60, 80]
         subito_op_rate = [0.86708, 0.78523, 0.729153167, 0.666417933]
@@ -267,6 +267,25 @@ class main:
         multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors.append([199.185, 196.55, 196.16333333333333, 195.39875, 195.389, 195.3325, 195.67785714285714, 195.510625, 195.2588888888889, 195.1845, 195.3318181818182, 195.22666666666666, 195.1380769230769, 194.9882142857143, 194.85866666666666])
         multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors.append([222.245, 223.7175, 223.51, 223.69875, 223.841, 223.6375, 223.72, 223.84875, 223.62722222222223, 223.5515, 223.49318181818182, 223.49041666666668, 223.44307692307692, 223.33714285714285, 223.45566666666667])
         self.plotter.plot_avg_traffic_overhead_every_200_iterations([10,20,30,40,50], multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors)
+    def plot_path_oscillation_boundNT(self):
+        multi_times_avg_path_oscillation_every_200_iterations_with_increasing_monitors = []
+        multi_times_avg_path_oscillation_every_200_iterations_with_increasing_monitors.append([4.3, 5.3, 5.1, 4.7, 5.2, 4.6, 5.6, 5.4, 4.5, 4.9, 5.8, 4.6, 5.0, 5.1, 4.1])
+        multi_times_avg_path_oscillation_every_200_iterations_with_increasing_monitors.append([13.622222222222222, 13.622222222222222, 13.355555555555556, 11.622222222222222, 13.555555555555555, 12.28888888888889, 13.533333333333333, 12.28888888888889, 12.28888888888889, 13.28888888888889, 13.28888888888889, 12.8, 13.733333333333333, 12.666666666666666, 12.666666666666666])
+        multi_times_avg_path_oscillation_every_200_iterations_with_increasing_monitors.append([21.571428571428573, 20.714285714285715, 20.933333333333334, 22.00952380952381, 20.752380952380953, 21.62857142857143, 20.0, 21.523809523809526, 20.99047619047619, 21.542857142857144, 20.533333333333335, 21.20952380952381, 22.6, 21.238095238095237, 20.304761904761904])
+        multi_times_avg_path_oscillation_every_200_iterations_with_increasing_monitors.append([27.18421052631579, 27.03684210526316, 26.873684210526317, 27.731578947368423, 28.33157894736842, 26.978947368421053, 27.489473684210527, 28.83684210526316, 27.594736842105263, 26.126315789473683, 27.873684210526317, 27.46315789473684, 28.442105263157895, 27.268421052631577, 27.03684210526316])
+        multi_times_avg_path_oscillation_every_200_iterations_with_increasing_monitors.append([32.166666666666664, 31.706666666666667, 30.45, 32.06666666666667, 33.32, 32.32666666666667, 31.94333333333333, 31.756666666666668, 31.25, 31.356666666666666, 31.803333333333335, 30.946666666666665, 30.923333333333332, 31.376666666666665, 32.04])
+        np.savetxt("BoundNT_path_oscillation_BR50_10%-50%.txt", multi_times_avg_path_oscillation_every_200_iterations_with_increasing_monitors)
+        self.plotter.plot_avg_path_oscilation_every_200_times([10, 20, 30, 40, 50],multi_times_avg_path_oscillation_every_200_iterations_with_increasing_monitors)
+
+    def plot_path_oscillation(self):
+        monitor_pert=[10,20,30,40,50]
+        BoundNT=np.loadtxt("path_oscillation/BoundNT_path_oscillation_BR50_10%-50%.txt")
+        Subito=np.loadtxt("path_oscillation/Subito_ocsillition_every_200_times_BR50_10%-50%.txt")
+        UCB1=np.loadtxt("path_oscillation/UBC1_ocsillition_every_200_times_BR50_10%-50%_baseline.txt")
+        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert,Subito,"Subito_ocsillition_every_200_times_BR50_10%-50%")
+        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert,BoundNT, "BoundNT_path_oscillation_BR50_10%-50%")
+        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert,UCB1,"UBC1_ocsillition_every_200_times_BR50_10%-50%_baseline")
+
 '''
 argv1: network topology type
 argv2: number of nodes
@@ -291,9 +310,10 @@ i=0
 
 
 mynetwork=main(3000)
-#mynetwork.plot_final_result(mynetwork)
+mynetwork.plot_final_result(mynetwork)
 #mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"mse_results/links_delay_during_training_with_different_monitor_size_total.txt")
-mynetwork.plot_traffic_overhead_of_subito()
+#mynetwork.plot_path_oscillation_boundNT()
+#mynetwork.plot_path_oscillation()
 '''
 while(i<n):
     mynetwork=main(3000)
