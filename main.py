@@ -100,6 +100,8 @@ class main:
         #for m_p in [30]:
             monitors_deployment_percentage.append(m_p)
             n=int((m_p/100)*len(G.nodes))
+            if n==2:
+                n=3
             #self.logger_main.debug(f"m_p {m_p}")
             if n <= len(end_nodes):
                 rest_end_nodes = [elem for elem in end_nodes if elem not in monitors]
