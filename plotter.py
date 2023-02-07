@@ -247,23 +247,21 @@ class plotter:
             #multi_times_avg_path_oscilation_array=np.array(multi_times_avg_path_oscilation_array).astype(int)
             #print(multi_times_avg_path_oscilation_array)
         x = np.arange(200, 3200, 200)
-        fig = plt.figure()
-        plt.rcParams.update({'font.size': 13})
+        fig = plt.figure(figsize=(13, 13))
+        plt.rcParams.update({'font.size': 30,'xtick.labelsize':'x-large',
+         'ytick.labelsize':'x-large', 'axes.titlesize': 'x-large' })
         colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
         # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
         markers = ["s", "^", "+", "p", "x"]
         for i in range(len(multi_times_avg_path_oscilation_array)):
             plt.plot(x, multi_times_avg_path_oscilation_array[i], label=labels[i], color=colors[i],
-                     marker=markers[i])
-        if filename=="BoundNT_path_oscillation_BR50_10%-50%":
-            plt.xlabel("time")
-        else:
-            plt.xlabel("learning time")
-        if filename=="UBC1_ocsillition_every_200_times_BR50_10%-50%_baseline":
+                     marker=markers[i], linewidth=3, markersize=20 )
+        if filename=="UBC1_path_ocsillation_BR50":
             new_list = range(0,25,5)
             plt.yticks(new_list)
-        plt.ylabel(" # of Path Oscillation")
-        plt.legend(fontsize=13)
+        plt.ylabel(" # of Path Oscillation", fontsize='x-large')
+        plt.xlabel("time",fontsize='x-large')
+        plt.legend(fontsize=30)
         plt.grid(True)
         plt.savefig(self.directory + filename+".png")
         plt.close()
@@ -276,7 +274,7 @@ class plotter:
 
         x = np.arange(200, 3200, 200)
         fig = plt.figure()
-        plt.rcParams.update({'font.size': 13})
+        plt.rcParams.update({'font.size': 30})
 
         colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
         # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
@@ -286,7 +284,7 @@ class plotter:
                      marker=markers[i])
         plt.xlabel("learning time")
         plt.ylabel(" # of Path Oscillation")
-        plt.legend(fontsize=13)
+        plt.legend(fontsize=30)
         plt.grid(True)
         plt.savefig(self.directory + "# of Path Oscilation.png")
         plt.close()
@@ -497,56 +495,56 @@ class plotter:
         plt.savefig(self.directory + 'abs error from the optimal shortest paths.png')
         plt.legend()
         plt.close()
-    def plot_percentage_of_optimal_path_selected_rate_BR_50nodes_line(self, monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate,BoundNT_op_rate):
+    def plot_percentage_of_optimal_path_selected_rate_line(self, monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate,BoundNT_op_rate, name):
         x = np.arange(10, 60, 10)
-        fig = plt.figure()
-        plt.rcParams.update({'font.size': 13})
+        fig = plt.figure(figsize=(13, 10))
+        plt.rcParams.update({'font.size': 30, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
         plt.grid(True)
         colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
         # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
         markers = ["s", "^", "+", "p", "x"]
         plt.plot(x, subito_perfect_op_rate, label='Subito*', color=colors[0],
-                     marker=markers[0])
+                     marker=markers[0], linewidth=3, markersize=20)
         plt.plot(x, subito_op_rate, label='Subito', color=colors[1],
-                 marker=markers[1])
+                 marker=markers[1], linewidth=3, markersize=20 )
         plt.plot(x, UCB1_op_rate, label='UCB1', color=colors[2],
-                 marker=markers[2])
+                 marker=markers[2], linewidth=3, markersize=20)
         plt.plot(x, BoundNT_op_rate, label='BoundNT', color=colors[3],
-                 marker=markers[3])
+                 marker=markers[3], linewidth=3, markersize=20)
         plt.xticks(x)
         plt.xlabel("% of nodes selected as monitors")
-        plt.ylabel("Rate of optimal actions (%)")
-        plt.legend(fontsize=13)
+        plt.ylabel("Freq. of optimal actions (%)")
+        plt.legend(fontsize=30)
         # plt.grid(True)
-        plt.savefig(self.directory + "Rate_of_optimal_actions_with_increasing_monitor_training_new.png")
+        plt.savefig(self.directory + "Scability_of Minitor_op_rate_"+name+".png")
         plt.close()
 
-    def plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes_line(self, monitors_deployment_percentage, subito_diff, UCB1_diff, subito_perfect_diff, BoundNT_diff):
+    def plot_abs_delay_of_optimal_path_selected_from_mean_line(self, monitors_deployment_percentage, subito_diff, UCB1_diff, subito_perfect_diff, BoundNT_diff,name):
         x = np.arange(10, 60, 10)
-        fig = plt.figure()
+        fig = plt.figure(figsize=(13, 10))
         plt.grid(True)
-        plt.rcParams.update({'font.size': 13})
+        plt.rcParams.update({'font.size': 30, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
         colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
         # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
         markers = ["s", "^", "+", "p", "x"]
         plt.plot(x, subito_perfect_diff, label='Subito*', color=colors[0],
-                 marker=markers[0])
+                 marker=markers[0], linewidth=3, markersize=20)
         plt.plot(x, subito_diff, label='Subito', color=colors[1],
-                 marker=markers[1])
+                 marker=markers[1], linewidth=3, markersize=20)
         plt.plot(x, UCB1_diff, label='UCB1', color=colors[2],
-                 marker=markers[2])
+                 marker=markers[2], linewidth=3, markersize=20)
         plt.plot(x, BoundNT_diff, label='BoundNT', color=colors[3],
-                 marker=markers[3])
+                 marker=markers[3], linewidth=3, markersize=20)
         plt.xticks(x)
         plt.xlabel("% of nodes selected as monitors")
         plt.ylabel("Avg. regret (msec)")
-        plt.legend(fontsize=13)
-        plt.savefig(self.directory + "Regret_of_optimal_actions_with_increasing_monitor_training_new.png")
+        plt.legend(fontsize=30)
+        plt.savefig(self.directory + "Scability_of_Minitor_delay_diff_"+name+".png")
         plt.close()
 
     def plot_percentage_of_optimal_path_selected_rate_BR_50nodes(self,monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate):
         barWidth = 0.25
-        fig = plt.figure(figsize=(10, 10))
+        fig = plt.figure(figsize=(13, 13))
 
         # set height of bar
         x=monitors_deployment_percentage
@@ -603,49 +601,49 @@ class plotter:
 
     def plot_percentage_of_optimal_path_selected_rate_for_various_network_size_line(self, topology_size, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate, boundNT_op_rate):
         x= topology_size
-        fig = plt.figure()
-        plt.rcParams.update({'font.size': 13})
+        fig = plt.figure(figsize=(13, 10))
+        plt.rcParams.update({'font.size': 30, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
         plt.grid(True)
         colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
         # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
         markers = ["s", "^", "+", "p", "x"]
         plt.plot(x, subito_perfect_op_rate, label='Subito*', color=colors[0],
-                 marker=markers[0])
+                 marker=markers[0], linewidth=3, markersize=20)
         plt.plot(x, subito_op_rate, label='Subito', color=colors[1],
-                 marker=markers[1])
+                 marker=markers[1], linewidth=3, markersize=20)
         plt.plot(x, UCB1_op_rate, label='UCB1', color=colors[2],
-                 marker=markers[2])
+                 marker=markers[2], linewidth=3, markersize=20)
         plt.plot(x, boundNT_op_rate, label='BoundNT', color=colors[3],
-                 marker=markers[3])
+                 marker=markers[3], linewidth=3, markersize=20)
         plt.xticks(x)
         plt.xlabel("network size")
         plt.ylabel("Freq. of optimal actions (%)")
-        plt.legend(fontsize=13)
+        plt.legend(fontsize=30)
         plt.grid(True)
-        plt.savefig(self.directory + "Rate_of_optimal_actions_with_various_network_size_new.png")
+        plt.savefig(self.directory + "Scalability_of_op_with_various_network_size.png")
         plt.close()
     def plot_abs_delay_of_optimal_path_selected_for_various_network_size_line(self, topology_size, subito_diff, UCB1_diff,subito_perfect_diff, boundNT_diff):
         x = topology_size
-        fig = plt.figure()
-        plt.rcParams.update({'font.size': 13})
+        fig = plt.figure(figsize=(13, 10))
+        plt.rcParams.update({'font.size': 30, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
         plt.grid(True)
         colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
         # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
         markers = ["s", "^", "+", "p", "x"]
         plt.plot(x, subito_perfect_diff, label='Subito*', color=colors[0],
-                 marker=markers[0])
+                 marker=markers[0], linewidth=3, markersize=20)
         plt.plot(x, subito_diff, label='Subito', color=colors[1],
-                 marker=markers[1])
+                 marker=markers[1], linewidth=3, markersize=20)
         plt.plot(x, UCB1_diff, label='UCB1', color=colors[2],
-                 marker=markers[2])
+                 marker=markers[2], linewidth=3, markersize=20)
         plt.plot(x, boundNT_diff, label='BoundNT', color=colors[3],
-                 marker=markers[3])
+                 marker=markers[3], linewidth=3, markersize=20)
         plt.xticks(x)
         plt.xlabel("network size")
         plt.ylabel("Avg. regret (msec)")
-        plt.legend(fontsize=13)
+        plt.legend(fontsize=30)
         plt.grid(True)
-        plt.savefig(self.directory + "Abs_diff_from_optimal_actions_with_various_network_size_new.png")
+        plt.savefig(self.directory + "Abs_diff_from_optimal_actions_with_various_network_size.png")
         plt.close()
     def plot_percentage_of_optimal_path_selected_rate_for_varius_network_size(self, topology_size, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate):
         barWidth = 0.25
@@ -701,7 +699,7 @@ class plotter:
         plt.savefig(self.directory + 'Scability_of_network_size_delay_diff')
         plt.close()
 
-    def plot_traffic_overhead_BR_50nodes(self,monitors_deployment_percentage, boundNT_trffic_overhead,subito_NT_traffic_overhead, UCB1_traffic_overhead):
+    def plot_traffic_overhead(self,monitors_deployment_percentage, boundNT_trffic_overhead,subito_NT_traffic_overhead, UCB1_traffic_overhead,name):
         barWidth = 0.25
         fig = plt.figure(figsize=(15, 10))
         # set height of bar
@@ -711,7 +709,7 @@ class plotter:
         br2 = [x + barWidth for x in br1]
         br3 = [x + barWidth for x in br2]
         # Make the plot
-        plt.rcParams.update({'font.size': 30})
+        plt.rcParams.update({'font.size': 30, 'xtick.labelsize': 'large', 'ytick.labelsize': 'large', 'axes.titlesize': 'large'})
         plt.bar(br1, boundNT_trffic_overhead,  width=barWidth,
                 edgecolor='grey', label='BoundNT', hatch='/')
         plt.bar(br2, subito_NT_traffic_overhead,  width=barWidth,
@@ -724,19 +722,19 @@ class plotter:
         plt.ylabel('Traffic overhead')
         plt.xticks(br1, x_label)
         plt.legend(fontsize=25, loc='upper left')
-        plt.savefig(self.directory + "Traffic overhead for BR50 with increasing monitor size")
+        plt.savefig(self.directory + "Traffic overhead with increasing monitor size"+name+".png")
         plt.close()
 
     def plot_traffic_overhead_for_various_network_size(self, topology_size, subito_MAB_trffic_overhead, subito_NT_traffic_overhead, UCB1_traffic_overhead):
         barWidth = 0.25
-        fig = plt.figure(figsize=(10, 10))
+        fig = plt.figure(figsize=(15, 10))
         # set height of bar
         x_label = [str(size) for size in topology_size]
         br1 = np.arange(len(subito_MAB_trffic_overhead))
         br2 = [x + barWidth for x in br1]
         br3 = [x + barWidth for x in br2]
         # Make the plot
-        plt.rcParams.update({'font.size': 30})
+        plt.rcParams.update({'font.size': 30, 'xtick.labelsize': 'large', 'ytick.labelsize': 'large', 'axes.titlesize': 'large'})
         plt.bar(br1, UCB1_traffic_overhead, width=barWidth,
                 edgecolor='grey', label='UCB1', hatch='/')
         plt.bar(br2, subito_MAB_trffic_overhead, width=barWidth,
@@ -754,7 +752,7 @@ class plotter:
 
     def plot_percentage_of_optimal_path_selected_rate_BTN(self, monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate ):
         barWidth = 0.25
-        fig = plt.figure(figsize=(10, 10))
+        fig = plt.figure(figsize=(20, 10))
         # set height of bar
         x = monitors_deployment_percentage
         x_label = [str(pert) for pert in monitors_deployment_percentage]
