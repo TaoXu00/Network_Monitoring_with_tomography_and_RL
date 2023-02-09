@@ -273,7 +273,7 @@ class main:
         self.plotter.plot_avg_traffic_overhead_every_200_iterations([10,20,30,40,50], multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors)
 
 
-    def plot_path_oscillation(self):
+    def plot_path_oscillation_BR50(self):
         monitor_pert=[10,20,30,40,50]
         BoundNT=np.loadtxt("path_oscillation_BR50/BoundNT_path_oscillation_BR50_10%-50%.txt")
         Subito=np.loadtxt("path_oscillation_BR50/Subito_ocsillition_every_200_times_BR50_10%-50%.txt")
@@ -281,6 +281,18 @@ class main:
         self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert,Subito,"Subito_path_oscillation_BR50")
         self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert,BoundNT, "BoundNT_path_oscillation_BR50")
         self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert,UCB1,"UCB1_path_oscillation_BR50")
+
+    def plot_path_oscillation_BTN(self):
+        monitor_pert = [10, 20, 30, 40, 50]
+        BoundNT = np.loadtxt("path_oscillation_BTN/BoundNT_Ocsillation.txt")
+        Subito = np.loadtxt("path_oscillation_BTN/Subito_ocsillation_BTN.txt")
+        UCB1 = np.loadtxt("path_oscillation_BTN/UCB1_oscillation_BTN.txt")
+        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, Subito,
+                                                                       "Subito_path_oscillation_BTN")
+        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, BoundNT,
+                                                                       "BoundNT_path_oscillation_BTN")
+        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, UCB1, "UCB1_path_oscillation_BTN")
+
 
 '''
 argv1: network topology type
@@ -306,10 +318,10 @@ i=0
 
 
 mynetwork=main(3000)
-mynetwork.plot_final_result(mynetwork)
-mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"mse_results/links_delay_during_training_with_different_monitor_size_total.txt")
-#mynetwork.plot_path_oscillation_boundNT()
-mynetwork.plot_path_oscillation()
+#mynetwork.plot_final_result(mynetwork)
+#mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"mse_results/links_delay_during_training_with_different_monitor_size_total.txt")
+mynetwork.plot_path_oscillation_BR50()
+mynetwork.plot_path_oscillation_BTN()
 '''
 while(i<n):
     mynetwork=main(3000)
