@@ -214,8 +214,8 @@ class main:
         UBC1_op_rate = [0.67076,	0.68020833,	0.67219667,	0.66329536,	0.67381338]
         UBC_diff = [3.92730099,	3.55005621,	3.76985005,	4.01648821,	4.05722965]
         #myapproach_abs_of_optimal_path_selected_from_real = [1.548090993,1.607211863,1.779516288,1.887000793,1.844019875]
-        mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BTN(monitors_deployment_percentage, myapproach_optimal_path_selected_rate, baseline_optimal_path_selected_rate)
-        mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BTN(monitors_deployment_percentage, myapproach_abs_of_optimal_path_selected_from_real, baseline_abs_of_optimal_path_selected_from_real)
+        #mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BTN(monitors_deployment_percentage, myapproach_optimal_path_selected_rate, baseline_optimal_path_selected_rate)
+        #mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BTN(monitors_deployment_percentage, myapproach_abs_of_optimal_path_selected_from_real, baseline_abs_of_optimal_path_selected_from_real)
 
 '''
 argv1: network topology type
@@ -243,10 +243,9 @@ mynetwork=main(3000)
 mynetwork.plot_final_result(mynetwork)
 mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"links_delay_during_training_with_different_monitor_size_total.txt")
 '''
-
+mynetwork=main(3000)
+G =mynetwork.creat_topology(topo_type, num_node, degree)
 while(i<n):
-    mynetwork=main(3000)
-    G =mynetwork.creat_topology(topo_type, num_node, degree)
     #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
     optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage = mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor)
     #print("n=%d" %(i))
@@ -275,26 +274,21 @@ mynetwork.logger_main.info(multi_times_avg_diff_of_delay_from_optimal_array)
 
 
 multi_avg_percentage_of_select_optimal_path=np.average(multi_times_optimal_path_selected_percentage_array,axis=0)
-multi_avg_percentage_of_abs_diff_from_optimal=np.average(multi_times_avg_diff_of_delay_from_optimal_array,axis=0)
-mynetwork.logger_main.info("after average: percentage of the optimal path selected:")
+multi_std_percentage_of_select_optimal_path=np.std(multi_times_optimal_path_selected_percentage_array,axis=0)
+mynetwork.logger_main.info("after average: avg. percentage of the optimal path selected:")
 mynetwork.logger_main.info (multi_avg_percentage_of_select_optimal_path)
-mynetwork.logger_main.info("after average: diff from the real optimal path:")
-mynetwork.logger_main.info(multi_avg_percentage_of_abs_diff_from_optimal)
+mynetwork.logger_main.info("after average: std. percentage of the optimal path selected:")
+mynetwork.logger_main.info (multi_std_percentage_of_select_optimal_path)
 
+multi_avg_percentage_of_abs_diff_from_optimal=np.average(multi_times_avg_diff_of_delay_from_optimal_array,axis=0)
+multi_std_percentage_of_abs_diff_from_optimal=np.std(multi_times_avg_diff_of_delay_from_optimal_array, axis=0)
+mynetwork.logger_main.info("after average: avg. diff from the real optimal path:")
+mynetwork.logger_main.info(multi_avg_percentage_of_abs_diff_from_optimal)
+mynetwork.logger_main.info("after average: std. diff from the real optimal path:")
+mynetwork.logger_main.info(multi_std_percentage_of_abs_diff_from_optimal)
 
 mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training(monitors_deployment_percentage,multi_times_avg_mse_total_link_delay_array)
 # self.plotter.plot_edge_exporation_times_with_differrent_monitor_size(G,total_edge_exploration_during_training_list)
 mynetwork.plotter.plot_optimal_path_selected_percentage_list_with_increasing_monitors(monitors_deployment_percentage, multi_avg_percentage_of_select_optimal_path)
 mynetwork.plotter.plot_abs_diff_path_delay_from_the_optimal(monitors_deployment_percentage,multi_avg_percentage_of_abs_diff_from_optimal )
 
-'''test
-array1=np.array([[0.1, 0.2, 0.3],
-                [0.2, 0.3, 0.4],
-                [0.4, 0.5, 0.6]])
-array2=np.array([[0.2, 0.3, 0.4],
-                [0.1, 0.2, 0.3],
-                [0.4, 0.5, 0.6]])
-sum=np.add(array1,array2)
-three_avg=sum/3
-print(three_avg)
-'''
