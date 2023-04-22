@@ -54,6 +54,14 @@ class network_topology:
         elif type=="BTN":
             G=nx.read_graphml('topology/Topology_Zoo/BeyondTheNetwork.graphml')
             degree_list = list(G.degree(list(G.nodes)))
+            #compute the average node degree
+            total_degree=0
+            for edge_degree in degree_list:
+                total_degree+=edge_degree[1]
+            average_degree=total_degree/len(list(G.nodes))
+            print("degree_list: %s" %(degree_list))
+            print("total_degree: %d" %(total_degree))
+            print("average degree is %f" %(average_degree))
             degree_one_nodes = []
             # it does not make sense to differenciate the end nodes from the internal nodes.
             # trim the node with degree 1

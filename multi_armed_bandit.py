@@ -430,11 +430,11 @@ class multi_armed_bandit:
         self.plotter.plot_average_regrets(average_regret_list)
         self.plotter.plot_diff_from_optimal_path_of_selected_shortest_paths(diff_of_delay_from_optimal_real_time)
         #plot the delay difference from the mean along time
-        self.plotter.plot_edge_delay_difference_alongtime(0,15,self.edge_delay_difference_list,'0-15')
-        self.plotter.plot_edge_delay_difference_alongtime(15, 30,self.edge_delay_difference_list,'15-30')
-        self.plotter.plot_edge_delay_difference_alongtime(30, 35,self.edge_delay_difference_list, '30-35')
+        #self.plotter.plot_edge_delay_difference_alongtime(0,15,self.edge_delay_difference_list,'0-15')
+        #self.plotter.plot_edge_delay_difference_alongtime(15, 30,self.edge_delay_difference_list,'15-30')
+        #self.plotter.plot_edge_delay_difference_alongtime(30, 35,self.edge_delay_difference_list, '30-35')
 
-        self.plotter.plot_edge_exploitation_times_bar('t=3000',self.Dict_edge_m)
+        #self.plotter.plot_edge_exploitation_times_bar('t=3000',self.Dict_edge_m)
         plt.savefig(self.directory + '# of edge exploration after training', format="PNG", dpi=300,
                     bbox_inches='tight')
         plt.close()
