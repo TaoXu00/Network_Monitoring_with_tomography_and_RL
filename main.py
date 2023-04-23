@@ -96,7 +96,7 @@ class main:
         average_n_probing_links_with_increasing_monitors=[]
         path_oscilation_list_with_increasing_monitors = []
         traffic_overhead_every_200_iterations_with_increasing_monitors = []
-        for m_p in [10, 20, 30, 40, 50]:
+        for m_p in [30]:
         #for m_p in [10, 20]:
             monitors_deployment_percentage.append(m_p)
             n=int((m_p/100)*len(G.nodes))
