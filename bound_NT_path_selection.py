@@ -168,7 +168,7 @@ class bound_NT_path_selection:
         counter=0
         dict_n_paths = {}
         traffic_overhead_every_200_iterations=[]
-        for i in range(400):
+        for i in range(time):
             ##compute the mse of all the links in the graph during training
             #self.logger.info("t= %s" %(self.t))
             total_mse = 0
