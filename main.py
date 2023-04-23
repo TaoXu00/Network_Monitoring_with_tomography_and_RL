@@ -301,6 +301,7 @@ while(i<n):
     #mynetwork=main(3000)
     #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
     optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors, total_optimal_edges_mse_list_with_increasing_monitors,monitors_deployment_percentage, average_probing_links_origin_list, average_probing_links_reduced_list, rate_of_optimal_actions_list_with_increasing_monitors,  path_oscilation_list_with_increasing_monitors, traffic_overhead_every_200_iterations_with_increasing_monitors = mynetwork.bound_NT_path_selection_increasing_monitors(G,topo_type,len(G.nodes),degree)
+    np.savetxt(path_osc_dir + '%s.txt' % (i), path_oscilation_list_with_increasing_monitors)
     #print("n=%d" %(i))
     #print(optimal_path_selected_percentage_list,avg_diff_of_delay_from_optimal_list)
     print("i= %d  average_probing_links_reduced_list: %s" %(i, average_probing_links_reduced_list))
