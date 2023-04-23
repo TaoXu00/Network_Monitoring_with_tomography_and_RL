@@ -10,6 +10,7 @@ import network_tomography as tomography
 import logging
 import os
 import plotter as plotter
+
 class main:
     def __init__(self, time):
         basename="log"
@@ -124,7 +125,7 @@ class main:
         #for n in range(2, 3, 1):
         monitors=[]
         monitors_deployment_percentage=[]
-        for m_p in [10, 20, 30, 40, 50]:
+        for m_p in [30]:
         #for m_p in [20, 30]:
             monitors_deployment_percentage.append(m_p)
             n = int((m_p / 100) * len(G.nodes))
