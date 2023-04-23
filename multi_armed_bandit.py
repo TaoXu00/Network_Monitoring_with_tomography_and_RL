@@ -403,7 +403,7 @@ class multi_armed_bandit:
             self.t = self.t + 1  # the time slot increase 1
             if self.t < time+len(G.edges):
                 self.topo.assign_link_delay(G)
-            self.plot_edge_delay_difference_at_different_time_point(G)
+            #self.plot_edge_delay_difference_at_different_time_point(G)
 
         sum_paths = 0
         for key in dict_n_paths:
