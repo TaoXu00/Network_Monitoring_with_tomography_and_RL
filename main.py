@@ -181,6 +181,7 @@ os.mkdir(path_osc_dir)
 while(i<n):
     #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
     optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, monitors_deployment_percentage, avg_diff_of_delay_from_optimal_list, average_n_probing_links_with_increasing_monitors, path_oscilation_list,traffic_overhead_every_200_iterations =mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree,path_space)
+    np.savetxt(path_osc_dir + '%s.txt' % (i), path_oscilation_list)
     if i==0:
         multi_times_optimal_path_selected_percentage_array=np.array([optimal_path_selected_percentage_list])
         multi_times_avg_diff_of_delay_from_optimal_array=np.array([avg_diff_of_delay_from_optimal_list])
