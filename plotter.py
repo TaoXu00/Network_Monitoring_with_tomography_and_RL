@@ -130,13 +130,13 @@ class plotter:
         plt.savefig(self.directory + 'MAB_edge_exploration_with_increasing_monitors.png')
         plt.close()
 
-    def plot_mse_with_increasing_monitor_training(self, total_edge_mse_list_with_increasing_monitors):
-        labels=['0.1', '0.2', '0.3', '0.4','0.5']
+    def plot_mse_with_increasing_monitor_training(self, total_edge_avg_mse_list_with_increasing_monitors, total_edge_std_mse):
+        labels=['10%', '20%', '30%', '40%','50%']
         #line_num=len(total_edge_mse_list_with_increasing_monitors)
-        x=range(len(total_edge_mse_list_with_increasing_monitors[0]))
+        x=range(len(total_edge_avg_mse_list_with_increasing_monitors[0]))
         fig = plt.figure(figsize=(10, 7))
-        for i in range (len(total_edge_mse_list_with_increasing_monitors)):
-            plt.plot(x, total_edge_mse_list_with_increasing_monitors[i], label=labels[i])
+        for i in range (len(total_edge_avg_mse_list_with_increasing_monitors)):
+            plt.plot(x, total_edge_avg_mse_list_with_increasing_monitors[i],yerr=total_edge_std_mse[i], label=labels[i])
         plt.legend()
         plt.savefig(self.directory + "mse_with_increasing_monitor_training")
         plt.close()

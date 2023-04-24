@@ -165,8 +165,7 @@ class multi_armed_bandit:
     def train_llc(self,G, time, monitor_pair_list):
         optimal_delay_dict,optimal_path_dict= self.optimal_path(G, monitor_pair_list)
         selected_shortest_path=[]
-        total_rewards_dict = {}   #in the current implementation, it is for only one pair of monitors
-        correct_shortest_path_selected_rate=[]
+        total_rewards_dict = {}   #in the current implementation, it is for only one pair of monitorscorrect_shortest_path_selected_rate=[]
         ## check the delay difference of  edges in the optimal path before training
         self.logger.debug("start trainning...")
         for monitor_pair in monitor_pair_list:
@@ -252,10 +251,10 @@ class multi_armed_bandit:
         average_regret_list=self.compute_regret(total_rewards_dict, optimal_delay_dict)
         average_n_probing_links=np.average(n_total_probing_links_list)
 
-        self.plotter.plot_time_average_rewards(rewards_mse_list)
-        self.plotter.plot_average_regrets(average_regret_list)
-        self.plotter.plot_diff_from_optimal_path_of_selected_shortest_paths(diff_of_delay_from_optimal_real_time)
-        self.plotter.plot_rate_of_correct_shortest_path(correct_shortest_path_selected_rate)
+        # self.plotter.plot_time_average_rewards(rewards_mse_list)
+        # self.plotter.plot_average_regrets(average_regret_list)
+        # self.plotter.plot_diff_from_optimal_path_of_selected_shortest_paths(diff_of_delay_from_optimal_real_time)
+        # self.plotter.plot_rate_of_correct_shortest_path(correct_shortest_path_selected_rate)
         self.logger.debug("training is finished")
         self.t=1
         #self.logger.debug("Dict_edge_m values are added to the edge_exploration_times array")
