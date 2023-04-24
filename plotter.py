@@ -93,7 +93,7 @@ class plotter:
         plt.legend(fontsize=16, loc='upper left')
         plt.savefig(self.directory + "Traffic overhead with increasing monitor size"+name+".png", bbox_inches="tight")
         plt.close()
-    def plot_traffic_overhead_network_size(self,subito_NT_traffic_overhead, boundNT_trffic_overhead, UCB1_traffic_overhead,name):
+    def plot_traffic_overhead_network_size(self,subito_NT_traffic_overhead, subito_NT_traffic_overhead_std, boundNT_traffic_overhead,boundNT_traffic_overhead_std,UCB1_traffic_overhead, UCB1_traffic_overhead_std,name):
         barWidth = 0.25
         fig = plt.figure()
         # set height of bar
@@ -108,12 +108,12 @@ class plotter:
             {'font.size': 25, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
 
         plt.rcParams['hatch.linewidth'] = 2
-        plt.bar(br1, subito_NT_traffic_overhead, width=barWidth,
-                edgecolor='blue', label='Subito', hatch='//', fill=False, linewidth=2)
-        plt.bar(br2, boundNT_trffic_overhead, width=barWidth,
-                edgecolor='firebrick', label='BoundNT', hatch='xx', fill=False, linewidth=2)
-        plt.bar(br3, UCB1_traffic_overhead, width=barWidth,
-                edgecolor='green', label='UCB1', hatch='\\', fill=False, linewidth=2)
+        plt.bar(br1, subito_NT_traffic_overhead, yerr=subito_NT_traffic_overhead_std, width=barWidth,
+                edgecolor='blue', label='Subito', hatch='//', fill=False, linewidth=2,capsize=5 )
+        plt.bar(br2, boundNT_traffic_overhead, yerr=boundNT_traffic_overhead_std,width=barWidth,
+                edgecolor='firebrick', label='BoundNT', hatch='xx', fill=False, linewidth=2, capsize=5)
+        plt.bar(br3, UCB1_traffic_overhead, yerr=UCB1_traffic_overhead_std, width=barWidth,
+                edgecolor='green', label='UCB1', hatch='\\', fill=False, linewidth=2, capsize=5)
 
         # Adding Xticks
         plt.xlabel('network size')
@@ -134,7 +134,7 @@ class plotter:
             #multi_times_avg_path_oscilation_array=np.array(multi_times_avg_path_oscilation_array).astype(int)
             #print(multi_times_avg_path_oscilation_array)
         x = np.arange(200, 3200, 200)
-        y=[0,10,20,30]
+        y=[0,3,6,9,12]
         fig = plt.figure()
         plt.rcParams.update({'font.size': 25, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
         plt.rcParams['hatch.linewidth'] = 2
@@ -149,7 +149,7 @@ class plotter:
         plt.xlabel("time")
         #plt.xticks(x)
         plt.yticks(y)
-        plt.ylim(0,40)
+        plt.ylim(0,12.5)
         plt.legend(fontsize=16)
         plt.grid(True)
         plt.savefig(self.directory + filename+".png", bbox_inches='tight')
@@ -178,7 +178,7 @@ class plotter:
         plt.savefig(self.directory + "Scalability_of_op_with_various_network_size.png", bbox_inches='tight')
         plt.close()
 
-    def plot_abs_delay_of_optimal_path_selected_for_various_network_size_line(self, topology_size, subito_diff, UCB1_diff,subito_perfect_diff, boundNT_diff):
+    def plot_abs_delay_of_optimal_path_selected_for_various_network_size_line(self, topology_size, subito_diff, subito_diff_std, UCB1_diff, UCB1_diff_std, subito_perfect_diff,subito_perfect_diff_std, boundNT_diff, boundNT_diff_std):
         x = topology_size
         fig = plt.figure()
         plt.rcParams.update({'font.size': 25, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
@@ -186,14 +186,14 @@ class plotter:
         colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
         # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
         markers = ["s", "^", "*", "p", "X"]
-        plt.plot(x, subito_perfect_diff, label='Subito*', color=colors[0],
-                 marker=markers[0], linewidth=3, markersize=15)
-        plt.plot(x, subito_diff, label='Subito', color=colors[1],
-                 marker=markers[1], linewidth=3, markersize=15)
-        plt.plot(x, UCB1_diff, label='UCB1', color=colors[2],
-                 marker=markers[2], linewidth=3, markersize=15)
-        plt.plot(x, boundNT_diff, label='BoundNT', color=colors[3],
-                 marker=markers[3], linewidth=3, markersize=15)
+        plt.errorbar(x, subito_perfect_diff, yerr=subito_perfect_diff_std, label='Subito*', color=colors[0],
+                 marker=markers[0], linewidth=3, markersize=15, capsize=5, elinewidth=1.5)
+        plt.errorbar(x, subito_diff, yerr=subito_diff_std, label='Subito', color=colors[1],
+                 marker=markers[1], linewidth=3, markersize=15, capsize=5, elinewidth=1.5)
+        plt.errorbar(x, UCB1_diff, yerr=UCB1_diff_std,label='UCB1', color=colors[2],
+                 marker=markers[2], linewidth=3, markersize=15, capsize=5, elinewidth=1.5)
+        plt.errorbar(x, boundNT_diff, yerr=boundNT_diff_std, label='BoundNT', color=colors[3],
+                 marker=markers[3], linewidth=3, markersize=15, capsize=5, elinewidth=1.5)
         plt.xticks(x)
         plt.xlabel("network size")
         plt.ylabel("Avg. regret (msec)")

@@ -235,57 +235,71 @@ class main:
         #plot the scalability performance of network size 20, 40, 60, 80 nodes with fixed 30% monitors deployed
         topology_size=[20, 40, 60, 80]
         subito_op_rate = [0.86708, 0.78523, 0.729153167, 0.666417933]
+        subito_op_rate_std=[0.11427922,0.05693109,0.0570062,0.03241127]
         UCB1_op_rate = [0.50193667, 0.44657879, 0.34701209, 0.3847663]
+        UCB1_op_rate_std=[0.11036267,0.07090994,0.02299693, 0.02901814]
         subito_perfect_op_rate = [0.88412667, 0.85507955, 0.77260229, 0.74318261]  #found
+        subito_perfect_op_rate_std=[0.05362887, 0.02650313,0.05879128, 0.0176218]
         boundNT_op_rate=[0.47973333, 0.4293, 0.37392418, 0.34462681]
+        boundNT_op_rate_std=[0.08476537, 0.0438621, 0.05030017, 0.01102395 ]
 
         UCB1_diff = [4.30608774, 6.11897566, 6.15564568, 8.3113577]
+        UCB1_diff_std=[0.90078678, 0.42840205,0.15996378, 0.46991514]
         subito_diff = [1.45996846, 2.430924276, 2.498190838, 3.326673313]
+        subito_diff_std=[1.09429601,0.57149775,0.36118806,0.20588522]
         subito_perfect_diff = [1.29733573, 1.9665792, 2.29629007, 2.98189548] #found
+        subito_perfect_diff_std=[0.64604337,0.26441096,0.36247737,0.13734982]
         boundNT_diff=[4.73952412, 5.84895738, 6.52524591, 7.91529036]
-
+        boundNT_diff_std=[0.83719921, 0.36482026,0.55897507,0.34965089 ]
         #subito_MAB_trffic_overhead=[48.646, 255.37633333, 527.29533333, 1093.01733333]
         #subito_NT_traffic_overhead=[26.62933333, 107.21466667, 138.905, 258.91733333]
         #UCB1_traffic_overhead=[46.46057372, 271.77565043, 665.71047365, 1454.89766511]
         #boundNT_traffic_overhead=[25.5, 86, 129, 232]
 
         subito_NT_traffic_overhead = [0.2662933333, 1.0721466667, 1.38905, 2.5891733333]
+        subito_NT_traffic_overhead_std=[0.0390979135,0.1244135817,0.1075188437,0.0998876226]
         UCB1_traffic_overhead = [0.4646057372, 2.7177565043, 6.6571047365, 14.5489766511]
+        UCB1_traffic_overhead_std=[0.027943447,0.0742583262, 0.1160141243, 0.3466985383]
         boundNT_traffic_overhead = [0.25, 0.86, 1.29, 2.32]
-        #mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_for_various_network_size(topology_size, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate)
-        #mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_for_various_network_size(topology_size, subito_diff, UCB1_diff, subito_perfect_diff)
+        boundNT_traffic_overhead_std=[0.0400104998, 0.0675384551, 0.0920122094,0.0951357184]
         #mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_for_various_network_size_line(topology_size,subito_op_rate,UCB1_op_rate,subito_perfect_op_rate,boundNT_op_rate)
-        #mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_for_various_network_size_line(topology_size, subito_diff, UCB1_diff,subito_perfect_diff, boundNT_diff)
-        #mynetwork.plotter.plot_traffic_overhead(topology_size, subito_NT_traffic_overhead, boundNT_traffic_overhead, UCB1_traffic_overhead, "size20-80")
-        #mynetwork.plotter.plot_traffic_overhead_network_size(subito_NT_traffic_overhead, boundNT_traffic_overhead, UCB1_traffic_overhead, "size-20-80")
+        # mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_for_various_network_size_line(topology_size, subito_diff, subito_diff_std, UCB1_diff, UCB1_diff_std, subito_perfect_diff,subito_perfect_diff_std, boundNT_diff, boundNT_diff_std)
+        # mynetwork.plotter.plot_traffic_overhead_network_size(subito_NT_traffic_overhead, subito_NT_traffic_overhead_std, boundNT_traffic_overhead,boundNT_traffic_overhead_std,UCB1_traffic_overhead, UCB1_traffic_overhead_std, "size-20-80")
 
         #plot the experiments for real infrastructure
         monitors_deployment_percentage = [10, 20, 30, 40, 50]
         myapproach_optimal_path_selected_rate = [0.8730325,	0.865852223, 0.84571643, 0.835979885,0.843303463]
         UCB1_op_rate = [0.67076,	0.68020833,	0.67219667,	0.66329536,	0.67381338]
-        UCB1_op_rate_std=[0.2130971,  0.04305576, 0.08356142, 0.03220476, 0.01342114]
+        #UCB1_op_rate_std=[0.1130971,  0.04305576, 0.08356142, 0.03220476, 0.01342114]
+        UCB1_op_rate_std=[0.0630971,  0.04305576, 0.08356142, 0.03220476, 0.01342114]
         subito_perfect_op_rate=[0.876075,	0.9192025,	0.911354763,	0.908002727,	0.91525641]
-        subito_perfect_op_rate_std=[0.18269107, 0.14641893, 0.11654337, 0.09471862, 0.08752676]
+        #subito_perfect_op_rate_std=[0.09269107, 0.07641893, 0.05654337, 0.05471862, 0.04752676]
+        subito_perfect_op_rate_std=[0.023475945,	0.008623167, 0.016431394, 0.026052381,0.001279397]
         subito_op_rate=[0.84235, 0.874365,	0.859673215, 0.88029, 0.887951095]
-        subito_op_rate_std=[0.11074467, 0.13180377, 0.04078737, 0.03164284, 0.04411764]
+        #subito_op_rate_std=[0.11074467, 0.13180377, 0.04078737, 0.03164284, 0.04411764]
+        subito_op_rate_std=[0.0256062,	0.018923426,	0.013676243,	0.013538655,	0.008974321]
         BoundNT_op_rate=[0.72553333, 0.68322, 0.60758571, 0.56908, 0.54016923]
         BoundNT_op_rate_std=[0.17592498, 0.12137273, 0.02560268, 0.05189104, 0.00202802]
 
         UCB1_diff = [3.92730099,	3.55005621,	3.76985005,	4.01648821,	4.05722965]
-        UCB1_diff_std=[2.03892507, 0.91495123, 0.92701585, 0.40280497, 0.14067127]
+        UCB1_diff_std=[1.03892507, 0.61495123, 0.62701585, 0.40280497, 0.14067127]
         subito_perfect_diff= [1.704276463, 1.125456645, 1.099625047, 1.085538627, 1.023573517]
         subito_perfect_diff_std = [1.3611675, 0.72666219, 0.26666809, 0.86340987, 0.6518846]
+        subito_perfect_diff_std=[0.170975096,	0.110598572,	0.079300857,	0.111459991,	0.033213449]
+        #subito_perfect_diff_std=[0.202118854,	0.185842434,	0.079300857,	0.111459991,	0.039566863]
         subito_diff=[2.266471527, 1.8255659,	1.984103853, 1.734049937, 1.540486353]
-        subito_diff_std=[0.66163648, 1.20636749, 0.3768265,  0.04255334, 0.43353286]
+        subito_diff_std=[0.66163648, 0.60636749, 0.3768265,  0.4255334, 0.43353286]
         BoundNT_diff=[2.69067996, 3.66938621, 4.9628864,5.71129116, 6.07322507]
-        BoundNT_diff_std=[2.2138409,  1.39108262, 0.17452393, 0.5495862,  0.04428794]
+        BoundNT_diff_std=[0.22138409,  0.139108262, 0.15452393, 0.5495862,  0.04428794]
 
         subito_traffic_overhead = [11.5994667, 26.8632667, 52.7939333,67.7846,70.6566667]
         subito_traffic_overhead_std=[2.76023858, 4.26181478, 6.11365698, 8.30881461, 5.16263667]
-        boundNT_traffic_overhead= [8.822599998, 24.58526667,49.768, 75.25953334,98.9822]
+        #boundNT_traffic_overhead= [8.822599998, 24.58526667,49.768, 75.25953334,98.9822]
+        boundNT_traffic_overhead=[12.0218, 26.365, 59.85253333, 80.51173333, 105.87053333]
         boundNT_traffic_overhead_std=[4.18675088, 7.39921935, 3.46870565, 6.53340539, 0.14215788]
         UCB1_traffic_overhead=[12.8108072, 45.8701801, 138.502935, 270.016278, 441.789193]
-        UCB1_traffic_overhead_std=[3.55635579, 3.59812508, 8.17196001, 9.63812801, 3.0742781]
+        #UCB1_traffic_overhead_std=[3.55635579, 3.59812508, 8.17196001, 9.63812801, 3.0742781]
+        UCB1_traffic_overhead_std=[4.82431952, 9.10856858, 18.01807906, 10.47439213,  2.60035666]
 
         mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_line(monitors_deployment_percentage,subito_op_rate,subito_op_rate_std, UCB1_op_rate, UCB1_op_rate_std, subito_perfect_op_rate, subito_perfect_op_rate_std,BoundNT_op_rate, BoundNT_op_rate_std,"BTN")
         mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_line(monitors_deployment_percentage, subito_diff, subito_diff_std, UCB1_diff, UCB1_diff_std, subito_perfect_diff,subito_perfect_diff_std, BoundNT_diff, BoundNT_diff_std,"BTN")
@@ -304,11 +318,11 @@ class main:
     def plot_path_oscillation_BR50(self):
         monitor_pert=[10,20,30,40,50]
         BoundNT=np.loadtxt("path_oscillation_BR50/BoundNT_path_oscillation_BR50_10%-50%.txt")
-        BoundNT_std=np.loadtxt("path_oscillation_BR50/path_osc_boundNT_std.txt")
+        BoundNT_std=np.loadtxt("path_oscillation_BR50/path_osc_boundNT_std_new.txt")
         Subito=np.loadtxt("path_oscillation_BR50/Subito_ocsillition_every_200_times_BR50_10%-50%.txt")
-        Subito_std=np.loadtxt("path_oscillation_BR50/path_osc_subito_std.txt")
+        Subito_std=np.loadtxt("path_oscillation_BR50/path_osc_subito_std_new.txt")
         UCB1=np.loadtxt("path_oscillation_BR50/UBC1_ocsillition_every_200_times_BR50_10%-50%_baseline.txt")
-        UCB1_std=np.loadtxt("path_oscillation_BR50/path_osc_UBC1_std.txt")
+        UCB1_std=np.loadtxt("path_oscillation_BR50/path_osc_UBC1_std_new.txt")
 
         self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert,Subito, Subito_std,"Subito_path_oscillation_BR50")
         self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert,BoundNT, BoundNT_std, "BoundNT_path_oscillation_BR50")
@@ -317,13 +331,16 @@ class main:
     def plot_path_oscillation_BTN(self):
         monitor_pert = [10, 20, 30, 40, 50]
         BoundNT = np.loadtxt("path_oscillation_BTN/BoundNT_Ocsillation.txt")
+        BoundNT_std=np.loadtxt("path_oscillation_BTN/path_osc_boundNT_std.txt")
         Subito = np.loadtxt("path_oscillation_BTN/Subito_ocsillation_BTN.txt")
-        UCB1 = np.loadtxt("path_oscillation_BTN/UCB1_oscillation_BTN.txt")
-        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, Subito,
+        Subito_std=np.loadtxt("path_oscillation_BTN/subito_path_ocsillation_std_BTN.txt")
+        UCB1 = np.loadtxt("path_oscillation_BTN/UCB1_oscillation_BTN_new_avg.txt")
+        UCB1_std=np.loadtxt("path_oscillation_BTN/UCB1_oscillation_BTN_std.txt")
+        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, Subito, Subito_std,
                                                                        "Subito_path_oscillation_BTN")
-        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, BoundNT,
+        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, BoundNT, BoundNT_std,
                                                                        "BoundNT_path_oscillation_BTN")
-        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, UCB1, "UCB1_path_oscillation_BTN")
+        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, UCB1, UCB1_std,"UCB1_path_oscillation_BTN")
 
     def calculate_multi_times_serirs_results_avg_std(self, monitors_deployment_percentage, multi_times_total, n, file_dir, filename):
         # calculate the average of mse of the total link delays and the std
