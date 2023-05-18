@@ -319,7 +319,7 @@ class multi_armed_bandit:
                 for monitor_pair in monitor_pair_list:
                     dict_n_paths[monitor_pair] =set()
                     traffic_overhead_in_200_iterations = []
-            if counter==200:  #200 iterations, add the path number to a list
+            if counter==20:  #200 iterations, add the path number to a list
                 #iterate the dictionary
                 sum_paths=0
                 for key in dict_n_paths:

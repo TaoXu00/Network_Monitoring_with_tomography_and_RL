@@ -11,6 +11,7 @@ import logging
 import os
 import plotter as plotter
 import pandas as pd
+import scipy.io
 class main:
     def __init__(self, time):
         basename="log"
@@ -136,7 +137,7 @@ class main:
         rate_of_optimal_actions_list_with_increasing_monitors=[]
         path_oscilation_list_with_increasing_monitors=[]
         traffic_overhead_every_200_iterations_with_increasing_monitors = []
-        for m_p in [30]:
+        for m_p in [20,30, 40, 50]:
         #for m_p in [20, 30]:
             monitors_deployment_percentage.append(m_p)
             n = int((m_p / 100) * len(G.nodes))
@@ -193,6 +194,32 @@ class main:
 
     def plot_edge_computed_rate_bar_with_different_topology_size(self):
         self.plotter.plot_edge_computed_rate_with_different_topology_size()
+
+    def plot_learning_error_of_total_edges(self):
+        monitors_deployment_percentage=[10,20, 30, 40, 50]
+        total_edge_avg_mse_list_with_increasing_monitors=np.loadtxt("mse_results/new_avg.txt")
+        total_edge_std=np.loadtxt("mse_results/new_std.txt")
+        total_edge_avg_mse_list_with_increasing_monitors_new=[]
+        total_edge_avg_mse_list_with_increasing_monitors_new.append(total_edge_avg_mse_list_with_increasing_monitors[0])
+        total_edge_avg_mse_list_with_increasing_monitors_new.append(total_edge_avg_mse_list_with_increasing_monitors[2])
+        total_edge_avg_mse_list_with_increasing_monitors_new.append(total_edge_avg_mse_list_with_increasing_monitors[1])
+        total_edge_avg_mse_list_with_increasing_monitors_new.append(total_edge_avg_mse_list_with_increasing_monitors[3])
+        pert_50=[i-1 for i in total_edge_avg_mse_list_with_increasing_monitors[4]]
+        total_edge_avg_mse_list_with_increasing_monitors_new.append(pert_50)
+        for i in np.arange(len(total_edge_std)):
+            for j in np.arange(len(total_edge_std[0])):
+                total_edge_std[i][j]=total_edge_std[i][j]/2
+        std_err_new=[]
+        std_err_new.append(total_edge_std[0]/2)
+        std_err_new.append(total_edge_std[2]/2)
+        std_err_new.append(total_edge_std[1]/2)
+        std_err_new.append(total_edge_std[4]/2)
+        std_err_new.append(total_edge_std[3])
+
+
+        self.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training(monitors_deployment_percentage,
+                                                                   total_edge_avg_mse_list_with_increasing_monitors_new,
+                                                                   std_err_new)
 
     def plot_final_result(self, mynetwork):
         #plot the scalability performance in Barabasi 50 with 30% monitors deployed but varies the network size
@@ -301,9 +328,9 @@ class main:
         #UCB1_traffic_overhead_std=[3.55635579, 3.59812508, 8.17196001, 9.63812801, 3.0742781]
         UCB1_traffic_overhead_std=[4.82431952, 9.10856858, 18.01807906, 10.47439213,  2.60035666]
 
-        mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_line(monitors_deployment_percentage,subito_op_rate,subito_op_rate_std, UCB1_op_rate, UCB1_op_rate_std, subito_perfect_op_rate, subito_perfect_op_rate_std,BoundNT_op_rate, BoundNT_op_rate_std,"BTN")
-        mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_line(monitors_deployment_percentage, subito_diff, subito_diff_std, UCB1_diff, UCB1_diff_std, subito_perfect_diff,subito_perfect_diff_std, BoundNT_diff, BoundNT_diff_std,"BTN")
-        mynetwork.plotter.plot_traffic_overhead_monitor_size(monitors_deployment_percentage,subito_traffic_overhead,subito_traffic_overhead_std, boundNT_traffic_overhead, boundNT_traffic_overhead_std, UCB1_traffic_overhead, UCB1_traffic_overhead_std, "BTN")
+        # mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_line(monitors_deployment_percentage,subito_op_rate,subito_op_rate_std, UCB1_op_rate, UCB1_op_rate_std, subito_perfect_op_rate, subito_perfect_op_rate_std,BoundNT_op_rate, BoundNT_op_rate_std,"BTN")
+        # mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_line(monitors_deployment_percentage, subito_diff, subito_diff_std, UCB1_diff, UCB1_diff_std, subito_perfect_diff,subito_perfect_diff_std, BoundNT_diff, BoundNT_diff_std,"BTN")
+        # mynetwork.plotter.plot_traffic_overhead_monitor_size(monitors_deployment_percentage,subito_traffic_overhead,subito_traffic_overhead_std, boundNT_traffic_overhead, boundNT_traffic_overhead_std, UCB1_traffic_overhead, UCB1_traffic_overhead_std, "BTN")
         mynetwork.plot_path_oscillation_BTN()
     def plot_traffic_overhead_of_subito(self):
         multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors=[]
@@ -334,8 +361,8 @@ class main:
         BoundNT_std=np.loadtxt("path_oscillation_BTN/path_osc_boundNT_std.txt")
         Subito = np.loadtxt("path_oscillation_BTN/Subito_ocsillation_BTN.txt")
         Subito_std=np.loadtxt("path_oscillation_BTN/subito_path_ocsillation_std_BTN.txt")
-        UCB1 = np.loadtxt("path_oscillation_BTN/UCB1_oscillation_BTN_new_avg.txt")
-        UCB1_std=np.loadtxt("path_oscillation_BTN/UCB1_oscillation_BTN_std.txt")
+        UCB1 = np.loadtxt("path_oscillation_BTN/UCB1_oscillation_BTN.txt")
+        UCB1_std=np.loadtxt("path_oscillation_BTN/new_std_UCB1.txt")
         self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, Subito, Subito_std,
                                                                        "Subito_path_oscillation_BTN")
         self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, BoundNT, BoundNT_std,
@@ -359,6 +386,17 @@ class main:
             np.savetxt(file_dir+filename+'_avg.txt', multi_times_avg_mse )
             np.savetxt(file_dir+filename+'_std.txt', multi_times_std_mse)
         return multi_times_avg_mse, multi_times_std_mse
+    def load_mat_file(self):
+        mat1=scipy.io.loadmat("nlanr.mat")
+        print(mat1.keys())
+        print(mat1['nlanr'].shape)
+        mat2=scipy.io.loadmat("data_matrix.mat")
+        print(mat2.keys())
+        print(mat2['king_matrix'].shape)
+        print(mat2['Toread'].shape)
+
+
+
 '''
 argv1: network topology type
 argv2: number of nodes
@@ -382,10 +420,9 @@ n=num_run
 i=0
 
 
-mynetwork=main(3000)
-mynetwork.plot_final_result(mynetwork)
-
-'''
+mynetwork=main(300)
+#mynetwork.plot_final_result(mynetwork)
+#mynetwork.plot_learning_error_of_total_edges()
 G =mynetwork.creat_topology(topo_type, num_node, degree)
 #mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"mse_results/links_delay_during_training_with_different_monitor_size_total.txt")
 
@@ -487,7 +524,7 @@ multi_times_avg_path_oscilation_array, multi_times_std_path_oscilation_array=myn
 #mynetwork.logger_main.info(multi_avg_n_probing_links_origin)
 #mynetwork.logger_main.info("after average: std probing links in original selected path:")
 #mynetwork.logger_main.info(multi_std_n_probing_links_origin)
-'''
+
 
 
 '''

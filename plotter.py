@@ -6,6 +6,35 @@ class plotter:
     def __init__(self, directory):
         self.directory= directory
 
+    def plot_total_edge_delay_mse_with_increasing_monitor_training(self, monitors_deployment_percentage, total_edge_avg_mse_list_with_increasing_monitors, total_edge_std):
+        #labels = ["10%", "20%", "30%", "40%", "50%"]
+        labels=[]
+        for per in monitors_deployment_percentage:
+            labels.append(str(per) + '%')
+        #line_num=len(total_edge_mse_list_with_increasing_monitors)
+        xticks=[0,500,1000,1500, 2000, 2500,3000]
+        yticks=[2, 4, 6, 8, 10, 12]
+        x = range(len(total_edge_avg_mse_list_with_increasing_monitors[0]))
+        fig = plt.figure(figsize=(12,9))
+        plt.rcParams.update(
+            {'font.size': 25, 'xtick.labelsize': 'large', 'ytick.labelsize': 'large', 'axes.titlesize': 'x-large'})
+        #plt.rcParams.update({'font.size': 13})
+
+        colors = ['cornflowerblue', 'goldenrod','forestgreen', 'firebrick',   'darkmagenta']
+        linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
+        markers = ["s", "^", "*", "p", "X"]
+        for i in range(len(total_edge_avg_mse_list_with_increasing_monitors)):
+            plt.errorbar(x, total_edge_avg_mse_list_with_increasing_monitors[i], yerr= total_edge_std[i],label=labels[i], color=colors[i],
+                     marker=markers[i], linewidth=3, markersize=15, capsize=5, elinewidth=1.5, markevery=500, errorevery=500)
+        plt.xticks(xticks)
+        plt.yticks(yticks)
+        plt.xlabel("learning time")
+        plt.ylabel("Learning error (msec)")
+        plt.legend(fontsize=13)
+        # plt.grid(True)
+        plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training")
+        plt.close()
+
     def plot_percentage_of_optimal_path_selected_rate_line(self,monitors_deployment_percentage, subito_op_rate,subito_op_rate_std, UCB1_op_rate,UCB1_op_rate_std, subito_perfect_op_rate, subito_perfect_op_rate_std, BoundNT_op_rate, BoundNT_op_rate_std, name):
         x = np.arange(10, 60, 10)
         if name=="BR50":
@@ -328,6 +357,7 @@ class plotter:
     def plot_bar_edge_exploration_training_with_increasing_monitor(self, monitors_deployment_percentage, explored_edges_rate):
         #x = [str(len(monitors) /len(G.nodes)) for monitors in monitors_list]
         x=['0.1', '0.2', '0.3', '0.4','0.5', '0.6', '0.7', '0.8', '0.9', '1.0']
+
         y = explored_edges_rate
         # print(x, y)
         fig = plt.figure(figsize=(10, 7))
@@ -340,26 +370,7 @@ class plotter:
         plt.savefig(self.directory + 'MAB_edge_exploration_with_increasing_monitors.png')
         plt.close()
 
-    def plot_total_edge_delay_mse_with_increasing_monitor_training(self, monitors_deployment_percentage, total_edge_mse_list_with_increasing_monitors):
-        labels = []
-        for per in monitors_deployment_percentage:
-            labels.append(str(per) + '%')
-        #line_num=len(total_edge_mse_list_with_increasing_monitors)
-        x = range(len(total_edge_mse_list_with_increasing_monitors[0]))
-        fig = plt.figure()
-        plt.rcParams.update({'font.size': 13})
 
-        colors = ['firebrick', 'cornflowerblue', 'goldenrod', 'forestgreen', 'darkmagenta']
-        linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
-        for i in range(len(total_edge_mse_list_with_increasing_monitors)):
-            plt.plot(x, total_edge_mse_list_with_increasing_monitors[i], label=labels[i], color=colors[i],
-                     linestyle=linestyles[i])
-        plt.xlabel("learning time")
-        plt.ylabel("MSE of link delay during learning")
-        plt.legend(fontsize=13)
-        # plt.grid(True)
-        plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training")
-        plt.close()
 
     def plot_total_optimal_edge_delay_mse_with_increasing_monitor_training(self, monitors_deployment_percentage, multi_times_avg_mse_total_optimal_links_delay_array):
         labels = []
