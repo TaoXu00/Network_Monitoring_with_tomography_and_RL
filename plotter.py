@@ -14,7 +14,8 @@ class plotter:
         #line_num=len(total_edge_mse_list_with_increasing_monitors)
         #xticks=[0,500,1000,1500, 2000, 2500,3000]
         #yticks=[2, 4, 6, 8, 10, 12]
-        x = range(len(total_edge_avg_mse_list_with_increasing_monitors[0]))
+        #x = range(len(total_edge_avg_mse_list_with_increasing_monitors[0]))
+        x=range(500)
         fig = plt.figure(figsize=(12,9))
         plt.rcParams.update(
             {'font.size': 25, 'xtick.labelsize': 'large', 'ytick.labelsize': 'large', 'axes.titlesize': 'x-large'})
@@ -23,9 +24,16 @@ class plotter:
         colors = ['cornflowerblue', 'goldenrod','forestgreen', 'firebrick',   'darkmagenta']
         linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
         markers = ["s", "^", "*", "p", "X"]
-        for i in range(len(total_edge_avg_mse_list_with_increasing_monitors)):
-            plt.errorbar(x, total_edge_avg_mse_list_with_increasing_monitors[i], yerr= total_edge_std[i],label=labels[i], color=colors[i],
-                     marker=markers[i], linewidth=3, markersize=15, capsize=5, elinewidth=1.5, markevery=500, errorevery=500)
+        print(total_edge_avg_mse_list_with_increasing_monitors.shape)
+        if len(monitors_deployment_percentage) ==1:
+            plt.errorbar(x, total_edge_avg_mse_list_with_increasing_monitors[:500], yerr=total_edge_std[:500],
+                         label=labels[0], color=colors[0],
+                         marker=markers[0], linewidth=3, markersize=15, capsize=5, elinewidth=1.5, markevery=100,
+                         errorevery=100)
+        else:
+            for i in range(len(total_edge_avg_mse_list_with_increasing_monitors)):
+                  plt.errorbar(x, total_edge_avg_mse_list_with_increasing_monitors[i][:500], yerr= total_edge_std[i][:500],label=labels[i], color=colors[i],
+                          marker=markers[i], linewidth=3, markersize=15, capsize=5, elinewidth=1.5, markevery=100, errorevery=100)
         #plt.xticks(xticks)
         #plt.yticks(yticks)
         plt.xlabel("learning time")

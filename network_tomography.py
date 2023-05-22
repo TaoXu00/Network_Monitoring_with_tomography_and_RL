@@ -38,8 +38,14 @@ class network_tomography:
         b=np.array(b).T
         solution, residuals, rank, s = np.linalg.lstsq(A,b, rcond=None)
         x=solution[:,0]
+        count=0
+        edges=list(G.edges)
+        for i in range(len(x)):
+            edge=edges[i]
+            diff= abs(x[i]-G[edge[0]][edge[1]]['delay'])
+            if diff <1:
+                count+=1
         #self.logger.debug("%d paths in path_matrix" %(len(path_matrix)))
-
         optimal_probing_paths=self.find_optimal_prob_paths(path_matrix)
         #any_probing_paths=self.find_any_prob_paths(path_matrix)
         #self.logger.debug("%d paths in optimal_probing_paths" %(len(optimal_probing_paths)))

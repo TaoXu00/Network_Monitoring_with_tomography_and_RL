@@ -591,8 +591,10 @@ class multi_armed_bandit:
             self.logger.debug(f"x{i}={x[i]}")
             edge = edges[i]
             if edge in explored_edge_set or (edge[1], edge[0]) in explored_edge_set:
-                #self.logger.debug(
-                #    "edge %s is computed with the value %f, its realtime delay is %f " %(edge, x[i],G[edge[0]][edge[1]]['delay']))
+                self.logger.debug(
+                    "edge %s is computed with the value %f, its realtime delay is %f " %(edge, x[i],G[edge[0]][edge[1]]['delay']))
+                diff=x[i]-G[edge[0]][edge[1]]['delay']
+                # if diff<1:
                 self.Dict_edge_theta[edge] = (self.Dict_edge_theta[edge] * self.Dict_edge_m[edge] + x[i]) / (
                         self.Dict_edge_m[edge] + 1)
                 self.Dict_edge_m[edge] = self.Dict_edge_m[edge] + 1
