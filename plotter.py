@@ -12,8 +12,8 @@ class plotter:
         for per in monitors_deployment_percentage:
             labels.append(str(per) + '%')
         #line_num=len(total_edge_mse_list_with_increasing_monitors)
-        xticks=[0,500,1000,1500, 2000, 2500,3000]
-        yticks=[2, 4, 6, 8, 10, 12]
+        #xticks=[0,500,1000,1500, 2000, 2500,3000]
+        #yticks=[2, 4, 6, 8, 10, 12]
         x = range(len(total_edge_avg_mse_list_with_increasing_monitors[0]))
         fig = plt.figure(figsize=(12,9))
         plt.rcParams.update(
@@ -26,13 +26,13 @@ class plotter:
         for i in range(len(total_edge_avg_mse_list_with_increasing_monitors)):
             plt.errorbar(x, total_edge_avg_mse_list_with_increasing_monitors[i], yerr= total_edge_std[i],label=labels[i], color=colors[i],
                      marker=markers[i], linewidth=3, markersize=15, capsize=5, elinewidth=1.5, markevery=500, errorevery=500)
-        plt.xticks(xticks)
-        plt.yticks(yticks)
+        #plt.xticks(xticks)
+        #plt.yticks(yticks)
         plt.xlabel("learning time")
         plt.ylabel("Learning error (msec)")
         plt.legend(fontsize=13)
         # plt.grid(True)
-        plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training")
+        plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training.png")
         plt.close()
 
     def plot_percentage_of_optimal_path_selected_rate_line(self,monitors_deployment_percentage, subito_op_rate,subito_op_rate_std, UCB1_op_rate,UCB1_op_rate_std, subito_perfect_op_rate, subito_perfect_op_rate_std, BoundNT_op_rate, BoundNT_op_rate_std, name):
@@ -162,8 +162,8 @@ class plotter:
         print("new_avg_with_increasing_monitors column num %d:" % (len(multi_times_avg_path_oscilation_array[0])))
             #multi_times_avg_path_oscilation_array=np.array(multi_times_avg_path_oscilation_array).astype(int)
             #print(multi_times_avg_path_oscilation_array)
-        x = np.arange(200, 3200, 200)
-        y=[0,3,6,9,12]
+        x = np.arange(200, 1500, 200)
+        #y=[0,3,6,9,12]
         fig = plt.figure()
         plt.rcParams.update({'font.size': 25, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
         plt.rcParams['hatch.linewidth'] = 2
@@ -177,8 +177,8 @@ class plotter:
         plt.ylabel(" # of Path oscillation")
         plt.xlabel("time")
         #plt.xticks(x)
-        plt.yticks(y)
-        plt.ylim(0,12.5)
+        #plt.yticks(y)
+        #plt.ylim(0,12.5)
         plt.legend(fontsize=16)
         plt.grid(True)
         plt.savefig(self.directory + filename+".png", bbox_inches='tight')
@@ -327,7 +327,7 @@ class plotter:
         plt.xlabel("time slot")
         plt.ylabel("total_mse of all edges dalay")
         # plt.show()
-        plt.savefig(self.directory + 'MAB_total_delay_mse', format="PNG")
+        plt.savefig(self.directory + 'MAB_total_delay_mse.png', format="PNG")
         plt.close()
 
     def plot_total_optimal_edge_delay_mse(self, total_mse_optimal_edges_array):
@@ -644,7 +644,7 @@ class plotter:
         plt.plot(x, abs_diff_of_delay_from_optimal)
         plt.xlabel("time")
         plt.ylabel("mse of the selected shortest path from optimal shortest path")
-        plt.savefig(self.directory + 'absolute difference of the selected shortest path from optimal shortest path', format="PNG")
+        plt.savefig(self.directory + 'absolute difference of the selected shortest path from optimal shortest path.png', format="PNG")
         plt.close()
 
     def plot_optimal_path_selected_percentage_list_with_increasing_monitors(self, monitors_deployment_percentage, optimal_path_selected_rate):

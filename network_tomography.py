@@ -20,19 +20,26 @@ class network_tomography:
     def nt_engine(self, G, path_list, b):
         #disabled the find optimal prob_path
         path_matrix = self.construct_matrix(G, path_list)
-        #self.logger.debug("Original Probing Path list: %s" %(path_list))
+        self.logger.debug("Original Probing Path list: %s" %(path_list))
         n_links_origin=0
         for path in path_list:
             n_links_origin+=len(path)
-        #self.logger.debug("%d links in the original probing path list" %(n_links_origin))
+        self.logger.debug("%d links in the original probing path list" %(n_links_origin))
         #upper_triangular, inds, uninds = self.find_basis(G, path_matrix, b)
         upper_triangular = self.find_basis(G, path_matrix, b)
-        #self.logger.debug("upper_triangular: %s" %(upper_triangular))
+        self.logger.debug("upper_triangular: %s" %(upper_triangular))
         reduced_path_matrix=upper_triangular[:, :-1]
         #n_links_reduced=np.count_nonzero(reduced_path_matrix)
         #self.logger.debug("%d links in reduced path list" %(n_links_reduced))
-        x, count=self.back_substitution(upper_triangular)
+        x_old, count=self.back_substitution(upper_triangular)
+        self.logger.info(f"x_old= {x_old}")
+        self.logger.debug(f"path_matrix:{path_matrix}")
+        A=np.array(path_matrix)
+        b=np.array(b).T
+        solution, residuals, rank, s = np.linalg.lstsq(A,b, rcond=None)
+        x=solution[:,0]
         #self.logger.debug("%d paths in path_matrix" %(len(path_matrix)))
+
         optimal_probing_paths=self.find_optimal_prob_paths(path_matrix)
         #any_probing_paths=self.find_any_prob_paths(path_matrix)
         #self.logger.debug("%d paths in optimal_probing_paths" %(len(optimal_probing_paths)))
@@ -233,7 +240,6 @@ class network_tomography:
         return M
     def back_substitution(self,upper_triangular):
         n=len(upper_triangular[0])
-        print(f"n: {n}")
         delete=[]
         for i in range(len(upper_triangular)):
             if abs(upper_triangular[i][n-1])< 1e-12:
@@ -283,6 +289,7 @@ class network_tomography:
             if found_pivot == False:
                 continue
             x[pivot] = upper_triangular_after_deletion[i][n - 1]
+
             #self.logger.debug(f"pivot= {j}, sum ={x[pivot]}")
             for k in range(pivot+1, n-1):
                 if upper_triangular_after_deletion[i][k]!=0 and x[k] == 0:
@@ -294,7 +301,7 @@ class network_tomography:
                     x[pivot]=x[pivot]-upper_triangular_after_deletion[i][k]*x[k]
             #self.logger.debug(f"computed i {i} is {x[pivot]}")
         count = np.count_nonzero(x)
-        #self.logger.info(f"{count} edges are computed")
+        self.logger.info(f"{count} edges are computed")
         return x, count
 
 

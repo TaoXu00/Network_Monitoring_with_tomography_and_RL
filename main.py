@@ -84,6 +84,8 @@ class main:
             optimal_delay= nx.path_weight(G, optimal_path, 'delay_mean')
             optimal_path_dict[monitor_pair]=optimal_path
             optimal_delay_dict[monitor_pair]=optimal_delay
+        self.logger_main.info(f"optimal paths: {optimal_path_dict}")
+        self.logger_main.info(f"optimal delay: {optimal_delay_dict}")
         rewards_mse_list, selected_shortest_path, expo_count,total_mse_array,total_mse_optimal_edges_array, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal,average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list, traffic_overhead_every_200_iterations = self.MAB.train_llc(G, self.time,monitor_pair_list, llc_factor)
 
         path_dict = {}
@@ -96,7 +98,7 @@ class main:
         #self.logger_main.info("paths are explored during the training: %s" %(path_dict))
         return expo_count, total_mse_array, total_mse_optimal_edges_array, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list, traffic_overhead_every_200_iterations
 
-    def MAB_with_increasing_monitors(self, G, type, node_num, p, llc_factor):
+    def MAB_with_increasing_monitors(self, G, type, node_num, p, llc_factor, monitor_pert_list):
         '''
         In the system configuration, we random created a topology with 100 nodes.
         :param G: the topology graph
@@ -137,7 +139,8 @@ class main:
         rate_of_optimal_actions_list_with_increasing_monitors=[]
         path_oscilation_list_with_increasing_monitors=[]
         traffic_overhead_every_200_iterations_with_increasing_monitors = []
-        for m_p in [20,30, 40, 50]:
+        end_nodes=[]
+        for m_p in monitor_pert_list:
         #for m_p in [20, 30]:
             monitors_deployment_percentage.append(m_p)
             n = int((m_p / 100) * len(G.nodes))
@@ -152,7 +155,6 @@ class main:
             else:
                 monitors = self.topo.deploy_monitor(G, n, end_nodes)
             monitors = self.topo.deploy_monitor(G, n, monitors)
-            # monitors=['45', '32', '28', '46', '29', '24', '36', '44', '42', '37']
             self.logger_main.info("deloy %d pert monitors: %s" % (m_p, monitors))
             #trimedG=mynetwork.topo.trimNetwrok(G, monitors)
             trimedG = G
@@ -196,30 +198,29 @@ class main:
         self.plotter.plot_edge_computed_rate_with_different_topology_size()
 
     def plot_learning_error_of_total_edges(self):
-        monitors_deployment_percentage=[10,20, 30, 40, 50]
+        monitors_deployment_percentage=[10, 20, 30, 40, 50]
         total_edge_avg_mse_list_with_increasing_monitors=np.loadtxt("mse_results/new_avg.txt")
         total_edge_std=np.loadtxt("mse_results/new_std.txt")
-        total_edge_avg_mse_list_with_increasing_monitors_new=[]
-        total_edge_avg_mse_list_with_increasing_monitors_new.append(total_edge_avg_mse_list_with_increasing_monitors[0])
-        total_edge_avg_mse_list_with_increasing_monitors_new.append(total_edge_avg_mse_list_with_increasing_monitors[2])
-        total_edge_avg_mse_list_with_increasing_monitors_new.append(total_edge_avg_mse_list_with_increasing_monitors[1])
-        total_edge_avg_mse_list_with_increasing_monitors_new.append(total_edge_avg_mse_list_with_increasing_monitors[3])
-        pert_50=[i-1 for i in total_edge_avg_mse_list_with_increasing_monitors[4]]
-        total_edge_avg_mse_list_with_increasing_monitors_new.append(pert_50)
-        for i in np.arange(len(total_edge_std)):
-            for j in np.arange(len(total_edge_std[0])):
-                total_edge_std[i][j]=total_edge_std[i][j]/2
-        std_err_new=[]
-        std_err_new.append(total_edge_std[0]/2)
-        std_err_new.append(total_edge_std[2]/2)
-        std_err_new.append(total_edge_std[1]/2)
-        std_err_new.append(total_edge_std[4]/2)
-        std_err_new.append(total_edge_std[3])
-
+        # total_edge_avg_mse_list_with_increasing_monitors_new=[]
+        # total_edge_avg_mse_list_with_increasing_monitors_new.append(total_edge_avg_mse_list_with_increasing_monitors[0])
+        # total_edge_avg_mse_list_with_increasing_monitors_new.append(total_edge_avg_mse_list_with_increasing_monitors[2])
+        # total_edge_avg_mse_list_with_increasing_monitors_new.append(total_edge_avg_mse_list_with_increasing_monitors[1])
+        # total_edge_avg_mse_list_with_increasing_monitors_new.append(total_edge_avg_mse_list_with_increasing_monitors[3])
+        # pert_50=[i-1 for i in total_edge_avg_mse_list_with_increasing_monitors[4]]
+        # total_edge_avg_mse_list_with_increasing_monitors_new.append(pert_50)
+        # for i in np.arange(len(total_edge_std)):
+        #     for j in np.arange(len(total_edge_std[0])):
+        #         total_edge_std[i][j]=total_edge_std[i][j]/2
+        # # std_err_new=[]
+        # std_err_new.append(total_edge_std[0]/2)
+        # std_err_new.append(total_edge_std[2]/2)
+        # std_err_new.append(total_edge_std[1]/2)
+        # std_err_new.append(total_edge_std[4]/2)
+        # std_err_new.append(total_edge_std[3])
 
         self.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training(monitors_deployment_percentage,
-                                                                   total_edge_avg_mse_list_with_increasing_monitors_new,
-                                                                   std_err_new)
+                                                                   total_edge_avg_mse_list_with_increasing_monitors,
+                                                                   total_edge_std)
 
     def plot_final_result(self, mynetwork):
         #plot the scalability performance in Barabasi 50 with 30% monitors deployed but varies the network size
@@ -386,17 +387,19 @@ class main:
             np.savetxt(file_dir+filename+'_avg.txt', multi_times_avg_mse )
             np.savetxt(file_dir+filename+'_std.txt', multi_times_std_mse)
         return multi_times_avg_mse, multi_times_std_mse
-    def load_mat_file(self):
-        mat1=scipy.io.loadmat("nlanr.mat")
-        print(mat1.keys())
-        print(mat1['nlanr'].shape)
-        mat2=scipy.io.loadmat("data_matrix.mat")
-        print(mat2.keys())
-        print(mat2['king_matrix'].shape)
-        print(mat2['Toread'].shape)
 
-
-
+    def plot_learning_error_of_total_edges_NSF(self, monitor_pert_list):
+        monitors_deployment_percentage = monitor_pert_list
+        total_edge_avg_mse_list_with_increasing_monitors = np.loadtxt(self.directory+"total_edge_mse/total_mse_error_avg.txt")
+        total_edge_std = np.loadtxt(self.directory+"total_edge_mse/total_mse_error_std.txt")
+        self.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training(monitors_deployment_percentage,
+                                                                                total_edge_avg_mse_list_with_increasing_monitors,
+                                                                                total_edge_std)
+    def plot_path_oscillation_NSF(self, monitor_pert_list):
+        Subito_avg = np.loadtxt(self.directory+"path_oscillation/path_osc_avg.txt")
+        Subito_std = np.loadtxt(self.directory+"path_oscillation/path_osc_std.txt")
+        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert_list, Subito_avg, Subito_std,
+                                                                       "Subito_path_oscillation_NSF")
 '''
 argv1: network topology type
 argv2: number of nodes
@@ -420,11 +423,9 @@ n=num_run
 i=0
 
 
-mynetwork=main(300)
+mynetwork=main(1400)
 #mynetwork.plot_final_result(mynetwork)
-#mynetwork.plot_learning_error_of_total_edges()
 G =mynetwork.creat_topology(topo_type, num_node, degree)
-#mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"mse_results/links_delay_during_training_with_different_monitor_size_total.txt")
 
 #mynetwork.plot_path_oscillation_BTN()
 path_osc_dir=mynetwork.directory+'path_oscillation/'
@@ -433,11 +434,17 @@ path_total_mse_dir=mynetwork.directory+'total_edge_mse/'
 os.mkdir(path_total_mse_dir)
 file_list_total_mse=[]
 file_list_osc_dir=[]
+monitor_pert_list=[60, 70, 80, 90, 100]
 while(i<n):
     #mynetwork=main(3000)
     #G =mynetwork.creat_topology(topo_type, num_node, degree)
     #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors, total_optimal_edges_mse_list_with_increasing_monitors,monitors_deployment_percentage, average_probing_links_origin_list, average_probing_links_reduced_list, rate_of_optimal_actions_list_with_increasing_monitors, path_oscilation_list_with_increasing_monitors, traffic_overhead_every_200_iterations_with_increasing_monitors = mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor)
+    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors,\
+    total_optimal_edges_mse_list_with_increasing_monitors,monitors_deployment_percentage, average_probing_links_origin_list, \
+    average_probing_links_reduced_list, rate_of_optimal_actions_list_with_increasing_monitors, path_oscilation_list_with_increasing_monitors, \
+    traffic_overhead_every_200_iterations_with_increasing_monitors = \
+    mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor, monitor_pert_list)
+
     #print("n=%d" %(i))
     #print(optimal_path_selected_percentage_list,avg_diff_of_delay_from_optimal_list)
     # save the 2D array data to a txt file
@@ -473,13 +480,12 @@ while(i<n):
 #multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors=multi_times_traffic_overhead_every_200_iterations_with_increasing_monitors/n
 #np.savetxt(mynetwork.directory + 'links_delay_during_training_with_different_monitor_size_total.txt', multi_times_avg_mse_total_link_delay_array)
 #np.savetxt(mynetwork.directory + 'optimal_links_delay_during_training_with_different_monitor_size_total.txt', multi_times_avg_mse_total_optimal_links_delay_array)
+mynetwork.logger_main.info(f"monitor deployment pert list: {monitor_pert_list}")
 mynetwork.logger_main.info("Statistics:")
 mynetwork.logger_main.info("Before average: percentage of the optimal path selected:")
 mynetwork.logger_main.info(multi_times_optimal_path_selected_percentage_array)
 mynetwork.logger_main.info("Before average: diff from the real optimal path: ")
 mynetwork.logger_main.info(multi_times_avg_diff_of_delay_from_optimal_array)
-#mynetwork.logger_main.info("Before average: average probing links in original selected path:")
-#mynetwork.logger_main.info(multi_times_avg_n_probing_links_origin_array)
 mynetwork.logger_main.info("Before average: average probing links in reduced selected path:")
 mynetwork.logger_main.info(multi_times_avg_n_probing_links_reduced_array)
 #mynetwork.logger_main.info("Before average: rate of the optimal actions shape: ")
@@ -515,39 +521,9 @@ mynetwork.logger_main.info (multi_std_percentage_of_select_optimal_path)
 
 #statistic for avg and std of path ocsillation stored in the file
 multi_times_avg_path_oscilation_array, multi_times_std_path_oscilation_array=mynetwork.calculate_multi_times_serirs_results_avg_std(monitors_deployment_percentage,multi_times_path_ocilations_with_increasing_monitors, n, path_osc_dir,'path_osc')
-# mynetwork.logger_main.info("after average: avg path oscilations")
-# mynetwork.logger_main.info(multi_times_avg_path_oscilation_array)
-# mynetwork.logger_main.info("after average: std path oscilations")
-# mynetwork.logger_main.info(multi_times_std_path_oscilation_array)
-
-#mynetwork.logger_main.info("after average: average probing links in original selected path:")
-#mynetwork.logger_main.info(multi_avg_n_probing_links_origin)
-#mynetwork.logger_main.info("after average: std probing links in original selected path:")
-#mynetwork.logger_main.info(multi_std_n_probing_links_origin)
+mynetwork.plot_learning_error_of_total_edges_NSF(monitor_pert_list)
+mynetwork.plot_path_oscillation_NSF(monitor_pert_list)
 
 
-
-'''
-mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training(monitors_deployment_percentage,multi_times_avg_mse_total_link_delay_array)
-mynetwork.plotter.plot_total_optimal_edge_delay_mse_with_increasing_monitor_training(monitors_deployment_percentage,multi_times_avg_mse_total_optimal_links_delay_array)
-# self.plotter.plot_edge_exporation_times_with_differrent_monitor_size(G,total_edge_exploration_during_training_list)
-mynetwork.plotter.plot_optimal_path_selected_percentage_list_with_increasing_monitors(monitors_deployment_percentage, multi_avg_percentage_of_select_optimal_path)
-mynetwork.plotter.plot_abs_diff_path_delay_from_the_optimal(monitors_deployment_percentage,multi_avg_percentage_of_abs_diff_from_optimal )
-mynetwork.plotter.plot_avg_path_oscilation_every_200_times(monitors_deployment_percentage,multi_times_avg_path_oscilation_array)
-np.savetxt("Subito_ocsillition_every_200_times_BR50_10%-50%.txt",multi_times_avg_path_oscilation_array)
-mynetwork.plotter.plot_avg_optimal_actions_every_200_times(monitors_deployment_percentage,multi_avg_optimal_actions_with_increasing_monitors)
-mynetwork.plotter.plot_avg_traffic_overhead_every_200_iterations(monitors_deployment_percentage, multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors)
-'''
-'''test
-array1=np.array([[0.1, 0.2, 0.3],
-                [0.2, 0.3, 0.4],
-                [0.4, 0.5, 0.6]])
-array2=np.array([[0.2, 0.3, 0.4],
-                [0.1, 0.2, 0.3],
-                [0.4, 0.5, 0.6]])
-sum=np.add(array1,array2)
-three_avg=sum/3
-print(three_avg)
-'''
 
 

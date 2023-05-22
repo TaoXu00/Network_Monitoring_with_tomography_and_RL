@@ -190,7 +190,10 @@ class multi_armed_bandit:
 
     def update_MBA_variabels_with_NT(self, G, x, explored_edge_set, edge_average_delay_Dict):
         edges = list(G.edges)
+        self.logger.debug(f"x={x}")
+        self.logger.debug(f"explored_edge_set:{explored_edge_set}")
         for i in range(len(x)):
+            self.logger.debug(f"x{i}={x[i]}")
             if x[i] != 0:
                 edge = edges[i]
                 #self.logger.debug(
@@ -201,12 +204,17 @@ class multi_armed_bandit:
                 if edge not in explored_edge_set:
                     edge = (edge[1], edge[0])
                 explored_edge_set.remove(edge)
+                self.logger.debug(f"removed edge {i}")
+                self.logger.debug(f"explored_edge_set:{explored_edge_set}")
+
+        self.logger.info(f"edges to be updated: {explored_edge_set}")
         for edge in explored_edge_set:
             if edge not in edges:
                 edge_g = (edge[1], edge[0])
             else:
                 edge_g=edge
             #as a base line approach, the unindentificable links will be assigned with average delay(total_path_delay/path_length)
+            self.logger.debug(f"{edge_g} is unindentified, update its value with the estimation approach with value:{edge_average_delay_Dict[edge]}")
             self.Dict_edge_theta[edge_g] = (self.Dict_edge_theta[edge_g] * self.Dict_edge_m[edge_g] + edge_average_delay_Dict[edge]) / (
                     self.Dict_edge_m[edge_g] + 1)
             self.Dict_edge_m[edge_g] = self.Dict_edge_m[edge_g] + 1
@@ -229,7 +237,7 @@ class multi_armed_bandit:
 
     def LLC_policy(self, G, monitor1, monitor2, llc):
         # select a path which solves the minimization problem
-        print(llc)
+        #print(llc)
         for edge in G.edges:
             llc_factor= self.Dict_edge_theta[edge] - llc * math.sqrt(
                 (len(G.edges) + 1) * math.log(self.t) / self.Dict_edge_m[edge])
@@ -300,15 +308,25 @@ class multi_armed_bandit:
         counter=0
         dict_n_paths = {}
         traffic_overhead_every_200_iterations = []
+        dict_theta_along_time={}
+        dict_inferred_from_real={}
         for i in range(time):
             ##compute the mse of all the links in the graph during training
-            #self.logger.info("t= %s" %(self.t))
+            self.logger.info("t= %s" %(self.t))
             total_mse = 0
             total_mse_opt_edges = 0
+            diff_from_true_mean=[]
             for edge in G.edges:
+                if i==0:
+                    dict_theta_along_time[edge]=[self.Dict_edge_theta[edge]]
+                else:
+                    dict_theta_along_time[edge].append(self.Dict_edge_theta[edge])
                 total_mse += (self.Dict_edge_theta[edge] - G[edge[0]][edge[1]]['delay_mean']) ** 2
+                diff_from_true_mean.append(self.Dict_edge_theta[edge] - G[edge[0]][edge[1]]['delay_mean'])
                 if edge in optimal_links:
                     total_mse_opt_edges+= (self.Dict_edge_theta[edge] - G[edge[0]][edge[1]]['delay_mean']) ** 2
+            # self.logger.debug(f"edges: {G.edges}")
+            # self.logger.debug(f"diff from the delay_mean: {diff_from_true_mean}")
             total_mse_array.append(total_mse / len(G.edges))
             total_mse_optimal_edges_array.append(total_mse_opt_edges/len(optimal_links))
             explored_path_list = []
@@ -319,7 +337,7 @@ class multi_armed_bandit:
                 for monitor_pair in monitor_pair_list:
                     dict_n_paths[monitor_pair] =set()
                     traffic_overhead_in_200_iterations = []
-            if counter==20:  #200 iterations, add the path number to a list
+            if counter==200:  #200 iterations, add the path number to a list
                 #iterate the dictionary
                 sum_paths=0
                 for key in dict_n_paths:
@@ -341,7 +359,7 @@ class multi_armed_bandit:
                 shortest_path=self.LLC_policy(G, m1, m2, llc_factor)
                 if shortest_path==optimal_path_dict[monitor_pair]:
                     optimal_actions+=1
-                #self.logger.debug("shortest path %s" %(shortest_path))
+                self.logger.debug(f"shortest path for {monitor_pair} is {shortest_path}")
                 dict_n_paths[monitor_pair].add(tuple(shortest_path))
                 #shortest_path = self.LLC_policy_without_MAB(G, m1, m2)
                 #collect the paths it used in 200 iterations
@@ -393,8 +411,13 @@ class multi_armed_bandit:
             counter+=1
             computed_edge_num.append(count)
             # the MBA variables should be updated according to the results computed by the NT.
-            self.update_MBA_variabels_with_NT(G, x, explored_edge_set, edge_average_delay_dict)
-            #self.update_MBA_variabels(G,explored_edge_set)
+            self.update_MBA_variabels_with_NT_test(G, x, explored_edge_set, edge_average_delay_dict)
+            edges = list(G.edges)
+            for i in range(len(x)):
+                 if self.t==15:
+                     dict_inferred_from_real[edges[i]]=[x[i]-G[edges[i][0]][edges[i][1]]['delay']]
+                 else:
+                     dict_inferred_from_real[edges[i]].append(x[i]-G[edges[i][0]][edges[i][1]]['delay'])
             '''
             total_rewards.append(rewards)
             regret = sum(total_rewards) - self.t * optimal_delay
@@ -404,7 +427,17 @@ class multi_armed_bandit:
             if self.t < time+len(G.edges):
                 self.topo.assign_link_delay(G)
             #self.plot_edge_delay_difference_at_different_time_point(G)
+        for key in dict_inferred_from_real:
+            plt.figure()
+            plt.plot(np.arange(len(dict_inferred_from_real[key])),dict_inferred_from_real[key])#self.update_MBA_variabels(G,explored_edge_set)
+            plt.savefig(self.directory+f"{key}_diff_from_real.png", format="png")
+            plt.savefig(self.directory+f"{key}_diff_from_real.png", format='png')
 
+        for key in dict_theta_along_time:
+            plt.figure()
+            plt.plot(np.arange(len(dict_theta_along_time[key])),dict_theta_along_time[key])
+            plt.axhline(y = G[key[0]][key[1]]["delay_mean"], color = 'r')
+            plt.savefig(self.directory+f"{key}.png", format='png')
         sum_paths = 0
         for key in dict_n_paths:
             sum_paths += len(dict_n_paths[key])
@@ -459,7 +492,14 @@ class multi_armed_bandit:
         self.t=1
         for link in optimal_links:
             optimal_edges_delay_difference_after_training.append(abs(self.Dict_edge_theta[link] - G[link[0]][link[1]]["delay_mean"]))
+        # self.logger.debug(f"optimal links: {optimal_links}")
+        # self.logger.debug(f"diff from delay mean after training: {optimal_edges_delay_difference_after_training}")
+        self.logger.debug(f"opt_edges_delay_after init:{optimal_edges_delay_difference_after_inti}")
+        self.logger.debug(f"opt_edges_delay_after training:{optimal_edges_delay_difference_after_training}")
         self.plotter.plot_edge_delay_difference_for_some_edges(optimal_edges_delay_difference_after_inti,optimal_edges_delay_difference_after_training)
+        plt.figure()
+        plt.plot(np.arange(len(computed_edge_num)),computed_edge_num)
+        plt.savefig(self.directory+"edge_count.png", format="PNG")
         average_computed_edge_num = sum(computed_edge_num) / len(computed_edge_num)
         average_probing_links_origin=sum_n_links_origin/time
         average_probing_links_reduced=sum_n_links_reduced/time
@@ -543,23 +583,33 @@ class multi_armed_bandit:
                         bbox_inches='tight')
             plt.close()
 
+    def update_MBA_variabels_with_NT_test(self, G, x, explored_edge_set, edge_average_delay_Dict):
+        edges = list(G.edges)
+        self.logger.debug(f"x={x}")
+        self.logger.debug(f"explored_edge_set:{explored_edge_set}")
+        for i in range(len(x)):
+            self.logger.debug(f"x{i}={x[i]}")
+            edge = edges[i]
+            if edge in explored_edge_set or (edge[1], edge[0]) in explored_edge_set:
+                #self.logger.debug(
+                #    "edge %s is computed with the value %f, its realtime delay is %f " %(edge, x[i],G[edge[0]][edge[1]]['delay']))
+                self.Dict_edge_theta[edge] = (self.Dict_edge_theta[edge] * self.Dict_edge_m[edge] + x[i]) / (
+                        self.Dict_edge_m[edge] + 1)
+                self.Dict_edge_m[edge] = self.Dict_edge_m[edge] + 1
+                if edge not in explored_edge_set:
+                    edge = (edge[1], edge[0])
+                explored_edge_set.remove(edge)
+                self.logger.debug(f"removed edge {i}")
+                self.logger.debug(f"explored_edge_set:{explored_edge_set}")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        for edge in explored_edge_set:
+            if edge not in edges:
+                edge_g = (edge[1], edge[0])
+            else:
+                edge_g=edge
+            #as a base line approach, the unindentificable links will be assigned with average delay(total_path_delay/path_length)
+            self.logger.debug(f"{edge_g} is unindentified, update its value with the estimation approach with value:{edge_average_delay_Dict[edge]}")
+            self.Dict_edge_theta[edge_g] = (self.Dict_edge_theta[edge_g] * self.Dict_edge_m[edge_g] + edge_average_delay_Dict[edge]) / (
+                    self.Dict_edge_m[edge_g] + 1)
+            self.Dict_edge_m[edge_g] = self.Dict_edge_m[edge_g] + 1
+            #self.logger.debug("updating %s with average %s" %(edge, edge_average_delay_Dict[edge]))

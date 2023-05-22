@@ -140,8 +140,11 @@ class network_topology:
         if type== "Barabasi" or type== "ER":
             y= np.loadtxt("delay_exponential_samples/scales_%s_%s_%s.txt" % (type, n, p))
             scales = np.array(y)
-        elif type=="Bics" or type=="BTN" or type=="Ntt" or type=="NSF":
+        elif type=="Bics" or type=="BTN" or type=="Ntt":
             y = np.loadtxt("delay_exponential_samples/scales_%s.txt" % (type))
+            scales = np.array(y)
+        elif type=="NSF":
+            y = np.loadtxt("delay_exponential_samples/scales_%s_1500.txt" % (type))
             scales = np.array(y)
         self.logger.debug("Edge delay scales: %s" %(scales))
         i=0
@@ -168,7 +171,7 @@ class network_topology:
         elif type=="Bics" or type=="BTN" or type=="Ntt":
             y= np.loadtxt("delay_exponential_samples/samples_%s.txt" %(type))
         elif type=="NSF":
-            y= np.genfromtxt('delay_exponential_samples/samples_NSF.txt', delimiter=',')
+            y= np.loadtxt('delay_exponential_samples/samples_NSF_1500.txt')
 
         samples=np.array(y)
         for edge in G.edges:
@@ -187,11 +190,11 @@ class network_topology:
         n_samples=np.array(samples)
         if type== "Barabasi" or type=="ER":
             np.savetxt('delay_exponential_samples/samples_%s_%s_%s.txt' %(type, n, p),n_samples)
-        elif type=="Bics" or type=="BTN" or type=="Ntt":
+        elif type=="Bics" or type=="BTN" or type=="Ntt" or type=="NSF":
             np.savetxt('delay_exponential_samples/samples_%s.txt' % (type), n_samples)
-        
-        self.logger.info("Draw %d delay examples from exponential distribution for each edge." %(self.time+len(G.edges)))
         '''
+        self.logger.info("Draw %d delay examples from exponential distribution for each edge." %(self.time+len(G.edges)))
+
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
         self.logger.info("edge delay sample average %s" %(average))
 
@@ -281,7 +284,6 @@ class network_topology:
         for n1, n2 in nodepairs:
             #compute all the possible paths and selected the first one
             paths=nx.all_simple_paths(G,n1,n2)
-            print(f"total path number: {len( list(paths))}")
             path_count_among_every_monitor_pair.append(len(list(paths)))
             for path in map(nx.utils.pairwise, paths):
                for edge in list(path):
