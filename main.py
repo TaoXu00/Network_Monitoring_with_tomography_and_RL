@@ -95,7 +95,7 @@ class main:
         #self.logger_main.info("paths are explored during the training: %s" %(path_dict))
         return expo_count, total_mse_array, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal
 
-    def MAB_with_increasing_monitors(self, G, type, node_num, p, llc_factor):
+    def MAB_with_increasing_monitors(self, G, type, node_num, p, llc_factor, monitors_deployment_percentage):
         '''
         In the system configuration, we random created a topology with 100 nodes.
         :param G: the topology graph
@@ -124,10 +124,8 @@ class main:
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
-        monitors_deployment_percentage=[]
-        for m_p in [30]:
-        #for m_p in [20, 30]:
-            monitors_deployment_percentage.append(m_p)
+        end_nodes=[]
+        for m_p in monitors_deployment_percentage:
             n = int((m_p / 100) * len(G.nodes))
             if m_p ==10:
                 n=3
@@ -244,11 +242,12 @@ mynetwork=main(3000)
 mynetwork.plot_final_result(mynetwork)
 mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"links_delay_during_training_with_different_monitor_size_total.txt")
 '''
-mynetwork=main(3000)
+mynetwork=main(1400)
 G =mynetwork.creat_topology(topo_type, num_node, degree)
+monitors_deployment_percentage=[60, 70, 80, 90, 100]
 while(i<n):
     #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage = mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor)
+    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors,monitors_deployment_percentage = mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor, monitors_deployment_percentage)
     #print("n=%d" %(i))
     #print(optimal_path_selected_percentage_list,avg_diff_of_delay_from_optimal_list)
     if i==0:

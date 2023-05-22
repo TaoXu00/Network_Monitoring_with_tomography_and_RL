@@ -23,6 +23,7 @@ class network_tomography:
         upper_triangular = self.find_basis(G, path_matrix, b)
         x, count=self.back_substitution(upper_triangular)
         #x, count = self.edge_delay_infercement(G, M, inds, uninds)
+
         return x, count
 
 
