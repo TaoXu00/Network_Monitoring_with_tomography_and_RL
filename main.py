@@ -67,7 +67,7 @@ class main:
 
         return rewards_mse_list, optimal_delay, optimal_path_selected_rate, avg_diff_of_delay_from_optimal,  average_n_probing_links, path_oscilation_list,traffic_overhead_every_200_iterations
 
-    def MAB_with_increasing_monitors(self, G, type, node_num, p, path_space):
+    def MAB_with_increasing_monitors(self, G, type, node_num, p, path_space, monitors_deployment_percentage):
         '''
         In the system configuration, we random created a topology with 100 nodes.
         :param G: the topology graph
@@ -92,13 +92,10 @@ class main:
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
-        monitors_deployment_percentage=[]
         average_n_probing_links_with_increasing_monitors=[]
         path_oscilation_list_with_increasing_monitors = []
         traffic_overhead_every_200_iterations_with_increasing_monitors = []
-        for m_p in [10, 20, 30, 40, 50]:
-        #for m_p in [10, 20]:
-            monitors_deployment_percentage.append(m_p)
+        for m_p in monitors_deployment_percentage:
             n=int((m_p/100)*len(G.nodes))
             if n==2:
                 n=3
@@ -173,14 +170,14 @@ multi_times_avg_path_oscilation_list=[]
 multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors=[]
 n=num_run
 i=0
-mynetwork=main(3000)
+mynetwork=main(1400)
 G =mynetwork.creat_topology(topo_type, num_node, degree)
 path_osc_dir=mynetwork.directory+'path_oscillation/'
 os.mkdir(path_osc_dir)
-
+monitors_deployment_percentage=[60, 70, 80, 90, 100]
 while(i<n):
     #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, monitors_deployment_percentage, avg_diff_of_delay_from_optimal_list, average_n_probing_links_with_increasing_monitors, path_oscilation_list,traffic_overhead_every_200_iterations =mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree,path_space)
+    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, monitors_deployment_percentage, avg_diff_of_delay_from_optimal_list, average_n_probing_links_with_increasing_monitors, path_oscilation_list,traffic_overhead_every_200_iterations =mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree,path_space, monitors_deployment_percentage)
     np.savetxt(path_osc_dir + '%s.txt' % (i), path_oscilation_list)
     if i==0:
         multi_times_optimal_path_selected_percentage_array=np.array([optimal_path_selected_percentage_list])
