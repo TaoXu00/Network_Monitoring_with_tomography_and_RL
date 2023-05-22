@@ -31,7 +31,20 @@ class network_tomography:
         b=self.end_to_end_measurement(G,probing_paths)
         #step3: Solve the system with Guassian Back propogation, x stores the solved links
         upper_triangular = self.triangular_matrix(G, probing_paths, b)
-        x, count=self.back_substitution(upper_triangular)   #now got the identifiable links with its value
+        x_old, count=self.back_substitution(upper_triangular)   #now got the identifiable links with its value
+        A = np.array(probing_paths)
+        B = np.array(b).T
+        solution, residuals, rank, s = np.linalg.lstsq(A, B, rcond=None)
+        x = solution[:, 0]
+        count = 0
+        edges = list(G.edges)
+        for i in range(len(x)):
+            edge = edges[i]
+            diff = abs(x[i] - G[edge[0]][edge[1]]['delay'])
+            if diff < 1:
+                count += 1
+            elif diff>=1:
+                x[i]=0
         #step4: estimate the bound for every unidentifiable link with the value calculated in x
         link_tight_bound_dict=self.calculate_bound_of_unidenticable_links(G, probing_paths, b, x)
         #self.logger.debug("link_tight_bound_dict %s" %(link_tight_bound_dict))

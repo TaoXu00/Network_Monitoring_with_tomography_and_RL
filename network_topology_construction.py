@@ -71,6 +71,17 @@ class network_topology:
                 if edge_degree[1] == 1:
                     degree_one_nodes.append(edge_degree[0])
             G.remove_nodes_from(degree_one_nodes)
+        elif type=="NSF":
+            G = nx.read_gml('topology/Topology_Zoo/NSFnet.gml')
+            degree_list = list(G.degree(list(G.nodes)))
+            degree_one_nodes = []
+            # it does not make sense to differenciate the end nodes from the internal nodes.
+            # trim the node with degree 1
+            for edge_degree in degree_list:
+                if edge_degree[1] == 1:
+                    degree_one_nodes.append(edge_degree[0])
+            G.remove_nodes_from(degree_one_nodes)
+
         self.logger.info("Graph Created!")
 
         for edge in G.edges:
@@ -104,34 +115,18 @@ class network_topology:
         :return: the scales vector for all the edge
         '''
 
-        scales=np.random.randint(1, 10, len(G.edges))
-        if type== "Barabasi" or type== "ER":
-            np.savetxt('delay_exponential_samples/scales_%s_%s_%s.txt' % (type, n, p), scales)
-        elif type=="Bics" or type=="BTN" or type=="Ntt":
-            np.savetxt('delay_exponential_samples/scales_%s.txt' % (type), scales)
-
-
-
-        '''
-        #scales used in the experiments for ER topology - er_graph_dot_file_20.gml
-        #scales=np.array([2, 5, 4, 7, 7, 4, 1, 3, 2, 5, 6, 7, 2, 5, 8, 7, 2, 3, 3, 1, 7, 8, 6, 3, 1, 8, 7, 6, 4, 3, 7, 6, 9, 5, 9, 3])
-        
-        #scales used in the experiment for ER topology - er_graph_dot_file_50.gml
-        scales = np.array([8, 3, 3, 6, 4, 1, 7, 1, 7, 4, 8, 5, 2, 1, 9, 6, 4, 4, 1, 2, 6, 4, 1, 3, 9, 9, 7, 8, 9, 3, 7, 4, 6, 4, 9, 1, 8,
-             5, 6, 1, 7, 9, 1, 6, 6, 2, 8, 4, 1, 7, 8, 4, 5, 6, 7, 6, 6, 7, 7, 5, 6, 8, 7, 7, 3, 5, 6, 8, 7, 5, 5, 9, 1, 4,
-             1, 4, 1, 9, 7, 3, 3, 7, 8, 9, 7, 1, 3, 6, 5, 8, 5, 4, 2, 6, 4, 6, 2, 1, 4, 3, 9, 2, 9, 8, 6, 6, 9, 6, 5, 2, 3,
-             4, 2, 7, 5, 1, 8, 8, 1, 3, 1, 3, 5, 4, 2, 5, 2, 7, 2, 6, 8, 3, 2, 4, 7, 4, 3, 9, 5, 6, 2, 3, 8, 1, 8, 5, 2, 3,
-             9, 6, 3, 6, 2, 3, 4, 8, 7, 6, 1, 7, 3, 1, 9, 2, 8, 2, 4, 2, 9, 6, 1, 5, 2, 4, 3, 1, 7, 2, 5, 5, 7, 4, 9, 8, 2,
-             1, 2, 2, 4, 2, 8, 3, 6, 4, 4, 9, 8,2, 6, 2, 1, 9, 6, 1, 7, 4, 2, 6, 3, 8, 8, 2, 8, 6, 9, 3, 5, 9, 9, 8, 6, 6,
-             3, 5, 9, 6, 9, 4, 3, 3, 7, 3, 3, 7, 5, 5, 6, 6, 2, 5, 6, 4, 9, 3, 7, 1, 5, 4, 3, 5, 8, 7, 3, 9, 3,1, 3, 7, 8,
-             6, 7, 6, 6, 2, 6, 5, 3, 7, 9, 8, 4, 7, 4, 1, 8, 7, 3, 3, 4, 5, 1, 1, 1, 1, 8, 6, 3, 9, 9, 4, 6, 4, 3, 2, 7, 7,
-             9, 1, 6, 8, 9, 1, 7, 8, 9, 2, 5, 1, 4, 6, 7, 7, 7, 7, 6, 1, 8, 3, 3, 9, 6, 5, 9, 6, 7, 2])
-        '''
+        # scales=np.random.randint(1, 10, len(G.edges))
+        # if type== "Barabasi" or type== "ER":
+        #     np.savetxt('delay_exponential_samples/scales_%s_%s_%s.txt' % (type, n, p), scales)
+        # elif type=="Bics" or type=="BTN" or type=="Ntt":
+        #     np.savetxt('delay_exponential_samples/scales_%s.txt' % (type), scales)
 
         if type== "Barabasi" or type== "ER":
             y= np.loadtxt("delay_exponential_samples/scales_%s_%s_%s.txt" % (type, n, p))
         elif type=="Bics" or type=="BTN" or type=="Ntt":
             y = np.loadtxt("delay_exponential_samples/scales_%s.txt" % (type))
+        elif type=="NSF":
+            y = np.loadtxt("delay_exponential_samples/scales_NSF_1500.txt")
         scales = np.array(y)
         self.logger.debug("Edge delay scales: %s" %(scales))
         i=0
@@ -139,7 +134,6 @@ class network_topology:
            self.Dict_edge_scales[edge]=scales[i]
            G[edge[0]][edge[1]]['delay_mean']=scales[i]
            i=i+1
-
 
     def draw_edge_delay_sample(self, G, type, n, p):
         '''
@@ -152,12 +146,13 @@ class network_topology:
         '''
 
         #read samples from an existing file
-        '''
+
         if type== "Barabasi" or type=="ER":
             y = np.loadtxt("delay_exponential_samples/samples_%s_%s_%s.txt" %(type, n, p))
         elif type=="Bics" or type=="BTN" or type=="Ntt":
             y= np.loadtxt("delay_exponential_samples/samples_%s.txt" %(type))
-       
+        elif type=="NSF":
+            y = np.loadtxt("delay_exponential_samples/samples_NSF_1500.txt")
         samples=np.array(y)
         for edge in G.edges:
             self.Dict_edge_delay_sample[edge]=[]
@@ -165,18 +160,18 @@ class network_topology:
         for edge in G.edges:
             self.Dict_edge_delay_sample[edge] =samples[i]
             i=i+1
-        '''
-        #generate the delay samples from the exponential distribution with the generated scales
-        samples=[]
-        for edge in G.edges:
-            sample = np.random.exponential(scale=self.Dict_edge_scales[edge], size=(1, self.time+len(G.edges)))[0]
-            self.Dict_edge_delay_sample[edge]=sample
-            samples.append(sample)
-        n_samples=np.array(samples)
-        if type== "Barabasi" or type=="ER":
-            np.savetxt('delay_exponential_samples/samples_%s_%s_%s.txt' %(type, n, p),n_samples)
-        elif type=="Bics" or type=="BTN" or type=="Ntt":
-            np.savetxt('delay_exponential_samples/samples_%s.txt' % (type), n_samples)
+
+        # #generate the delay samples from the exponential distribution with the generated scales
+        # samples=[]
+        # for edge in G.edges:
+        #     sample = np.random.exponential(scale=self.Dict_edge_scales[edge], size=(1, self.time+len(G.edges)))[0]
+        #     self.Dict_edge_delay_sample[edge]=sample
+        #     samples.append(sample)
+        # n_samples=np.array(samples)
+        # if type== "Barabasi" or type=="ER":
+        #     np.savetxt('delay_exponential_samples/samples_%s_%s_%s.txt' %(type, n, p),n_samples)
+        # elif type=="Bics" or type=="BTN" or type=="Ntt":
+        #     np.savetxt('delay_exponential_samples/samples_%s.txt' % (type), n_samples)
 
         self.logger.info("Draw %d delay examples from exponential distribution for each edge." %(self.time+len(G.edges)))
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]

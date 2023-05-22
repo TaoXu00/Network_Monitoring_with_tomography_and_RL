@@ -98,7 +98,7 @@ class main:
         #self.logger_main.info("paths are explored during the training: %s" %(path_dict))
         return expo_count, total_mse_array, total_mse_optimal_edges_array, rewards_mse_list, optimal_delay, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list, traffic_overhead_every_200_iterations
 
-    def bound_NT_path_selection_increasing_monitors(self, G, type, node_num, p):
+    def bound_NT_path_selection_increasing_monitors(self, G, type, node_num, p, monitors_deployment_percentage):
         '''
         In the system configuration, we random created a topology with 100 nodes.
         :param G: the topology graph
@@ -135,13 +135,11 @@ class main:
         #for n in range(2, len(monitor_candidate_list) + 1, 1):
         #for n in range(2, 3, 1):
         monitors=[]
-        monitors_deployment_percentage=[]
         rate_of_optimal_actions_list_with_increasing_monitors=[]
         path_oscilation_list_with_increasing_monitors = []
         traffic_overhead_every_200_iterations_with_increasing_monitors=[]
-        for m_p in [30]:
+        for m_p in monitors_deployment_percentage:
         #for m_p in [20, 30]:
-            monitors_deployment_percentage.append(m_p)
             n = int((m_p / 100) * len(G.nodes))
             if n==2:
                n=3
@@ -190,7 +188,7 @@ class main:
         # self.plotter.plot_rewards_mse_along_with_different_monitors(monitors_deployment_percentage,total_rewards_mse_list)
         # self.plotter.plot_bar_edge_exploration_training_with_increasing_monitor(monitors_deployment_percentage, explored_edges_rate)
         self.plotter.plot_edge_computed_rate_during_training(monitors_deployment_percentage, average_computed_edge_rate_during_training)
-        return optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, total_edge_mse_list_with_increasing_monitors, total_optimal_edges_mse_list_with_increasing_monitors, monitors_deployment_percentage, average_probing_links_origin_list, average_probing_links_reduced_list, rate_of_optimal_actions_list_with_increasing_monitors,  path_oscilation_list_with_increasing_monitors, traffic_overhead_every_200_iterations_with_increasing_monitors
+        return optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list, total_edge_mse_list_with_increasing_monitors, total_optimal_edges_mse_list_with_increasing_monitors, average_probing_links_origin_list, average_probing_links_reduced_list, rate_of_optimal_actions_list_with_increasing_monitors,  path_oscilation_list_with_increasing_monitors, traffic_overhead_every_200_iterations_with_increasing_monitors
 
     def plot_edge_computed_rate_bar_with_different_topology_size(self):
         self.plotter.plot_edge_computed_rate_with_different_topology_size()
@@ -290,17 +288,18 @@ multi_times_optimal_path_selected_percentage_list=[]
 multi_times_avg_diff_of_delay_from_optimal_list=[]
 n=num_run
 i=0
-mynetwork=main(3000)
+mynetwork=main(1400)
 G =mynetwork.creat_topology(topo_type, num_node, degree)
 #mynetwork.plot_final_result(mynetwork)
 #mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"mse_results/links_delay_during_training_with_different_monitor_size_total.txt")
 
 path_osc_dir=mynetwork.directory+'path_oscillation/'
 os.mkdir(path_osc_dir)
+monitors_deployment_percentage=[60, 70, 80, 90, 100]
 while(i<n):
     #mynetwork=main(3000)
     #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors, total_optimal_edges_mse_list_with_increasing_monitors,monitors_deployment_percentage, average_probing_links_origin_list, average_probing_links_reduced_list, rate_of_optimal_actions_list_with_increasing_monitors,  path_oscilation_list_with_increasing_monitors, traffic_overhead_every_200_iterations_with_increasing_monitors = mynetwork.bound_NT_path_selection_increasing_monitors(G,topo_type,len(G.nodes),degree)
+    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors, total_optimal_edges_mse_list_with_increasing_monitors, average_probing_links_origin_list, average_probing_links_reduced_list, rate_of_optimal_actions_list_with_increasing_monitors,  path_oscilation_list_with_increasing_monitors, traffic_overhead_every_200_iterations_with_increasing_monitors = mynetwork.bound_NT_path_selection_increasing_monitors(G,topo_type,len(G.nodes),degree, monitors_deployment_percentage)
     np.savetxt(path_osc_dir + '%s.txt' % (i), path_oscilation_list_with_increasing_monitors)
     #print("n=%d" %(i))
     #print(optimal_path_selected_percentage_list,avg_diff_of_delay_from_optimal_list)
