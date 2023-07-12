@@ -191,7 +191,7 @@ class multi_armed_bandit:
             if counter == 0:
                 for monitor_pair in monitor_pair_list:
                     dict_n_paths[monitor_pair] = set()
-            if counter == 200:  # 200 iterations, add the path number to a list
+            if counter == 20:  # 200 iterations, add the path number to a list
                 # iterate the dictionary
                 sum_paths = 0
                 for key in dict_n_paths:
@@ -243,7 +243,7 @@ class multi_armed_bandit:
         traffic_overhead_every_200_iterations.append(avg_200_iteration)
         for monitor_pair in monitor_pair_list:
             count_list=Dict_time_of_optimal_path_selected[monitor_pair]
-            rate=sum(count_list[-1000:])/1000
+            rate=sum(count_list[-300:])/300
             rate_optimal_path_selected.append(rate)
         average_optimal_path_selected_rate = np.average(np.array(rate_optimal_path_selected))
         avg_diff_of_delay_from_optimal = (sum(diff_of_delay_from_optimal_real_time) / len(diff_of_delay_from_optimal_real_time))

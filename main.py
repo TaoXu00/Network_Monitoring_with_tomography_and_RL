@@ -170,7 +170,7 @@ multi_times_avg_path_oscilation_list=[]
 multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors=[]
 n=num_run
 i=0
-mynetwork=main(1400)
+mynetwork=main(298)
 G =mynetwork.creat_topology(topo_type, num_node, degree)
 path_osc_dir=mynetwork.directory+'path_oscillation/'
 os.mkdir(path_osc_dir)
