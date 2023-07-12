@@ -358,7 +358,7 @@ class multi_armed_bandit:
             self.plot_edge_delay_difference_at_different_time_point(G)
         for monitor_pair in monitor_pair_list:
             count_list = Dict_time_of_optimal_path_selected[monitor_pair]
-            rate = sum(count_list[-1000:])/1000
+            rate = sum(count_list[-300:])/300
             rate_optimal_path_selected.append(rate)
         average_optimal_path_selected_rate = np.average(np.array(rate_optimal_path_selected))
         correct_shortest_path_selected_rate_array=np.array(correct_shortest_path_selected_rate)

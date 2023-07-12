@@ -242,7 +242,7 @@ mynetwork=main(3000)
 mynetwork.plot_final_result(mynetwork)
 mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"links_delay_during_training_with_different_monitor_size_total.txt")
 '''
-mynetwork=main(1400)
+mynetwork=main(298)
 G =mynetwork.creat_topology(topo_type, num_node, degree)
 monitors_deployment_percentage=[60, 70, 80, 90, 100]
 while(i<n):
