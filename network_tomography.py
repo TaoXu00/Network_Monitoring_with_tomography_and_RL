@@ -33,9 +33,10 @@ class network_tomography:
         #self.logger.debug("%d links in reduced path list" %(n_links_reduced))
         x_old, count=self.back_substitution(upper_triangular)
         self.logger.info(f"x_old= {x_old}")
-        self.logger.debug(f"path_matrix:{path_matrix}")
+        #self.logger.debug(f"path_matrix:{path_matrix}")
         A=np.array(path_matrix)
         b=np.array(b).T
+        #self.logger.debug(f"b: {b}")
         solution, residuals, rank, s = np.linalg.lstsq(A,b, rcond=None)
         x=solution[:,0]
         count=0
@@ -43,8 +44,11 @@ class network_tomography:
         for i in range(len(x)):
             edge=edges[i]
             diff= abs(x[i]-G[edge[0]][edge[1]]['delay'])
+            self.logger.debug(f"X{i} is {x[i]} and real value is {G[edge[0]][edge[1]]['delay']}")
             if diff <1:
                 count+=1
+            else:
+                x[i]=0
         #self.logger.debug("%d paths in path_matrix" %(len(path_matrix)))
         optimal_probing_paths=self.find_optimal_prob_paths(path_matrix)
         #any_probing_paths=self.find_any_prob_paths(path_matrix)

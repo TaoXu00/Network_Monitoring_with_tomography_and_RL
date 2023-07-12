@@ -139,7 +139,7 @@ class main:
         rate_of_optimal_actions_list_with_increasing_monitors=[]
         path_oscilation_list_with_increasing_monitors=[]
         traffic_overhead_every_200_iterations_with_increasing_monitors = []
-        end_nodes=[]
+        #end_nodes=[]
         for m_p in monitor_pert_list:
         #for m_p in [20, 30]:
             monitors_deployment_percentage.append(m_p)
@@ -154,7 +154,6 @@ class main:
                 monitors = monitors + select
             else:
                 monitors = self.topo.deploy_monitor(G, n, end_nodes)
-            monitors = self.topo.deploy_monitor(G, n, monitors)
             self.logger_main.info("deloy %d pert monitors: %s" % (m_p, monitors))
             #trimedG=mynetwork.topo.trimNetwrok(G, monitors)
             trimedG = G
@@ -260,10 +259,10 @@ class main:
         boundNT_traffic_overhead_std=[2.87539421,  9.99963958, 10.00933721,  1.68800559,  3.9658315]
         #mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_BR_50nodes(monitors_deployment_percentage, subito_op_rate, UCB1_op_rate, subito_perfect_op_rate)
         #mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_BR_50nodes(monitors_deployment_percentage, subito_diff, UCB1_diff, subito_perfect_diff)
-        # mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_line(monitors_deployment_percentage, subito_op_rate,subito_op_rate_std, UCB1_op_rate,UCB1_op_rate_std, subito_perfect_op_rate, subito_perfect_op_rate_std, BoundNT_op_rate, BundNT_op_rate_std, "BR50")
-        # mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_line(monitors_deployment_percentage, subito_diff, subito_diff_std,  UCB1_diff, UCB1_diff_std, subito_perfect_diff, subito_perfect_diff_std, BoundNT_diff, BoundNT_diff_std, "BR50")
+        mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_line(monitors_deployment_percentage, subito_op_rate,subito_op_rate_std, UCB1_op_rate,UCB1_op_rate_std, subito_perfect_op_rate, subito_perfect_op_rate_std, BoundNT_op_rate, BundNT_op_rate_std, "BR50")
+        mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_line(monitors_deployment_percentage, subito_diff, subito_diff_std,  UCB1_diff, UCB1_diff_std, subito_perfect_diff, subito_perfect_diff_std, BoundNT_diff, BoundNT_diff_std, "BR50")
         # mynetwork.plotter.plot_traffic_overhead_monitor_size(monitors_deployment_percentage, subito_NT_traffic_overhead, subito_NT_traffic_overhead_std, boundNT_traffic_overhead,boundNT_traffic_overhead_std, UCB1_traffic_overhead, UCB1_traffic_overhead_std, "BR50")
-        # mynetwork.plot_path_oscillation_BR50()
+        mynetwork.plot_path_oscillation_BR50()
 
         #plot the scalability performance of network size 20, 40, 60, 80 nodes with fixed 30% monitors deployed
         topology_size=[20, 40, 60, 80]
@@ -334,10 +333,86 @@ class main:
         #UCB1_traffic_overhead_std=[3.55635579, 3.59812508, 8.17196001, 9.63812801, 3.0742781]
         UCB1_traffic_overhead_std=[4.82431952, 9.10856858, 18.01807906, 10.47439213,  2.60035666]
 
-        # mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_line(monitors_deployment_percentage,subito_op_rate,subito_op_rate_std, UCB1_op_rate, UCB1_op_rate_std, subito_perfect_op_rate, subito_perfect_op_rate_std,BoundNT_op_rate, BoundNT_op_rate_std,"BTN")
-        # mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_line(monitors_deployment_percentage, subito_diff, subito_diff_std, UCB1_diff, UCB1_diff_std, subito_perfect_diff,subito_perfect_diff_std, BoundNT_diff, BoundNT_diff_std,"BTN")
-        # mynetwork.plotter.plot_traffic_overhead_monitor_size(monitors_deployment_percentage,subito_traffic_overhead,subito_traffic_overhead_std, boundNT_traffic_overhead, boundNT_traffic_overhead_std, UCB1_traffic_overhead, UCB1_traffic_overhead_std, "BTN")
+        mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_line(monitors_deployment_percentage,subito_op_rate,subito_op_rate_std, UCB1_op_rate, UCB1_op_rate_std, subito_perfect_op_rate, subito_perfect_op_rate_std,BoundNT_op_rate, BoundNT_op_rate_std,"BTN")
+        mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_line(monitors_deployment_percentage, subito_diff, subito_diff_std, UCB1_diff, UCB1_diff_std, subito_perfect_diff,subito_perfect_diff_std, BoundNT_diff, BoundNT_diff_std,"BTN")
+        #mynetwork.plotter.plot_traffic_overhead_monitor_size(monitors_deployment_percentage,subito_traffic_overhead,subito_traffic_overhead_std, boundNT_traffic_overhead, boundNT_traffic_overhead_std, UCB1_traffic_overhead, UCB1_traffic_overhead_std, "BTN")
         mynetwork.plot_path_oscillation_BTN()
+
+        # plot the experiments for real infrastructure with background traffic dataset
+        monitors_deployment_percentage = [60, 70, 80, 90, 100]
+        UCB1_op_rate = [0.75854667, 0.78922857, 0.82021429, 0.84372222, 0.87918545]
+        UCB1_op_rate_std = [0.03251421, 0.02328221, 0.03952764, 0.02224307, 0.01842566]
+        subito_perfect_op_rate = [0.99933667, 0.99993571, 0.99994643, 0.99995139, 1]
+        subito_perfect_op_rate_std = [0.00183745, 0.00014465, 0.00016111, 0.00021189, 0]
+        subito_op_rate = [0.98549333, 0.98960952, 0.9999375 , 0.99645278, 1]
+        subito_op_rate_std = [0.02895175, 0.02543533, 0.00027243, 0.01543651, 0]
+        BoundNT_op_rate = [0.73063333, 0.80212857, 0.84673929, 0.89622222, 0.9314]
+        BoundNT_op_rate_std = [3.02247139e-03, 1.33064193e-02,2.38270878e-02, 2.47686674e-02, 1.11022302e-16]
+
+
+        UCB1_diff = [5.97670558, 5.12548035, 4.33209074,  3.57787085, 2.6660592]
+        UCB1_diff_std = [0.95178187,0.59634358,0.74085781,0.40131891, 0.41262554]
+        subito_perfect_diff = [0.00889449, 0.0012855,0.000909, 0.00102495, 0.00023081]
+        subito_perfect_diff_std = [0.02080813, 0.00214353, 0.00150399, 0.00407369, 0.00038691]
+        subito_diff =[0.22581931,0.13732406, 0.00192705, 0.03948959, 0.00028845]
+        subito_diff_std =[5.13821589e-01, 3.62242803e-01, 7.79013518e-03, 1.69989221e-01,4.54388561e-04]
+        BoundNT_diff = [7.16418305, 4.53047573, 3.25391783,  1.86352191, 1.08432175]
+        BoundNT_diff_std = [0.15042113, 0.39031218, 0.7020151,  0.50369672, 0]
+
+
+        subito_traffic_overhead = [14.01314286, 14.12528571, 11.806, 17.4, 14]
+        subito_traffic_overhead_std =[3.27442114, 5.13104993, 2.2249818, 2.57681975, 0]
+        boundNT_traffic_overhead = [24.70307143, 30.95264286, 31.48592857, 32.37321429, 30.91307143]
+        boundNT_traffic_overhead_std = [0.19270021, 1.34264828, 1.57803152, 2.00080227, 0.07279413]
+        UCB1_traffic_overhead = [ 44.12532189, 57.29327611, 71.15221745, 88.30715308, 124.91359084]
+        UCB1_traffic_overhead_std = [0.49701996, 0.40116245, 1.60501788, 1.52586872, 1.04855566]
+
+        # mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_line(monitors_deployment_percentage,subito_op_rate,subito_op_rate_std, UCB1_op_rate, UCB1_op_rate_std, subito_perfect_op_rate, subito_perfect_op_rate_std,BoundNT_op_rate, BoundNT_op_rate_std,"NSF")
+        # mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_line(monitors_deployment_percentage, subito_diff, subito_diff_std, UCB1_diff, UCB1_diff_std, subito_perfect_diff,subito_perfect_diff_std, BoundNT_diff, BoundNT_diff_std,"NSF")
+        # mynetwork.plotter.plot_traffic_overhead_monitor_size(monitors_deployment_percentage,subito_traffic_overhead,subito_traffic_overhead_std, boundNT_traffic_overhead, boundNT_traffic_overhead_std, UCB1_traffic_overhead, UCB1_traffic_overhead_std, "NSF")
+        # mynetwork.plot_path_oscillation_NSF(monitors_deployment_percentage)
+
+        edge_compute_rate=[0.54948571, 0.78311429, 0.85048571, 0.96268571, 1]
+        edge_compute_rate_std=[0.00557223, 0.20122672, 0.07475733, 0.07462857, 0.  ]
+        # mynetwork.plotter.plot_edge_compute_rate_subito(monitors_deployment_percentage, edge_compute_rate, edge_compute_rate_std)
+        # mynetwork.plot_learning_error_of_total_edges_NSF(monitors_deployment_percentage)
+
+        # plot the experiments for real infrastructure with background traffic dataset + real traffic trails
+        monitors_deployment_percentage = [60, 70, 80, 90, 100]
+        UCB1_op_rate = [0.75854667, 0.78922857, 0.82021429, 0.84372222, 0.87918545]
+        UCB1_op_rate_std = [0.03251421, 0.02328221, 0.03952764, 0.02224307, 0.01842566]
+        subito_perfect_op_rate = [0.99933667, 0.99993571, 0.99994643, 0.99995139, 1]
+        subito_perfect_op_rate_std = [0.00183745, 0.00014465, 0.00016111, 0.00021189, 0]
+        subito_op_rate = [0.98549333, 0.98960952, 0.9999375, 0.99645278, 1]
+        subito_op_rate_std = [0.02895175, 0.02543533, 0.00027243, 0.01543651, 0]
+        BoundNT_op_rate = [0.73063333, 0.80212857, 0.84673929, 0.89622222, 0.9314]
+        BoundNT_op_rate_std = [3.02247139e-03, 1.33064193e-02, 2.38270878e-02, 2.47686674e-02, 1.11022302e-16]
+
+        UCB1_diff = [5.97670558, 5.12548035, 4.33209074, 3.57787085, 2.6660592]
+        UCB1_diff_std = [0.95178187, 0.59634358, 0.74085781, 0.40131891, 0.41262554]
+        subito_perfect_diff = [0.00889449, 0.0012855, 0.000909, 0.00102495, 0.00023081]
+        subito_perfect_diff_std = [0.02080813, 0.00214353, 0.00150399, 0.00407369, 0.00038691]
+        subito_diff = [0.22581931, 0.13732406, 0.00192705, 0.03948959, 0.00028845]
+        subito_diff_std = [5.13821589e-01, 3.62242803e-01, 7.79013518e-03, 1.69989221e-01, 4.54388561e-04]
+        BoundNT_diff = [7.16418305, 4.53047573, 3.25391783, 1.86352191, 1.08432175]
+        BoundNT_diff_std = [0.15042113, 0.39031218, 0.7020151, 0.50369672, 0]
+
+        subito_traffic_overhead = [30, 24.6, 20.2, 20.8, 14] #updated
+        subito_traffic_overhead_std = [0, 2.8, 1.6, 2.4, 0.] #updated
+        boundNT_traffic_overhead = [24.70307143, 30.95264286, 31.48592857, 32.37321429, 30.91307143]
+        boundNT_traffic_overhead_std = [0.19270021, 1.34264828, 1.57803152, 2.00080227, 0.07279413]
+        UCB1_traffic_overhead = [44.12532189, 57.29327611, 71.15221745, 88.30715308, 124.91359084]
+        UCB1_traffic_overhead_std = [0.49701996, 0.40116245, 1.60501788, 1.52586872, 1.04855566]
+
+        # mynetwork.plotter.plot_percentage_of_optimal_path_selected_rate_line(monitors_deployment_percentage,subito_op_rate,subito_op_rate_std, UCB1_op_rate, UCB1_op_rate_std, subito_perfect_op_rate, subito_perfect_op_rate_std,BoundNT_op_rate, BoundNT_op_rate_std,"NSF")
+        # mynetwork.plotter.plot_abs_delay_of_optimal_path_selected_from_mean_line(monitors_deployment_percentage, subito_diff, subito_diff_std, UCB1_diff, UCB1_diff_std, subito_perfect_diff,subito_perfect_diff_std, BoundNT_diff, BoundNT_diff_std,"NSF")
+        # mynetwork.plotter.plot_traffic_overhead_monitor_size(monitors_deployment_percentage,subito_traffic_overhead,subito_traffic_overhead_std, boundNT_traffic_overhead, boundNT_traffic_overhead_std, UCB1_traffic_overhead, UCB1_traffic_overhead_std, "NSF")
+        # mynetwork.plot_path_oscillation_NSF(monitors_deployment_percentage)
+
+        edge_compute_rate = [0.54755513, 0.74165868, 0.83216683, 0.95800575, 1. ] #updaed
+        edge_compute_rate_std = [0.00011743, 0.09697993, 0.08391678, 0.08398849, 0 ] #updated
+        mynetwork.plotter.plot_edge_compute_rate_subito(monitors_deployment_percentage, edge_compute_rate, edge_compute_rate_std)
+        #mynetwork.plot_learning_error_of_total_edges_NSF(monitors_deployment_percentage)
     def plot_traffic_overhead_of_subito(self):
         multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors=[]
         multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors.append([23.88, 23.7225, 23.725, 23.6975, 23.799, 23.781666666666666, 23.826428571428572, 23.844375, 23.850555555555555, 23.8665, 23.89727272727273, 23.855, 23.860384615384614, 23.84464285714286, 23.845666666666666])
@@ -375,6 +450,20 @@ class main:
                                                                        "BoundNT_path_oscillation_BTN")
         self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, UCB1, UCB1_std,"UCB1_path_oscillation_BTN")
 
+    def plot_path_oscillation_NSF(self, monitor_pert):
+        BoundNT = np.loadtxt("path_oscillation_NSF/path_osc_avg_boundNT.txt")
+        BoundNT_std = np.loadtxt("path_oscillation_NSF/path_osc_std_boundNT.txt")
+        Subito = np.loadtxt("path_oscillation_NSF/path_osc_avg_subito.txt")
+        Subito_std = np.loadtxt("path_oscillation_NSF/path_osc_std_subito.txt")
+        UCB1 = np.loadtxt("path_oscillation_NSF/path_osc_avg_UCB1.txt")
+        UCB1_std = np.loadtxt("path_oscillation_NSF/path_osc_std_UCB1.txt")
+        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, Subito, Subito_std,
+                                                                       "Subito_path_oscillation_NSF")
+        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, BoundNT, BoundNT_std,
+                                                                       "BoundNT_path_oscillation_NSF")
+        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert, UCB1, UCB1_std,
+                                                                       "UCB1_path_oscillation_NSF")
+
     def calculate_multi_times_serirs_results_avg_std(self, monitors_deployment_percentage, multi_times_total, n, file_dir, filename):
         # calculate the average of mse of the total link delays and the std
         round_monitor_pert = len(monitors_deployment_percentage)
@@ -410,17 +499,28 @@ class main:
         monitors_deployment_percentage = monitor_pert_list
         total_edge_avg_mse_list_with_increasing_monitors = np.loadtxt(self.directory+"total_edge_mse/total_mse_error_avg.txt")
         total_edge_std = np.loadtxt(self.directory+"total_edge_mse/total_mse_error_std.txt")
+        # total_edge_avg_mse_list_with_increasing_monitors = np.loadtxt(
+        #     "mse_results_NSF/total_edge_mse/total_mse_error_avg.txt")
+        # total_edge_std = np.loadtxt("mse_results_NSF/total_edge_mse/total_mse_error_std.txt")
+
         #total_edge_avg_mse_list_with_increasing_monitors = np.loadtxt(
         #    "./temp/5times/total_edge_mse/total_mse_error_avg.txt")
         #total_edge_std = np.loadtxt("./temp/5times/total_edge_mse/total_mse_error_std.txt")
         self.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training(monitors_deployment_percentage,
                                                                                 total_edge_avg_mse_list_with_increasing_monitors,
-                                                                                total_edge_std)
-    def plot_path_oscillation_NSF(self, monitor_pert_list):
-        Subito_avg = np.loadtxt(self.directory+"path_oscillation/path_osc_avg.txt")
-        Subito_std = np.loadtxt(self.directory+"path_oscillation/path_osc_std.txt")
-        self.plotter.plot_avg_path_oscilation_every_200_times_withname(monitor_pert_list, Subito_avg, Subito_std,
-                                                                       "Subito_path_oscillation_NSF")
+                                                                                total_edge_std, "total")
+    #todo
+    def plot_learning_error_of_total_opt_edges_NSF(self, monitor_pert_list):
+        monitors_deployment_percentage = monitor_pert_list
+        total_edge_avg_mse_list_with_increasing_monitors = np.loadtxt(self.directory+"total_opt_edge_mse/total_opt_mse_error_avg.txt")
+        total_edge_std = np.loadtxt(self.directory+"total_opt_edge_mse/total_opt_mse_error_std.txt")
+        #total_edge_avg_mse_list_with_increasing_monitors = np.loadtxt(
+        #    "./temp/5times/total_edge_mse/total_mse_error_avg.txt")
+        #total_edge_std = np.loadtxt("./temp/5times/total_edge_mse/total_mse_error_std.txt")
+        self.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training(monitors_deployment_percentage,
+                                                                                total_edge_avg_mse_list_with_increasing_monitors,
+                                                                                total_edge_std,"opt" )
+
 '''
 argv1: network topology type
 argv2: number of nodes
@@ -444,16 +544,16 @@ n=num_run
 i=0
 
 
-mynetwork=main(1400)
-#mynetwork.plot_final_result(mynetwork)
-
+mynetwork=main(298)
+mynetwork.plot_final_result(mynetwork)
 G =mynetwork.creat_topology(topo_type, num_node, degree)
-
 #mynetwork.plot_path_oscillation_BTN()
 path_osc_dir=mynetwork.directory+'path_oscillation/'
 os.mkdir(path_osc_dir)
 path_total_mse_dir=mynetwork.directory+'total_edge_mse/'
 os.mkdir(path_total_mse_dir)
+path_total_opt_mse_dir=mynetwork.directory+'total_opt_edge_mse/'
+os.mkdir(path_total_opt_mse_dir)
 path_total_computed_edge_dir=mynetwork.directory+'total_computed_edge/'
 os.mkdir(path_total_computed_edge_dir)
 file_list_total_mse=[]
@@ -474,6 +574,7 @@ while(i<n):
     #print(optimal_path_selected_percentage_list,avg_diff_of_delay_from_optimal_list)
     # save the 2D array data to a txt file
     np.savetxt(path_total_mse_dir+'%s.txt' %(i), total_edge_mse_list_with_increasing_monitors)
+    np.savetxt(path_total_opt_mse_dir+ '%s.txt' %(i), total_optimal_edges_mse_list_with_increasing_monitors)
     np.savetxt(path_osc_dir + '%s.txt' %(i), path_oscilation_list_with_increasing_monitors)
     np.savetxt(path_total_computed_edge_dir + '%s.txt' %(i), average_computed_edge_rate_during_training )
     file_list_total_mse.append('%s.txt' %(i))
@@ -481,6 +582,7 @@ while(i<n):
     file_list_compute_edge.append('%s.txt' %(i))
     if i==0:
         multi_times_mse_total_link_delay_array=np.array(total_edge_mse_list_with_increasing_monitors, dtype=float)
+        multi_times_mse_opt_link_delay_array=np.array(total_optimal_edges_mse_list_with_increasing_monitors, dtype=float)
         multi_times_optimal_path_selected_percentage_array=np.array([optimal_path_selected_percentage_list])
         multi_times_avg_diff_of_delay_from_optimal_array=np.array([avg_diff_of_delay_from_optimal_list])
         multi_times_avg_n_probing_links_origin_array=np.array([average_probing_links_origin_list])
@@ -491,7 +593,9 @@ while(i<n):
         multi_times_traffic_overhead_every_200_iterations_with_increasing_monitors = np.array(traffic_overhead_every_200_iterations_with_increasing_monitors)
     else:
         current_mse_arrary=np.array(total_edge_mse_list_with_increasing_monitors)
+        current_opt_mse_arrary=np.array(total_optimal_edges_mse_list_with_increasing_monitors)
         multi_times_mse_total_link_delay_array = np.concatenate((multi_times_mse_total_link_delay_array, current_mse_arrary), axis=0)
+        multi_times_mse_opt_link_delay_array=np.concatenate((multi_times_mse_opt_link_delay_array, current_opt_mse_arrary), axis=0)
         multi_times_avg_diff_of_delay_from_optimal_array=np.append(multi_times_avg_diff_of_delay_from_optimal_array,np.array([avg_diff_of_delay_from_optimal_list]), axis=0)
         multi_times_avg_n_probing_links_origin_array=np.append(multi_times_avg_n_probing_links_origin_array,np.array([average_probing_links_origin_list]), axis=0)
         multi_times_avg_n_probing_links_reduced_array=np.append(multi_times_avg_n_probing_links_reduced_array, np.array([average_probing_links_reduced_list]), axis=0)
@@ -525,6 +629,9 @@ mynetwork.logger_main.info(multi_times_compute_edge_with_increasing_monitors)
 
 #AVG.mse of total edge delays over 3000 times, stored in the file
 multi_times_avg_mse_total_link_delay_array,mutil_time_std_mse_total_links_delay_array =mynetwork.calculate_multi_times_serirs_results_avg_std(monitors_deployment_percentage, multi_times_mse_total_link_delay_array, n, path_total_mse_dir, 'total_mse_error')
+
+##AVG.mse of total opt edge delays over 3000 times, stored in the file
+multi_times_avg_opt_mse_total_link_delay_array,mutil_time_std_opt_mse_total_links_delay_array =mynetwork.calculate_multi_times_serirs_results_avg_std(monitors_deployment_percentage, multi_times_mse_opt_link_delay_array, n, path_total_opt_mse_dir, 'total_opt_mse_error')
 
 #AVG.regret - statistic of avg and std of the regret
 multi_avg_percentage_of_abs_diff_from_optimal=np.average(multi_times_avg_diff_of_delay_from_optimal_array,axis=0)
@@ -564,7 +671,7 @@ mynetwork.logger_main.info (multi_std_percentage_of_compute_edge)
 #statistic for avg and std of path ocsillation stored in the file
 multi_times_avg_path_oscilation_array, multi_times_std_path_oscilation_array=mynetwork.calculate_multi_times_serirs_results_avg_std(monitors_deployment_percentage,multi_times_path_ocilations_with_increasing_monitors, n, path_osc_dir,'path_osc')
 mynetwork.plot_learning_error_of_total_edges_NSF(monitor_pert_list)
-mynetwork.plot_path_oscillation_NSF(monitor_pert_list)
-
+#mynetwork.plot_learning_error_of_total_opt_edges_NSF(monitor_pert_list)
+#mynetwork.plot_path_oscillation_NSF(monitor_pert_list)
 
 

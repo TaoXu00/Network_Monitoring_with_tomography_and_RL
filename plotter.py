@@ -6,7 +6,26 @@ class plotter:
     def __init__(self, directory):
         self.directory= directory
 
-    def plot_total_edge_delay_mse_with_increasing_monitor_training(self, monitors_deployment_percentage, total_edge_avg_mse_list_with_increasing_monitors, total_edge_std):
+    def plot_edge_compute_rate_subito(self, monitors_deployment_percentage, edge_compute_rate, edge_compute_rate_std):
+        x = monitors_deployment_percentage
+        barWidth = 0.25
+        fig = plt.figure()
+        plt.rcParams.update(
+            {'font.size': 25, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
+        colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
+        # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
+        markers = ["s", "^", "*", "p", "X"]
+        bar=np.arange(len(x))
+        plt.bar(bar, edge_compute_rate, yerr=edge_compute_rate_std, width=barWidth,
+                 linewidth=2, capsize=5)
+        plt.xticks(bar,x)
+        plt.xlabel("% of nodes selected as monitors")
+        plt.ylabel("% of identifiable links")
+        plt.savefig(self.directory + "Scability_of_computed_edge_rate.png", bbox_inches="tight")
+        plt.close()
+
+
+    def plot_total_edge_delay_mse_with_increasing_monitor_training(self, monitors_deployment_percentage, total_edge_avg_mse_list_with_increasing_monitors, total_edge_std, name):
         #labels = ["10%", "20%", "30%", "40%", "50%"]
         labels=[]
         for per in monitors_deployment_percentage:
@@ -15,14 +34,13 @@ class plotter:
         #xticks=[0,500,1000,1500, 2000, 2500,3000]
         #yticks=[2, 4, 6, 8, 10, 12]
         #x = range(len(total_edge_avg_mse_list_with_increasing_monitors[0]))
-        x=range(500)
-        fig = plt.figure(figsize=(12,9))
+        x=range(len(total_edge_avg_mse_list_with_increasing_monitors[0]))
+        fig = plt.figure()
         plt.rcParams.update(
-            {'font.size': 25, 'xtick.labelsize': 'large', 'ytick.labelsize': 'large', 'axes.titlesize': 'x-large'})
-        #plt.rcParams.update({'font.size': 13})
-
-        colors = ['cornflowerblue', 'goldenrod','forestgreen', 'firebrick',   'darkmagenta']
-        linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
+            {'font.size': 25, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
+        plt.grid(True)
+        colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
+        # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
         markers = ["s", "^", "*", "p", "X"]
         print(total_edge_avg_mse_list_with_increasing_monitors.shape)
         if len(monitors_deployment_percentage) ==1:
@@ -32,7 +50,11 @@ class plotter:
                          errorevery=100)
         else:
             for i in range(len(total_edge_avg_mse_list_with_increasing_monitors)):
-                  plt.errorbar(x, total_edge_avg_mse_list_with_increasing_monitors[i][:500], yerr= total_edge_std[i][:500],label=labels[i], color=colors[i],
+                  print("edge_avg_mse_list:")
+                  print(len(total_edge_avg_mse_list_with_increasing_monitors[i]))
+                  print("edge_std_mse_list")
+                  print(len(total_edge_std[i]))
+                  plt.errorbar(x, total_edge_avg_mse_list_with_increasing_monitors[i], yerr= total_edge_std[i],label=labels[i], color=colors[i],
                           marker=markers[i], linewidth=3, markersize=15, capsize=5, elinewidth=1.5, markevery=100, errorevery=100)
         #plt.xticks(xticks)
         #plt.yticks(yticks)
@@ -40,17 +62,20 @@ class plotter:
         plt.ylabel("Learning error (msec)")
         plt.legend(fontsize=13)
         # plt.grid(True)
-        plt.savefig(self.directory + "MSE_of_total_links_delay_with_increasing_monitor_training.png")
+        plt.legend(fontsize=16)
+        plt.savefig(f"{self.directory}+MSE_of_total_links_delay_with_increasing_monitor_training+{name}.png",bbox_inches='tight')
         plt.close()
 
     def plot_percentage_of_optimal_path_selected_rate_line(self,monitors_deployment_percentage, subito_op_rate,subito_op_rate_std, UCB1_op_rate,UCB1_op_rate_std, subito_perfect_op_rate, subito_perfect_op_rate_std, BoundNT_op_rate, BoundNT_op_rate_std, name):
-        x = np.arange(10, 60, 10)
+        x = monitors_deployment_percentage
         if name=="BR50":
             y=[0.4,0.6,0.8]
         if name=="BTN":
             y=[0.4,0.6,0.8,1.0]
+        if name=="NSF":
+            y=[0.7, 0.8,0.9, 1.0]
         fig = plt.figure()
-        plt.rcParams.update({'font.size': 25, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
+        plt.rcParams.update({'font.size': 30, 'xtick.labelsize': 'large', 'ytick.labelsize': 'large', 'axes.titlesize': 'large'})
         plt.grid(True)
         colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
         # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
@@ -67,16 +92,16 @@ class plotter:
         plt.yticks(y)
         plt.xlabel("% of nodes selected as monitors")
         plt.ylabel("Freq. of optimal actions")
-        plt.legend(fontsize=16)
+        plt.legend(fontsize=20) #old 16
         # plt.grid(True)
         plt.savefig(self.directory + "Scability_of Minitor_op_rate_"+name+".png", bbox_inches='tight')
         plt.close()
 
     def plot_abs_delay_of_optimal_path_selected_from_mean_line(self, monitors_deployment_percentage, subito_diff, subito_diff_std,  UCB1_diff, UCB1_diff_std, subito_perfect_diff, subito_perfect_diff_std, BoundNT_diff, BoundNT_diff_std,name):
-        x = np.arange(10, 60, 10)
+        x = monitors_deployment_percentage
         fig = plt.figure()
         plt.grid(True)
-        plt.rcParams.update({'font.size': 25, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
+        plt.rcParams.update({'font.size': 30, 'xtick.labelsize': 'large', 'ytick.labelsize': 'large', 'axes.titlesize': 'large'})
         colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
         # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
         markers = ["s", "^", "*", "p", "X"]
@@ -91,7 +116,7 @@ class plotter:
         plt.xticks(x)
         plt.xlabel("% of nodes selected as monitors")
         plt.ylabel("Avg. regret (msec)")
-        plt.legend(fontsize=16)
+        plt.legend(fontsize=20)
         plt.savefig(self.directory + "Scability_of_Minitor_delay_diff_"+name+".png", bbox_inches = "tight")
         plt.close()
 
@@ -170,10 +195,10 @@ class plotter:
         print("new_avg_with_increasing_monitors column num %d:" % (len(multi_times_avg_path_oscilation_array[0])))
             #multi_times_avg_path_oscilation_array=np.array(multi_times_avg_path_oscilation_array).astype(int)
             #print(multi_times_avg_path_oscilation_array)
-        x = np.arange(200, 1500, 200)
-        #y=[0,3,6,9,12]
+        x = np.arange(200, 3001, 200)
+        y_ticks=[0,3,6,9,12]
         fig = plt.figure()
-        plt.rcParams.update({'font.size': 25, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
+        plt.rcParams.update({'font.size': 30, 'xtick.labelsize': 'large', 'ytick.labelsize': 'large', 'axes.titlesize': 'x-large'})
         plt.rcParams['hatch.linewidth'] = 2
         colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
         # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
@@ -184,10 +209,10 @@ class plotter:
         #plt.ticklabel_format(axis='x', useMathText=True, style='sci', scilimits=(2,2),)
         plt.ylabel(" # of Path oscillation")
         plt.xlabel("time")
-        #plt.xticks(x)
-        #plt.yticks(y)
-        #plt.ylim(0,12.5)
-        plt.legend(fontsize=16)
+        plt.xticks([1000, 2000, 3000])
+        plt.yticks(y_ticks)
+        plt.ylim(0, 13)
+        plt.legend(fontsize=20) #old=16
         plt.grid(True)
         plt.savefig(self.directory + filename+".png", bbox_inches='tight')
         plt.close()

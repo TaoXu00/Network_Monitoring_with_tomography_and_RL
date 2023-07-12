@@ -214,8 +214,8 @@ class multi_armed_bandit:
             else:
                 edge_g=edge
             #as a base line approach, the unindentificable links will be assigned with average delay(total_path_delay/path_length)
-            self.logger.debug(f"{edge_g} is unindentified, update its value with the estimation approach with value:{edge_average_delay_Dict[edge]}")
-            self.Dict_edge_theta[edge_g] = (self.Dict_edge_theta[edge_g] * self.Dict_edge_m[edge_g] + edge_average_delay_Dict[edge]) / (
+            self.logger.debug(f"{edge_g} is unindentified, update its value with the estimation approach with value:{edge_average_delay_Dict[edge_g]}")
+            self.Dict_edge_theta[edge_g] = (self.Dict_edge_theta[edge_g] * self.Dict_edge_m[edge_g] + edge_average_delay_Dict[edge_g]) / (
                     self.Dict_edge_m[edge_g] + 1)
             self.Dict_edge_m[edge_g] = self.Dict_edge_m[edge_g] + 1
             #self.logger.debug("updating %s with average %s" %(edge, edge_average_delay_Dict[edge]))
@@ -337,7 +337,7 @@ class multi_armed_bandit:
                 for monitor_pair in monitor_pair_list:
                     dict_n_paths[monitor_pair] =set()
                     traffic_overhead_in_200_iterations = []
-            if counter==200:  #200 iterations, add the path number to a list
+            if counter==20:  #200 iterations, add the path number to a list
                 #iterate the dictionary
                 sum_paths=0
                 for key in dict_n_paths:
@@ -388,13 +388,13 @@ class multi_armed_bandit:
             edge_average_delay_list_dict={}
             edge_average_delay_dict={}
             b, average_delay_list = self.end_to_end_measurement(G, path_list)
-            for i in range(len(average_delay_list)):
-                for edge in path_list[i]:
-                    if edge not in edge_average_delay_list_dict:
-                        edge_average_delay_list_dict[edge] = []
-                    edge_average_delay_list_dict[edge].append(average_delay_list[i])
-            for edge in edge_average_delay_list_dict:
-                edge_average_delay_dict[edge]=sum(edge_average_delay_list_dict[edge])/len(edge_average_delay_list_dict[edge])
+            # for i in range(len(average_delay_list)):
+            #     for edge in path_list[i]:
+            #         if edge not in edge_average_delay_list_dict:
+            #             edge_average_delay_list_dict[edge] = []
+            #         edge_average_delay_list_dict[edge].append(average_delay_list[i])
+            # for edge in edge_average_delay_list_dict:
+            #     edge_average_delay_dict[edge]=sum(edge_average_delay_list_dict[edge])/len(edge_average_delay_list_dict[edge])
             #self.logger.debug("Dict=%s" %(edge_average_delay_dict))
             # get the explored edge set
             explored_edge_set = []
@@ -404,6 +404,32 @@ class multi_armed_bandit:
                         explored_edge_set.append(edge)
             #call NT as a submoudle
             x, count,n_links_origin,n_links_reduced, n_links_any_probe_path = self.nt.nt_engine(G, path_list, b)
+            edges=list(G.edges)
+            unindent_edges=[]
+            edge_average_delay_list_dict={}
+            for i in range(len(x)):
+                if x[i]==0:
+                    unindent_edges.append(i)
+                    edge_average_delay_list_dict[edges[i]]=[]
+
+            for i in range(len(path_list)):
+                print(b.shape)
+                sum=b[0][i]
+                unident_links=[]
+                for edge in path_list[i]:
+                    if edge not in edges:
+                        edge=(edge[1], edge[0])
+                    if edges.index(edge) not in unindent_edges:
+                        sum-=x[edges.index(edge)]
+                    else:
+                        unident_links.append(edge)
+                for edge in unident_links:
+                    edge_average_delay_list_dict[edge].append(sum/len(unident_links))
+            for edge in edge_average_delay_list_dict:
+                print(f"dict {edge}: {edge_average_delay_list_dict[edge]}")
+                # sum_edge= np.sum(edge_average_delay_list_dict[edge])
+                # edge_num= len(edge_average_delay_list_dict[edge])
+                edge_average_delay_dict[edge]=np.sum(edge_average_delay_list_dict[edge])/len(edge_average_delay_list_dict[edge])
             sum_n_links_origin+=n_links_origin
             sum_n_links_reduced+=n_links_reduced
             sum_n_links_reduced_random+=n_links_any_probe_path
@@ -411,7 +437,7 @@ class multi_armed_bandit:
             counter+=1
             computed_edge_num.append(count)
             # the MBA variables should be updated according to the results computed by the NT.
-            self.update_MBA_variabels_with_NT_test(G, x, explored_edge_set, edge_average_delay_dict)
+            self.update_MBA_variabels_with_NT(G, x, explored_edge_set, edge_average_delay_dict)
             edges = list(G.edges)
             for i in range(len(x)):
                  if self.t==15:
@@ -449,12 +475,13 @@ class multi_armed_bandit:
         self.logger.debug("current traffic overhead list: %s" % (traffic_overhead_every_200_iterations))
         for monitor_pair in monitor_pair_list:
             count_list = Dict_time_of_optimal_path_selected[monitor_pair]
-            rate = sum(count_list[-1000:])/1000
+            #rate = np.sum(count_list[-100:])/100
+            rate = np.sum(count_list[-300:]) / 300
             rate_optimal_path_selected.append(rate)
         average_optimal_path_selected_rate = np.average(np.array(rate_optimal_path_selected))
         correct_shortest_path_selected_rate_array=np.array(correct_shortest_path_selected_rate)
         average_optimal_path_selected_rate_among_monitor_pairs= np.average(np.array(correct_shortest_path_selected_rate_array[-1000:]))
-        avg_diff_of_delay_from_optimal = (sum(diff_of_delay_from_optimal_real_time) / len(diff_of_delay_from_optimal_real_time))
+        avg_diff_of_delay_from_optimal = (np.sum(diff_of_delay_from_optimal_real_time) / len(diff_of_delay_from_optimal_real_time))
         rewards_mse_list=self.compute_rewards_mse(total_rewards_dict, optimal_delay_dict)
         average_regret_list = self.compute_regret(total_rewards_dict, optimal_delay_dict)
         self.plotter.plot_total_edge_delay_mse(total_mse_array)
@@ -500,7 +527,7 @@ class multi_armed_bandit:
         plt.figure()
         plt.plot(np.arange(len(computed_edge_num)),computed_edge_num)
         plt.savefig(self.directory+"edge_count.png", format="PNG")
-        average_computed_edge_num = sum(computed_edge_num) / len(computed_edge_num)
+        average_computed_edge_num = np.sum(computed_edge_num) / len(computed_edge_num)
         average_probing_links_origin=sum_n_links_origin/time
         average_probing_links_reduced=sum_n_links_reduced/time
         average_probing_links_reduced_random=sum_n_links_reduced_random/time
