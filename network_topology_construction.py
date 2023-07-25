@@ -126,7 +126,8 @@ class network_topology:
         elif type=="Bics" or type=="BTN" or type=="Ntt":
             y = np.loadtxt("delay_exponential_samples/scales_%s.txt" % (type))
         elif type=="NSF":
-            y = np.loadtxt("delay_exponential_samples/scales_NSF_1500.txt")
+            #y = np.loadtxt("delay_exponential_samples/scales_NSF_1500.txt")
+            y = np.loadtxt('delay_exponential_samples/scales_NSF_real_trails_1h.txt')
         scales = np.array(y)
         self.logger.debug("Edge delay scales: %s" %(scales))
         i=0
@@ -152,7 +153,8 @@ class network_topology:
         elif type=="Bics" or type=="BTN" or type=="Ntt":
             y= np.loadtxt("delay_exponential_samples/samples_%s.txt" %(type))
         elif type=="NSF":
-            y = np.loadtxt("delay_exponential_samples/samples_NSF_1500.txt")
+            #y = np.loadtxt("delay_exponential_samples/samples_NSF_1500.txt")
+            y = np.loadtxt('delay_exponential_samples/samples_NSF_real_trails_1h.txt', delimiter=',', dtype='float')
         samples=np.array(y)
         for edge in G.edges:
             self.Dict_edge_delay_sample[edge]=[]

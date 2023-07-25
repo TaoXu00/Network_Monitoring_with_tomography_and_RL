@@ -288,7 +288,7 @@ multi_times_optimal_path_selected_percentage_list=[]
 multi_times_avg_diff_of_delay_from_optimal_list=[]
 n=num_run
 i=0
-mynetwork=main(1400)
+mynetwork=main(298)
 G =mynetwork.creat_topology(topo_type, num_node, degree)
 #mynetwork.plot_final_result(mynetwork)
 #mynetwork.plotter.plot_total_edge_delay_mse_with_increasing_monitor_training_from_file([10,20,30,40,50],"mse_results/links_delay_during_training_with_different_monitor_size_total.txt")

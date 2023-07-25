@@ -187,14 +187,14 @@ class bound_NT_path_selection:
                 for monitor_pair in monitor_pair_list:
                     dict_n_paths[monitor_pair] = set()
                     traffic_overhead_in_200_iterations=0
-            if counter == 200:  # 200 iterations, add the path number to a list
+            if counter == 20:  # 200 iterations, add the path number to a list
                 # iterate the dictionary
                 sum_paths = 0
                 for key in dict_n_paths:
                     sum_paths += len(dict_n_paths[key])
                 avg = sum_paths / len(monitor_pair_list)
                 path_oscilation_list.append(avg)
-                avg_200_iteration=traffic_overhead_in_200_iterations/200
+                avg_200_iteration=traffic_overhead_in_200_iterations/20
                 traffic_overhead_every_200_iterations.append(avg_200_iteration)
                 counter = 0
                 for monitor_pair in monitor_pair_list:
@@ -270,7 +270,7 @@ class bound_NT_path_selection:
         self.logger.debug("current traffic overhead list: %s" % (traffic_overhead_every_200_iterations))
         for monitor_pair in monitor_pair_list:
             count_list = Dict_time_of_optimal_path_selected[monitor_pair]
-            rate = sum(count_list[-1000:])/1000
+            rate = sum(count_list[-300:])/300
             rate_optimal_path_selected.append(rate)
         average_optimal_path_selected_rate = np.average(np.array(rate_optimal_path_selected))
         correct_shortest_path_selected_rate_array=np.array(correct_shortest_path_selected_rate)
