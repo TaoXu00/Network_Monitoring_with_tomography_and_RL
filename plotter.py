@@ -6,6 +6,24 @@ class plotter:
     def __init__(self, directory):
         self.directory= directory
 
+    def plot_e2e_delay_every_100_iterations(self, e2e_avg, e2e_std, e2e_dir):
+        plt.figure()
+        # plt.rcParams.update(
+        #     {'font.size': 25, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large', 'axes.titlesize': 'x-large'})
+        # plt.grid(True)
+        colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
+        markers = ["s", "^", "*", "p", "X"]
+        x = np.arange(0, len(e2e_avg) * 100, 100)
+        plt.errorbar(x, e2e_avg, e2e_std, color=colors[0],
+                         marker=markers[0], linewidth=2, markersize=10, capsize=5, elinewidth=1.5, markevery=5,
+                         errorevery=5)
+        xticks=[0,500, 1000, 1500, 2000, 2500, 3000]
+        plt.xlabel("time")
+        plt.ylabel("AVG. e2e delay (msec)")
+        plt.xticks(xticks)
+        plt.savefig('%se2e_path_delay.png' % (e2e_dir), format="PNG")
+        plt.close()
+
     def plot_edge_compute_rate_subito(self, monitors_deployment_percentage, edge_compute_rate, edge_compute_rate_std):
         x = monitors_deployment_percentage
         barWidth = 0.25
@@ -195,24 +213,30 @@ class plotter:
         print("new_avg_with_increasing_monitors column num %d:" % (len(multi_times_avg_path_oscilation_array[0])))
             #multi_times_avg_path_oscilation_array=np.array(multi_times_avg_path_oscilation_array).astype(int)
             #print(multi_times_avg_path_oscilation_array)
-        x = np.arange(200, 3001, 200)
-        y_ticks=[0,3,6,9,12]
+        #x = np.arange(20, 301, 20)
+        x=np.arange(200, 1500, 200)
+        #x=np.arange(len(multi_times_avg_path_oscilation_array[0]))
+        y_ticks=[0,1,2,3]
         fig = plt.figure()
-        plt.rcParams.update({'font.size': 30, 'xtick.labelsize': 'large', 'ytick.labelsize': 'large', 'axes.titlesize': 'x-large'})
+        plt.rcParams.update({'font.size': 25, 'xtick.labelsize': 'large', 'ytick.labelsize': 'large', 'axes.titlesize': 'large'})
         plt.rcParams['hatch.linewidth'] = 2
         colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
         # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
         markers = ["s", "^", "*", "p", "X"]
         for i in range(len(multi_times_avg_path_oscilation_array)):
-            plt.errorbar(x, multi_times_avg_path_oscilation_array[i], yerr= multi_times_std_path_oscilation_array[i], label=labels[i], color=colors[i],
-                     marker=markers[i], linewidth=3, markersize=15, markevery=2, capsize=5, errorevery=2, elinewidth=1.5)
+            # plt.errorbar(x, multi_times_avg_path_oscilation_array[i], yerr= multi_times_std_path_oscilation_array[i], label=labels[i], color=colors[i],
+            #          marker=markers[i], linewidth=3, markersize=15, markevery=2, capsize=5, errorevery=2, elinewidth=1.5)
+            plt.errorbar(x, multi_times_avg_path_oscilation_array[i], yerr=multi_times_std_path_oscilation_array[i],
+                         label=labels[i], color=colors[i],
+                         marker=markers[i], linewidth=3, markersize=15,  capsize=5,
+                         elinewidth=1.5)
         #plt.ticklabel_format(axis='x', useMathText=True, style='sci', scilimits=(2,2),)
         plt.ylabel(" # of Path oscillation")
         plt.xlabel("time")
-        plt.xticks([1000, 2000, 3000])
+        plt.xticks([400, 800, 1200])
         plt.yticks(y_ticks)
-        plt.ylim(0, 13)
-        plt.legend(fontsize=20) #old=16
+        plt.ylim(0, 3.4)
+        plt.legend(fontsize=16) #old=16
         plt.grid(True)
         plt.savefig(self.directory + filename+".png", bbox_inches='tight')
         plt.close()

@@ -27,7 +27,7 @@ class network_tomography:
         self.logger.debug("%d links in the original probing path list" %(n_links_origin))
         #upper_triangular, inds, uninds = self.find_basis(G, path_matrix, b)
         upper_triangular = self.find_basis(G, path_matrix, b)
-        self.logger.debug("upper_triangular: %s" %(upper_triangular))
+        #self.logger.debug("upper_triangular: %s" %(upper_triangular))
         reduced_path_matrix=upper_triangular[:, :-1]
         #n_links_reduced=np.count_nonzero(reduced_path_matrix)
         #self.logger.debug("%d links in reduced path list" %(n_links_reduced))
@@ -44,11 +44,13 @@ class network_tomography:
         for i in range(len(x)):
             edge=edges[i]
             diff= abs(x[i]-G[edge[0]][edge[1]]['delay'])
-            self.logger.debug(f"X{i} is {x[i]} and real value is {G[edge[0]][edge[1]]['delay']}")
-            if diff <1:
+            if x[i]<1**-10:
+                x[i]=0
+            elif diff <1:
                 count+=1
             else:
                 x[i]=0
+            self.logger.debug(f"X{i} is {x[i]} and real value is {G[edge[0]][edge[1]]['delay']}")
         #self.logger.debug("%d paths in path_matrix" %(len(path_matrix)))
         optimal_probing_paths=self.find_optimal_prob_paths(path_matrix)
         #any_probing_paths=self.find_any_prob_paths(path_matrix)
