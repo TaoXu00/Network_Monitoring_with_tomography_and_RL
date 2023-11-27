@@ -314,12 +314,16 @@ class multi_armed_bandit:
         for edge in G.edges:
             dict_inferred_from_real[edge] = []
         e2e_sum_overtime=[]
+
+        dict_edge_in_paths_overtime={}
         for i in range(time):
             ##compute the mse of all the links in the graph during training
             self.logger.info("t= %s" %(self.t))
             total_mse = 0
             total_mse_opt_edges = 0
+
             diff_from_true_mean=[]
+            Dict_edge_in_paths = {}  # the key is the edges and the values are the number paths including this link, and the new_theta = new_theta= theta + #path* E%*theta
             for edge in G.edges:
                 if i==0:
                     dict_theta_along_time[edge]=[self.Dict_edge_theta[edge]]
@@ -329,8 +333,8 @@ class multi_armed_bandit:
                 diff_from_true_mean.append(self.Dict_edge_theta[edge] - G[edge[0]][edge[1]]['delay_mean'])
                 if edge in optimal_links:
                     total_mse_opt_edges+= (self.Dict_edge_theta[edge] - G[edge[0]][edge[1]]['delay_mean']) ** 2
-            # self.logger.debug(f"edges: {G.edges}")
-            # self.logger.debug(f"diff from the delay_mean: {diff_from_true_mean}")
+                #every iteration,the path number should be reset.
+                Dict_edge_in_paths[edge] = 0
             total_mse_array.append(total_mse / len(G.edges))
             total_mse_optimal_edges_array.append(total_mse_opt_edges/len(optimal_links))
             explored_path_list = []
@@ -392,8 +396,6 @@ class multi_armed_bandit:
             edge_average_delay_list_dict={}
             edge_average_delay_dict={}
             b, average_delay_list = self.end_to_end_measurement(G, path_list)
-            #Todo:
-            # see how the end-to-end-measurement looks like by ploting average of b overtime.
             e2e_sum_overtime.append(np.sum(b))
             e2e_sum_overtime_averages_every_100 = []
             for i in range(0, len(e2e_sum_overtime), 100):
@@ -415,6 +417,12 @@ class multi_armed_bandit:
                 for edge in path:
                     if (edge[0], edge[1]) not in explored_edge_set and (edge[1], edge[0]) not in explored_edge_set:
                         explored_edge_set.append(edge)
+                    #count how many times the path
+                    if edge in Dict_edge_in_paths.keys():
+                        key=edge
+                    else:
+                        key=(edge[1], edge[0])
+                    Dict_edge_in_paths[key]=Dict_edge_in_paths[key]+1
             #call NT as a submoudle
             x, count,n_links_origin,n_links_reduced, n_links_any_probe_path = self.nt.nt_engine(G, path_list, b)
             edges=list(G.edges)
@@ -465,10 +473,30 @@ class multi_armed_bandit:
             total_regrets.append(regret)
             '''
             self.t = self.t + 1  # the time slot increase 1
+            #assign the link delay with a new instance drawn from the updated distribution.
             if self.t < time+len(G.edges):
-                self.topo.assign_link_delay(G)
-            #self.plot_edge_delay_difference_at_different_time_point(G)
-
+                #assign a new delay according to the new distribution
+                for edge in G.edges:
+                    # print(f"Dict_edge_delay_sample: {edge} {self.Dict_edge_delay_sample[edge]}")
+                    dynamic_theta=self.Dict_edge_theta[edge] + Dict_edge_in_paths[edge]*0.01*self.Dict_edge_theta[edge]
+                    G[edge[0]][edge[1]]['delay'] = np.random.exponential(scale=dynamic_theta)
+                    if edge not in dict_edge_in_paths_overtime.keys():
+                        link_utility= np.array([Dict_edge_in_paths[edge]])
+                        dict_edge_in_paths_overtime[edge]= link_utility
+                    else:
+                        link_utility=np.append(dict_edge_in_paths_overtime[edge], Dict_edge_in_paths[edge])
+                        dict_edge_in_paths_overtime[edge]=link_utility
+        #compute the average of the last 200 iterations and see the link utility distribution
+        averaged_per_link_utility=[]
+        for edge in G.edges:
+            a=dict_edge_in_paths_overtime[edge]
+            averaged_per_link_utility=np.append(averaged_per_link_utility,np.sum(a[-200:])/200)
+        np.savetxt('averaged_per_link_utility.txt', averaged_per_link_utility)
+        #plot the link utility distribution
+        plt.figure()
+        plt.hist(averaged_per_link_utility,bins=5)
+        plt.savefig(self.directory+'link_utility.png', format='png')
+        #keep track of the number of selected paths in which each link appears.
 
         plt.figure()
         plt.plot(e2e_sum_overtime_averages_every_100)
@@ -479,8 +507,6 @@ class multi_armed_bandit:
         #     plt.plot(np.arange(len(dict_inferred_from_real[key])),dict_inferred_from_real[key])#self.update_MBA_variabels(G,explored_edge_set)
         #     plt.savefig(self.directory+f"{key}_diff_from_real.png", format="png")
         #     #plt.savefig(self.directory+f"{key}_diff_from_real.png", format='png')
-
-
 
         for key in dict_theta_along_time:
             plt.figure()
@@ -524,8 +550,6 @@ class multi_armed_bandit:
         self.edge_exploration_times.append([v for k, v in self.Dict_edge_m.items()])
         self.plotter.plot_edge_exploitation_times_bar_combined(self.edge_exploration_times)
         self.plotter.plot_rate_of_correct_shortest_path(correct_shortest_path_selected_rate)  # implement this function
-
-
         #check how many edges has been explored during the training
         self.logger.debug("training is finished")
         #self.logger.debug("Dict_edge_m values are added to the edge_exploration_times array")
