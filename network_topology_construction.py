@@ -144,8 +144,8 @@ class network_topology:
             y = np.loadtxt("delay_exponential_samples/scales_%s.txt" % (type))
             scales = np.array(y)
         elif type=="NSF":
-            y = np.loadtxt("delay_exponential_samples/scales_%s_1500.txt" % (type))
-            #y = np.loadtxt("delay_exponential_samples/scales_NSF_real_trails_1h.txt")
+            #y = np.loadtxt("delay_exponential_samples/scales_%s_1500.txt" % (type))
+            y = np.loadtxt("delay_exponential_samples/scales_NSF_real_trails_1h.txt")
             scales = np.array(y)
         self.logger.debug("Edge delay scales: %s" %(scales))
         i=0

@@ -581,74 +581,74 @@ file_list_osc_dir=[]
 file_list_compute_edge=[]
 file_list_e2e_delay_every_100_iterations=[]
 monitor_pert_list=[30]
-#
-# while(i<n):
-#     #mynetwork=main(3000)
-#     G =mynetwork.creat_topology(topo_type, num_node, degree)
-#     #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
-#     optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors,\
-#     total_optimal_edges_mse_list_with_increasing_monitors,monitors_deployment_percentage, average_probing_links_origin_list, \
-#     average_probing_links_reduced_list, rate_of_optimal_actions_list_with_increasing_monitors, path_oscilation_list_with_increasing_monitors, \
-#     traffic_overhead_every_200_iterations_with_increasing_monitors, average_computed_edge_rate_during_training, e2e_sum_overtime_averages_every_100_list = \
-#     mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor, monitor_pert_list)
-#
-#     #print("n=%d" %(i))
-#     #print(optimal_path_selected_percentage_list,avg_diff_of_delay_from_optimal_list)
-#     # save the 2D array data to a txt file
-#     np.savetxt(path_total_mse_dir+'%s.txt' %(i), total_edge_mse_list_with_increasing_monitors)
-#     np.savetxt(path_total_opt_mse_dir+ '%s.txt' %(i), total_optimal_edges_mse_list_with_increasing_monitors)
-#     np.savetxt(path_osc_dir + '%s.txt' %(i), path_oscilation_list_with_increasing_monitors)
-#     np.savetxt(path_total_computed_edge_dir + '%s.txt' %(i), average_computed_edge_rate_during_training )
-#     np.savetxt(path_e2e_delay_every_100_iterations + '%s.txt' %(i), e2e_sum_overtime_averages_every_100_list)
-#     file_list_total_mse.append('%s.txt' %(i))
-#     file_list_osc_dir.append('%s.txt' %(i))
-#     file_list_compute_edge.append('%s.txt' %(i))
-#     file_list_e2e_delay_every_100_iterations.append('%s.txt' %(i))
-#     if i==0:
-#         multi_times_mse_total_link_delay_array=np.array(total_edge_mse_list_with_increasing_monitors, dtype=float)
-#         multi_times_mse_opt_link_delay_array=np.array(total_optimal_edges_mse_list_with_increasing_monitors, dtype=float)
-#         multi_times_optimal_path_selected_percentage_array=np.array([optimal_path_selected_percentage_list])
-#         multi_times_avg_diff_of_delay_from_optimal_array=np.array([avg_diff_of_delay_from_optimal_list])
-#         multi_times_avg_n_probing_links_origin_array=np.array([average_probing_links_origin_list])
-#         multi_times_avg_n_probing_links_reduced_array=np.array([average_probing_links_reduced_list])
-#         multi_times_path_ocilations_with_increasing_monitors=np.array(path_oscilation_list_with_increasing_monitors)
-#         multi_times_compute_edge_with_increasing_monitors=np.array([average_computed_edge_rate_during_training])
-#         multi_times_traffic_overhead_every_200_iterations_with_increasing_monitors = np.array(traffic_overhead_every_200_iterations_with_increasing_monitors)
-#         multi_times_e2e_delay_every_100_iterations_wtih_inceasing_monitors=np.array(e2e_sum_overtime_averages_every_100_list, dtype=float)
-#     else:
-#         current_mse_arrary=np.array(total_edge_mse_list_with_increasing_monitors)
-#         current_opt_mse_arrary=np.array(total_optimal_edges_mse_list_with_increasing_monitors)
-#         current_e2e_delay_every_100_iterations = np.array(e2e_sum_overtime_averages_every_100_list)
-#         multi_times_mse_total_link_delay_array = np.concatenate((multi_times_mse_total_link_delay_array, current_mse_arrary), axis=0)
-#         multi_times_mse_opt_link_delay_array=np.concatenate((multi_times_mse_opt_link_delay_array, current_opt_mse_arrary), axis=0)
-#         multi_times_avg_diff_of_delay_from_optimal_array=np.append(multi_times_avg_diff_of_delay_from_optimal_array,np.array([avg_diff_of_delay_from_optimal_list]), axis=0)
-#         multi_times_avg_n_probing_links_origin_array=np.append(multi_times_avg_n_probing_links_origin_array,np.array([average_probing_links_origin_list]), axis=0)
-#         multi_times_avg_n_probing_links_reduced_array=np.append(multi_times_avg_n_probing_links_reduced_array, np.array([average_probing_links_reduced_list]), axis=0)
-#         multi_times_path_ocilations_with_increasing_monitors = np.concatenate((multi_times_path_ocilations_with_increasing_monitors,np.array(path_oscilation_list_with_increasing_monitors)), axis=0)
-#         current_rate_of_optimal_actions_list_with_increasing_monitor_size = np.array(rate_of_optimal_actions_list_with_increasing_monitors)
-#         multi_times_optimal_path_selected_percentage_array=np.append(multi_times_optimal_path_selected_percentage_array, [np.array(optimal_path_selected_percentage_list)], axis=0)
-#         multi_times_traffic_overhead_every_200_iterations_with_increasing_monitors = np.add(multi_times_traffic_overhead_every_200_iterations_with_increasing_monitors, np.array(traffic_overhead_every_200_iterations_with_increasing_monitors))
-#         multi_times_compute_edge_with_increasing_monitors=np.append(multi_times_compute_edge_with_increasing_monitors,[np.array(average_computed_edge_rate_during_training)], axis=0)
-#         multi_times_e2e_delay_every_100_iterations_wtih_inceasing_monitors=np.concatenate(multi_times_e2e_delay_every_100_iterations_wtih_inceasing_monitors,current_e2e_delay_every_100_iterations, axis=0 )
-#     np.savetxt(mynetwork.directory+'optimal_actions.txt', multi_times_optimal_path_selected_percentage_array)
-#     np.savetxt(mynetwork.directory+'avg_regret.txt', multi_times_avg_diff_of_delay_from_optimal_array)
-#     np.savetxt(mynetwork.directory+'monitoring_overhead.txt', multi_times_avg_n_probing_links_reduced_array)
-#     np.savetxt(mynetwork.directory+'optimal_actions.txt', multi_times_optimal_path_selected_percentage_array )
-#     i += 1
-#
-# #multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors=multi_times_traffic_overhead_every_200_iterations_with_increasing_monitors/n
-# #np.savetxt(mynetwork.directory + 'links_delay_during_training_with_different_monitor_size_total.txt', multi_times_avg_mse_total_link_delay_array)
-# #np.savetxt(mynetwork.directory + 'optimal_links_delay_during_training_with_different_monitor_size_total.txt', multi_times_avg_mse_total_optimal_links_delay_array)
-# mynetwork.logger_main.info(f"monitor deployment pert list: {monitor_pert_list}")
-# mynetwork.logger_main.info("Statistics:")
-# mynetwork.logger_main.info("Before average: percentage of the optimal path selected:")
-# mynetwork.logger_main.info(multi_times_optimal_path_selected_percentage_array)
-# mynetwork.logger_main.info("Before average: diff from the real optimal path: ")
-# mynetwork.logger_main.info(multi_times_avg_diff_of_delay_from_optimal_array)
-# mynetwork.logger_main.info("Before average: average probing links in reduced selected path:")
-# mynetwork.logger_main.info(multi_times_avg_n_probing_links_reduced_array)
-# mynetwork.logger_main.info("Before average: # of computed edge:")
-# mynetwork.logger_main.info(multi_times_compute_edge_with_increasing_monitors)
+
+while(i<n):
+    #mynetwork=main(3000)
+    G =mynetwork.creat_topology(topo_type, num_node, degree)
+    #mynetwork.tomography_verification(G,'weight')   #here the assigned delay should be 1, place modify the topo.assign_link_delay() function
+    optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors,\
+    total_optimal_edges_mse_list_with_increasing_monitors,monitors_deployment_percentage, average_probing_links_origin_list, \
+    average_probing_links_reduced_list, rate_of_optimal_actions_list_with_increasing_monitors, path_oscilation_list_with_increasing_monitors, \
+    traffic_overhead_every_200_iterations_with_increasing_monitors, average_computed_edge_rate_during_training, e2e_sum_overtime_averages_every_100_list = \
+    mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor, monitor_pert_list)
+
+    #print("n=%d" %(i))
+    #print(optimal_path_selected_percentage_list,avg_diff_of_delay_from_optimal_list)
+    # save the 2D array data to a txt file
+    np.savetxt(path_total_mse_dir+'%s.txt' %(i), total_edge_mse_list_with_increasing_monitors)
+    np.savetxt(path_total_opt_mse_dir+ '%s.txt' %(i), total_optimal_edges_mse_list_with_increasing_monitors)
+    np.savetxt(path_osc_dir + '%s.txt' %(i), path_oscilation_list_with_increasing_monitors)
+    np.savetxt(path_total_computed_edge_dir + '%s.txt' %(i), average_computed_edge_rate_during_training )
+    np.savetxt(path_e2e_delay_every_100_iterations + '%s.txt' %(i), e2e_sum_overtime_averages_every_100_list)
+    file_list_total_mse.append('%s.txt' %(i))
+    file_list_osc_dir.append('%s.txt' %(i))
+    file_list_compute_edge.append('%s.txt' %(i))
+    file_list_e2e_delay_every_100_iterations.append('%s.txt' %(i))
+    if i==0:
+        multi_times_mse_total_link_delay_array=np.array(total_edge_mse_list_with_increasing_monitors, dtype=float)
+        multi_times_mse_opt_link_delay_array=np.array(total_optimal_edges_mse_list_with_increasing_monitors, dtype=float)
+        multi_times_optimal_path_selected_percentage_array=np.array([optimal_path_selected_percentage_list])
+        multi_times_avg_diff_of_delay_from_optimal_array=np.array([avg_diff_of_delay_from_optimal_list])
+        multi_times_avg_n_probing_links_origin_array=np.array([average_probing_links_origin_list])
+        multi_times_avg_n_probing_links_reduced_array=np.array([average_probing_links_reduced_list])
+        multi_times_path_ocilations_with_increasing_monitors=np.array(path_oscilation_list_with_increasing_monitors)
+        multi_times_compute_edge_with_increasing_monitors=np.array([average_computed_edge_rate_during_training])
+        multi_times_traffic_overhead_every_200_iterations_with_increasing_monitors = np.array(traffic_overhead_every_200_iterations_with_increasing_monitors)
+        multi_times_e2e_delay_every_100_iterations_wtih_inceasing_monitors=np.array(e2e_sum_overtime_averages_every_100_list, dtype=float)
+    else:
+        current_mse_arrary=np.array(total_edge_mse_list_with_increasing_monitors)
+        current_opt_mse_arrary=np.array(total_optimal_edges_mse_list_with_increasing_monitors)
+        current_e2e_delay_every_100_iterations = np.array(e2e_sum_overtime_averages_every_100_list)
+        multi_times_mse_total_link_delay_array = np.concatenate((multi_times_mse_total_link_delay_array, current_mse_arrary), axis=0)
+        multi_times_mse_opt_link_delay_array=np.concatenate((multi_times_mse_opt_link_delay_array, current_opt_mse_arrary), axis=0)
+        multi_times_avg_diff_of_delay_from_optimal_array=np.append(multi_times_avg_diff_of_delay_from_optimal_array,np.array([avg_diff_of_delay_from_optimal_list]), axis=0)
+        multi_times_avg_n_probing_links_origin_array=np.append(multi_times_avg_n_probing_links_origin_array,np.array([average_probing_links_origin_list]), axis=0)
+        multi_times_avg_n_probing_links_reduced_array=np.append(multi_times_avg_n_probing_links_reduced_array, np.array([average_probing_links_reduced_list]), axis=0)
+        multi_times_path_ocilations_with_increasing_monitors = np.concatenate((multi_times_path_ocilations_with_increasing_monitors,np.array(path_oscilation_list_with_increasing_monitors)), axis=0)
+        current_rate_of_optimal_actions_list_with_increasing_monitor_size = np.array(rate_of_optimal_actions_list_with_increasing_monitors)
+        multi_times_optimal_path_selected_percentage_array=np.append(multi_times_optimal_path_selected_percentage_array, [np.array(optimal_path_selected_percentage_list)], axis=0)
+        multi_times_traffic_overhead_every_200_iterations_with_increasing_monitors = np.add(multi_times_traffic_overhead_every_200_iterations_with_increasing_monitors, np.array(traffic_overhead_every_200_iterations_with_increasing_monitors))
+        multi_times_compute_edge_with_increasing_monitors=np.append(multi_times_compute_edge_with_increasing_monitors,[np.array(average_computed_edge_rate_during_training)], axis=0)
+        multi_times_e2e_delay_every_100_iterations_wtih_inceasing_monitors=np.concatenate(multi_times_e2e_delay_every_100_iterations_wtih_inceasing_monitors,current_e2e_delay_every_100_iterations, axis=0 )
+    np.savetxt(mynetwork.directory+'optimal_actions.txt', multi_times_optimal_path_selected_percentage_array)
+    np.savetxt(mynetwork.directory+'avg_regret.txt', multi_times_avg_diff_of_delay_from_optimal_array)
+    np.savetxt(mynetwork.directory+'monitoring_overhead.txt', multi_times_avg_n_probing_links_reduced_array)
+    np.savetxt(mynetwork.directory+'optimal_actions.txt', multi_times_optimal_path_selected_percentage_array )
+    i += 1
+
+#multi_times_avg_traffic_overhead_every_200_iterations_with_increasing_monitors=multi_times_traffic_overhead_every_200_iterations_with_increasing_monitors/n
+#np.savetxt(mynetwork.directory + 'links_delay_during_training_with_different_monitor_size_total.txt', multi_times_avg_mse_total_link_delay_array)
+#np.savetxt(mynetwork.directory + 'optimal_links_delay_during_training_with_different_monitor_size_total.txt', multi_times_avg_mse_total_optimal_links_delay_array)
+mynetwork.logger_main.info(f"monitor deployment pert list: {monitor_pert_list}")
+mynetwork.logger_main.info("Statistics:")
+mynetwork.logger_main.info("Before average: percentage of the optimal path selected:")
+mynetwork.logger_main.info(multi_times_optimal_path_selected_percentage_array)
+mynetwork.logger_main.info("Before average: diff from the real optimal path: ")
+mynetwork.logger_main.info(multi_times_avg_diff_of_delay_from_optimal_array)
+mynetwork.logger_main.info("Before average: average probing links in reduced selected path:")
+mynetwork.logger_main.info(multi_times_avg_n_probing_links_reduced_array)
+mynetwork.logger_main.info("Before average: # of computed edge:")
+mynetwork.logger_main.info(multi_times_compute_edge_with_increasing_monitors)
 #
 # #mynetwork.logger_main.info("Before average: rate of the optimal actions shape: ")
 # #mynetwork.logger_main.info(multi_times_rate_of_optimal_actions_list_with_increasing_monitors.shape)
@@ -701,21 +701,21 @@ monitor_pert_list=[30]
 # #mynetwork.plot_path_oscillation_NSF(monitor_pert_list)
 
 #statistic for avg and std of e2e delay every 100 iterations stored in the file
-e2e_dir="e2e_delay_30_pert_monitor_BR50/"
-files = [file for file in os.listdir(e2e_dir) if not file.startswith('.')]
-print(files)
-# Print the list of files
-i=0
-for file in files:
-    print(file)
-    e2e_delay=np.loadtxt(e2e_dir+file)/105
-    if i==0:
-        multi_times_e2e_delay_every_100_iterations=np.array([e2e_delay])
-    else:
-        np.append(multi_times_e2e_delay_every_100_iterations, e2e_delay)
-e2e_avg=np.mean(multi_times_e2e_delay_every_100_iterations, axis=0)
-e2e_std=np.std(multi_times_e2e_delay_every_100_iterations, axis=0)
-mynetwork.plotter.plot_e2e_delay_every_100_iterations(e2e_avg, e2e_std, e2e_dir)
+# e2e_dir="e2e_delay_30_pert_monitor_BR50/"
+# files = [file for file in os.listdir(e2e_dir) if not file.startswith('.')]
+# print(files)
+# # Print the list of files
+# i=0
+# # for file in files:
+# #     print(file)
+# #     e2e_delay=np.loadtxt(e2e_dir+file)/105
+# #     if i==0:
+# #         multi_times_e2e_delay_every_100_iterations=np.array([e2e_delay])
+# #     else:
+# #         np.append(multi_times_e2e_delay_every_100_iterations, e2e_delay)
+# # e2e_avg=np.mean(multi_times_e2e_delay_every_100_iterations, axis=0)
+# # e2e_std=np.std(multi_times_e2e_delay_every_100_iterations, axis=0)
+# # mynetwork.plotter.plot_e2e_delay_every_100_iterations(e2e_avg, e2e_std, e2e_dir)
 #multi_times_avg_e2e_delay_every_100_iterations, multi_times_std_e2e_delay_every_100_itertions=mynetwork.calculate_multi_times_serirs_results_avg_std(monitors_deployment_percentage,multi_times_e2e_delay_every_100_iterations_wtih_inceasing_monitors, n, path_e2e_delay_every_100_iterations,'e2e_delay')
 
 
