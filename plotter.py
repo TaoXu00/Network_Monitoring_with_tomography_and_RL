@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 import math
@@ -5,6 +7,34 @@ import math
 class plotter:
     def __init__(self, directory):
         self.directory= directory
+    def plot_avg_e2e_delay_BR50_10_50_pert_monitors(self, dir, monitors_deployment_percentage):
+        files = [file for file in os.listdir(dir) if not file.startswith('.')]
+        print(files)
+        for file in files:
+            plot_name = file.split('_')[0]
+            avg_e2e_delay= np.loadtxt(dir+file)
+            labels = []
+            for per in monitors_deployment_percentage:
+                labels.append(str(per) + '%')
+            x = np.arange(0, len(avg_e2e_delay[0]) * 100, 100)
+            fig = plt.figure()
+            # plt.rcParams.update(
+            #     {'font.size': 25, 'xtick.labelsize': 'x-large', 'ytick.labelsize': 'x-large',
+            #      'axes.titlesize': 'x-large'})
+            # plt.grid(True)
+            colors = ['cornflowerblue', 'goldenrod', 'forestgreen', 'firebrick', 'purple']
+            # linestyles = ['dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), 'solid']
+            markers = ["s", "^", "*", "p", "X"]
+            for i in range(len(avg_e2e_delay)):
+                plt.plot(x, avg_e2e_delay[i], label=labels[i], color=colors[i],  linewidth=2)
+            xticks=[0,500, 1000, 1500, 2000, 2500, 3000]
+            plt.xticks(xticks)
+            plt.xlabel("learning time")
+            plt.ylabel("AVG. e2e delay (msec)")
+            #plt.legend(fontsize=16)
+            plt.legend()
+            plt.savefig(f"{dir}{plot_name}.png")
+            plt.close()
 
     def plot_e2e_delay_every_100_iterations(self, e2e_avg, e2e_std, e2e_dir):
         plt.figure()

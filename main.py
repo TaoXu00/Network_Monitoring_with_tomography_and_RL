@@ -87,8 +87,7 @@ class main:
             optimal_delay_dict[monitor_pair]=optimal_delay
         self.logger_main.info(f"optimal paths: {optimal_path_dict}")
         self.logger_main.info(f"optimal delay: {optimal_delay_dict}")
-        rewards_mse_list, selected_shortest_path, expo_count,total_mse_array,total_mse_optimal_edges_array, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal,average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list, traffic_overhead_every_200_iterations, e2e_sum_overtime_averages_every_100 = self.MAB.train_llc(G, self.time,monitor_pair_list, llc_factor)
-
+        rewards_mse_list, selected_shortest_path, expo_count,total_mse_array,total_mse_optimal_edges_array, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal,average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list, traffic_overhead_every_200_iterations, e2e_avg_overtime_averages_every_100, averaged_per_link_utility = self.MAB.train_llc(G, self.time,monitor_pair_list, llc_factor)
         path_dict = {}
         for path in selected_shortest_path:
             p = '-'.join(path)
@@ -97,7 +96,7 @@ class main:
             else:
                 path_dict[p] = 1
         #self.logger_main.info("paths are explored during the training: %s" %(path_dict))
-        return expo_count, total_mse_array, total_mse_optimal_edges_array, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list, traffic_overhead_every_200_iterations, e2e_sum_overtime_averages_every_100
+        return expo_count, total_mse_array, total_mse_optimal_edges_array, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list, traffic_overhead_every_200_iterations, e2e_avg_overtime_averages_every_100, averaged_per_link_utility
 
     def MAB_with_increasing_monitors(self, G, type, node_num, p, llc_factor, monitor_pert_list):
         '''
@@ -121,7 +120,8 @@ class main:
         average_probing_links_origin_list=[]
         average_probing_links_reduced_list=[]
         avg_diff_of_delay_from_optimal_list=[]
-        e2e_sum_overtime_averages_every_100_list=[]
+        e2e_avg_overtime_averages_every_100_list=[]
+        averaged_per_link_utility_list=[]
         degree_list = list(G.degree(list(G.nodes)))
         #it does not make sense to differenciate the end nodes from the internal nodes.
         #trim the node with degree 1
@@ -156,12 +156,17 @@ class main:
                 monitors = monitors + select
             else:
                 monitors = self.topo.deploy_monitor(G, n, end_nodes)
+            monitors=['10', '37', '33', '16', '49', '12', '36', '14', '46', '18', '39', '22', '11', '31', '21']
             self.logger_main.info("deloy %d pert monitors: %s" % (m_p, monitors))
             #trimedG=mynetwork.topo.trimNetwrok(G, monitors)
             trimedG = G
             nx.write_gml(trimedG, "%sGraph_%s_%s.gml" % (self.trimedGraph_Dir, type, str(m_p)))
          ##dfdfdf
-            expo_count, total_mse, total_mse_optimal_edges_array, rewards_mse_list, optimal_delay, edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate, avg_diff_of_delay_from_optimal,average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list, traffic_overhead_every_200_iterations, e2e_sum_overtime_averages_every_100 = self.run_MAB(
+            expo_count, total_mse, total_mse_optimal_edges_array, rewards_mse_list, optimal_delay, \
+            edge_exploration_during_training, average_computed_edge_num, optimal_path_selected_rate,\
+            avg_diff_of_delay_from_optimal,average_probing_links_origin, average_probing_links_reduced,\
+            rate_of_optimal_actions_list, path_oscilation_list, traffic_overhead_every_200_iterations,\
+            e2e_avg_overtime_averages_every_100, averaged_per_link_utility = self.run_MAB(
                 trimedG, monitors, llc_factor)
             monitors_list.append(monitors)
             explored_edges_rate.append(expo_count / len(trimedG.edges))
@@ -177,7 +182,8 @@ class main:
             rate_of_optimal_actions_list_with_increasing_monitors.append(rate_of_optimal_actions_list)
             path_oscilation_list_with_increasing_monitors.append(path_oscilation_list)
             traffic_overhead_every_200_iterations_with_increasing_monitors.append(traffic_overhead_every_200_iterations)
-            e2e_sum_overtime_averages_every_100_list.append(e2e_sum_overtime_averages_every_100)
+            e2e_avg_overtime_averages_every_100_list.append(e2e_avg_overtime_averages_every_100)
+            averaged_per_link_utility_list.append(averaged_per_link_utility)
             self.logger_main.info("edges explored: %f" % (expo_count / len(trimedG.edges)))
             self.logger_main.info("edges computed: %f" % (average_computed_edge_num / len(trimedG.edges)))
             # np.savetxt("mse_with_NT_in_training_node%s.txt" %(len(G.nodes)), np_array_total_mse, delimiter=",")
@@ -198,7 +204,7 @@ class main:
                total_optimal_edges_mse_list_with_increasing_monitors, monitors_deployment_percentage, average_probing_links_origin_list,\
                average_probing_links_reduced_list, rate_of_optimal_actions_list_with_increasing_monitors, \
                path_oscilation_list_with_increasing_monitors, traffic_overhead_every_200_iterations_with_increasing_monitors, \
-               average_computed_edge_rate_during_training, e2e_sum_overtime_averages_every_100_list
+               average_computed_edge_rate_during_training, e2e_avg_overtime_averages_every_100_list, averaged_per_link_utility_list
 
 
     def plot_edge_computed_rate_bar_with_different_topology_size(self):
@@ -574,8 +580,10 @@ path_total_opt_mse_dir=mynetwork.directory+'total_opt_edge_mse/'
 os.mkdir(path_total_opt_mse_dir)
 path_total_computed_edge_dir=mynetwork.directory+'total_computed_edge/'
 os.mkdir(path_total_computed_edge_dir)
-path_e2e_delay_every_100_iterations=mynetwork.directory+'total_e2e_delay/'
+path_e2e_delay_every_100_iterations=mynetwork.directory+'avg_e2e_delay/'
 os.mkdir(path_e2e_delay_every_100_iterations)
+path_averaged_per_link_utility=mynetwork.directory+'averaged_per_link_utility/'
+os.mkdir(path_averaged_per_link_utility)
 file_list_total_mse=[]
 file_list_osc_dir=[]
 file_list_compute_edge=[]
@@ -589,7 +597,7 @@ while(i<n):
     optimal_path_selected_percentage_list, avg_diff_of_delay_from_optimal_list,total_edge_mse_list_with_increasing_monitors,\
     total_optimal_edges_mse_list_with_increasing_monitors,monitors_deployment_percentage, average_probing_links_origin_list, \
     average_probing_links_reduced_list, rate_of_optimal_actions_list_with_increasing_monitors, path_oscilation_list_with_increasing_monitors, \
-    traffic_overhead_every_200_iterations_with_increasing_monitors, average_computed_edge_rate_during_training, e2e_sum_overtime_averages_every_100_list = \
+    traffic_overhead_every_200_iterations_with_increasing_monitors, average_computed_edge_rate_during_training, e2e_sum_overtime_averages_every_100_list, averaged_per_link_utility_list= \
     mynetwork.MAB_with_increasing_monitors(G,topo_type,len(G.nodes),degree, llc_factor, monitor_pert_list)
 
     #print("n=%d" %(i))
@@ -600,6 +608,7 @@ while(i<n):
     np.savetxt(path_osc_dir + '%s.txt' %(i), path_oscilation_list_with_increasing_monitors)
     np.savetxt(path_total_computed_edge_dir + '%s.txt' %(i), average_computed_edge_rate_during_training )
     np.savetxt(path_e2e_delay_every_100_iterations + '%s.txt' %(i), e2e_sum_overtime_averages_every_100_list)
+    np.savetxt(path_averaged_per_link_utility + '%s.txt' %(i), averaged_per_link_utility_list)
     file_list_total_mse.append('%s.txt' %(i))
     file_list_osc_dir.append('%s.txt' %(i))
     file_list_compute_edge.append('%s.txt' %(i))
@@ -700,22 +709,22 @@ mynetwork.logger_main.info (multi_std_percentage_of_compute_edge)
 #mynetwork.plot_learning_error_of_total_opt_edges_NSF(monitor_pert_list)
 #mynetwork.plot_path_oscillation_NSF(monitor_pert_list)
 
-#statistic for avg and std of e2e delay every 100 iterations stored in the file
-e2e_dir="e2e_delay_30_pert_monitor_BR50/"
-files = [file for file in os.listdir(e2e_dir) if not file.startswith('.')]
-print(files)
-# Print the list of files
-i=0
-for file in files:
-    print(file)
-    e2e_delay=np.loadtxt(e2e_dir+file)/105
-    if i==0:
-        multi_times_e2e_delay_every_100_iterations=np.array([e2e_delay])
-    else:
-        np.append(multi_times_e2e_delay_every_100_iterations, e2e_delay)
-e2e_avg=np.mean(multi_times_e2e_delay_every_100_iterations, axis=0)
-e2e_std=np.std(multi_times_e2e_delay_every_100_iterations, axis=0)
-mynetwork.plotter.plot_e2e_delay_every_100_iterations(e2e_avg, e2e_std, e2e_dir)
+# #statistic for avg and std of e2e delay every 100 iterations stored in the file
+# e2e_dir="e2e_delay_30_pert_monitor_BR50/"
+# files = [file for file in os.listdir(e2e_dir) if not file.startswith('.')]
+# print(files)
+# # Print the list of files
+# i=0
+# for file in files:
+#     print(file)
+#     e2e_delay=np.loadtxt(e2e_dir+file)
+#     if i==0:
+#         multi_times_e2e_delay_every_100_iterations=np.array([e2e_delay])
+#     else:
+#         np.append(multi_times_e2e_delay_every_100_iterations, e2e_delay)
+# e2e_avg=np.mean(multi_times_e2e_delay_every_100_iterations, axis=0)
+# e2e_std=np.std(multi_times_e2e_delay_every_100_iterations, axis=0)
+# mynetwork.plotter.plot_e2e_delay_every_100_iterations(e2e_avg, e2e_std, e2e_dir)
 #multi_times_avg_e2e_delay_every_100_iterations, multi_times_std_e2e_delay_every_100_itertions=mynetwork.calculate_multi_times_serirs_results_avg_std(monitors_deployment_percentage,multi_times_e2e_delay_every_100_iterations_wtih_inceasing_monitors, n, path_e2e_delay_every_100_iterations,'e2e_delay')
 
 

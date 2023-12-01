@@ -313,7 +313,7 @@ class multi_armed_bandit:
         dict_inferred_from_real={}
         for edge in G.edges:
             dict_inferred_from_real[edge] = []
-        e2e_sum_overtime=[]
+        e2e_avg_overtime=[]
 
         dict_edge_in_paths_overtime={}
         for i in range(time):
@@ -396,13 +396,8 @@ class multi_armed_bandit:
             edge_average_delay_list_dict={}
             edge_average_delay_dict={}
             b, average_delay_list = self.end_to_end_measurement(G, path_list)
-            e2e_sum_overtime.append(np.sum(b))
-            e2e_sum_overtime_averages_every_100 = []
-            for i in range(0, len(e2e_sum_overtime), 100):
-                subset = e2e_sum_overtime[i:i + 100]
-                if subset:  # Ensure subset is not empty
-                    avg = np.sum(subset) / len(subset)
-                    e2e_sum_overtime_averages_every_100.append(avg)
+            e2e_avg_overtime.append(np.sum(b)/len(b[0]))
+
             # for i in range(len(average_delay_list)):
             #     for edge in path_list[i]:
             #         if edge not in edge_average_delay_list_dict:
@@ -478,7 +473,8 @@ class multi_armed_bandit:
                 #assign a new delay according to the new distribution
                 for edge in G.edges:
                     # print(f"Dict_edge_delay_sample: {edge} {self.Dict_edge_delay_sample[edge]}")
-                    dynamic_theta=self.Dict_edge_theta[edge] + Dict_edge_in_paths[edge]*0.01*self.Dict_edge_theta[edge]
+                    #dynamic_theta=self.Dict_edge_theta[edge] + Dict_edge_in_paths[edge]*0.009*self.Dict_edge_theta[edge]
+                    dynamic_theta = self.Dict_edge_theta[edge] + Dict_edge_in_paths[edge] * 0.008
                     G[edge[0]][edge[1]]['delay'] = np.random.exponential(scale=dynamic_theta)
                     if edge not in dict_edge_in_paths_overtime.keys():
                         link_utility= np.array([Dict_edge_in_paths[edge]])
@@ -486,21 +482,30 @@ class multi_armed_bandit:
                     else:
                         link_utility=np.append(dict_edge_in_paths_overtime[edge], Dict_edge_in_paths[edge])
                         dict_edge_in_paths_overtime[edge]=link_utility
+
         #compute the average of the last 200 iterations and see the link utility distribution
         averaged_per_link_utility=[]
         for edge in G.edges:
             a=dict_edge_in_paths_overtime[edge]
             averaged_per_link_utility=np.append(averaged_per_link_utility,np.sum(a[-200:])/200)
-        np.savetxt('averaged_per_link_utility.txt', averaged_per_link_utility)
+        np.savetxt(self.directory+'averaged_per_link_utility_%d_pair_monitors.txt' %(len(monitor_pair_list)),  averaged_per_link_utility)
         #plot the link utility distribution
         plt.figure()
         plt.hist(averaged_per_link_utility,bins=5)
-        plt.savefig(self.directory+'link_utility.png', format='png')
+        plt.savefig(self.directory+'link_utility_%d_pair_monitors.png' %(len(monitor_pair_list)), format='png')
         #keep track of the number of selected paths in which each link appears.
 
+        #calculating the averaged e2e delay over time
+        e2e_avg_overtime_averages_every_100 = []
+        for i in range(0, len(e2e_avg_overtime), 100):
+            subset = e2e_avg_overtime[i:i + 100]
+            if subset:  # Ensure subset is not empty
+                avg = np.sum(subset) / len(subset)
+                e2e_avg_overtime_averages_every_100.append(avg)
+        np.savetxt(self.directory+'e2e_delay_avg_%d_pair_monitors.txt' %(len(monitor_pair_list)), e2e_avg_overtime_averages_every_100)
         plt.figure()
-        plt.plot(e2e_sum_overtime_averages_every_100)
-        plt.savefig(self.directory+"e2e_delay_sum.png", format='png')
+        plt.plot(e2e_avg_overtime_averages_every_100)
+        plt.savefig(self.directory+"e2e_delay_avg_%d_pair_monitors.png" %len(monitor_pair_list), format='png')
 
         # for key in dict_inferred_from_real:
         #     plt.figure()
@@ -584,7 +589,7 @@ class multi_armed_bandit:
         #compute the last 1000 correct select
         #optimal_path_selected_rate=sum(correct_shortest_path_selected_rate[-1000:])/1000
         #return rewards_mse_list,selected_shortest_path, expo_count, total_mse_array, edge_exploration_during_training, average_computed_edge_num,optimal_path_selected_rate, avg_diff_of_delay_from_optimal
-        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, total_mse_optimal_edges_array,edge_exploration_during_training, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list, traffic_overhead_every_200_iterations, e2e_sum_overtime_averages_every_100
+        return rewards_mse_list, selected_shortest_path, expo_count, total_mse_array, total_mse_optimal_edges_array,edge_exploration_during_training, average_computed_edge_num, average_optimal_path_selected_rate, avg_diff_of_delay_from_optimal, average_probing_links_origin, average_probing_links_reduced, rate_of_optimal_actions_list, path_oscilation_list, traffic_overhead_every_200_iterations, e2e_avg_overtime_averages_every_100, averaged_per_link_utility
     def compute_rewards_mse(self,total_rewards_dict, optimal_delay_dict):
         key_list = list(total_rewards_dict.keys())
         rewards_mse_list = []

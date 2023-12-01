@@ -42,12 +42,12 @@ class network_topology:
             G=nx.read_graphml("topology/ER/er_graph_dot_file_%d_%s.gml" %(n, p))
         elif type=="Barabasi":
 
-            #generate a new graph
-            G = nx.barabasi_albert_graph(n,p)
-            nx.write_gml(G, "topology/BR/br_graph_dot_file_%d_%s.gml" %(n, p))
+            # #generate a new graph
+            # G = nx.barabasi_albert_graph(n,p)
+            # nx.write_gml(G, "topology/BR/br_graph_dot_file_%d_%s.gml" %(n, p))
 
-            # #read the graph from an existing file
-            # G=nx.read_gml("topology/BR/br_graph_dot_file_%d_2.gml" %(n))
+            #read the graph from an existing file
+            G=nx.read_gml("topology/BR/br_graph_dot_file_%d_2.gml" %(n))
         elif type=="Bics":
             G=nx.read_graphml('topology/Topology_Zoo/Bics.graphml')
             #G = nx.read_gml('topology/Topology_Zoo/Graph_Bics_10.gml')
@@ -166,7 +166,7 @@ class network_topology:
         '''
 
         #read samples from an existing file
-        '''
+
         if type== "Barabasi" or type=="ER":
             y = np.loadtxt("delay_exponential_samples/samples_%s_%s_%s.txt" %(type, n, p))
         elif type=="Bics" or type=="BTN" or type=="Ntt":
@@ -202,12 +202,10 @@ class network_topology:
             np.savetxt('delay_exponential_samples/samples_%s_%s_%s.txt' %(type, n, p),n_samples)
         elif type=="Bics" or type=="BTN" or type=="Ntt" or type=="NSF":
             np.savetxt('delay_exponential_samples/samples_%s.txt' % (type), n_samples)
-
         self.logger.info("Draw %d delay examples from exponential distribution for each edge." %(self.time+len(G.edges)))
-
         average = [np.average(self.Dict_edge_delay_sample[edge]) for edge in G.edges]
         self.logger.info("edge delay sample average %s" %(average))
-
+        '''
     def assign_link_delay(self,G):
         '''
         This function assigns the time series delay of each link every second
