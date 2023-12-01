@@ -80,6 +80,7 @@ class main:
         monitor_pair_list = list(combinations(monitors, 2))
         optimal_path_dict={}
         optimal_delay_dict={}
+        monitor_pair_list=['10', '37', '33', '16', '49', '12', '36', '14', '46', '18', '39', '22', '11', '31', '21']
         for monitor_pair in monitor_pair_list:
             optimal_path = nx.shortest_path(G, monitor_pair[0], monitor_pair[1], weight='delay_mean', method='dijkstra')
             optimal_delay= nx.path_weight(G, optimal_path, 'delay_mean')
